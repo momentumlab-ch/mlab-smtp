@@ -2,23 +2,23 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MomentumLab SMTP 1.0.1\n"
+"Project-Id-Version: MomentumLab SMTP 1.0.2\n"
 "Report-Msgid-Bugs-To: https://github.com/momentumlab-ch/mlab-smtp/issues\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-18T07:03:36+00:00\n"
+"POT-Creation-Date: 2026-10-18T07:23:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mlab-smtp\n"
 
 #. Plugin Name of the plugin
 #: mlab-smtp.php
-#: inc/admin.php:64
-#: inc/admin.php:65
-#: inc/admin.php:126
+#: inc/admin.php:66
+#: inc/admin.php:67
+#: inc/admin.php:132
 msgid "MomentumLab SMTP"
 msgstr ""
 
@@ -42,234 +42,250 @@ msgstr ""
 msgid "Dafür fehlt die Berechtigung."
 msgstr ""
 
-#: inc/admin.php:79
+#: inc/admin.php:81
 msgid "Einstellungen"
 msgstr ""
 
-#: inc/admin.php:162
+#: inc/admin.php:120
+msgid "Verlauf der Verbindung:"
+msgstr ""
+
+#: inc/admin.php:168
 msgid "Gespeichert. Leer lassen, um es zu behalten."
 msgstr ""
 
-#: inc/admin.php:204
+#: inc/admin.php:210
 msgid "Absender"
 msgstr ""
 
-#: inc/admin.php:207
+#: inc/admin.php:213
 msgid "Absender-Adresse"
 msgstr ""
 
-#: inc/admin.php:210
+#: inc/admin.php:216
 msgid "Bei Microsoft 365 und Google muss das ein Postfach deines Kontos oder ein erlaubter Alias sein."
 msgstr ""
 
-#: inc/admin.php:213
+#: inc/admin.php:219
 msgid "Absender-Name"
 msgstr ""
 
-#: inc/admin.php:214
+#: inc/admin.php:220
 msgid "Absender erzwingen"
 msgstr ""
 
-#: inc/admin.php:214
+#: inc/admin.php:220
 msgid "Adresse und Name auch dann verwenden, wenn ein anderes Plugin einen anderen setzt."
 msgstr ""
 
-#: inc/admin.php:224
+#: inc/admin.php:230
 msgid "Eigener Mailserver (SMTP)"
 msgstr ""
 
-#: inc/admin.php:225
+#: inc/admin.php:231
 msgid "Microsoft 365"
 msgstr ""
 
-#: inc/admin.php:226
+#: inc/admin.php:232
 msgid "Google (Gmail / Workspace)"
 msgstr ""
 
-#: inc/admin.php:228
+#: inc/admin.php:234
 msgid "Versandart"
 msgstr ""
 
-#: inc/admin.php:246
+#: inc/admin.php:252
 msgid "Server"
 msgstr ""
 
-#: inc/admin.php:249
+#: inc/admin.php:255
 msgid "Port"
 msgstr ""
 
-#: inc/admin.php:252
+#: inc/admin.php:258
 msgid "Üblich: 587 mit STARTTLS, 465 mit SSL."
 msgstr ""
 
-#: inc/admin.php:255
+#: inc/admin.php:261
 msgid "Verschlüsselung"
 msgstr ""
 
-#: inc/admin.php:258
+#: inc/admin.php:264
 msgid "STARTTLS"
 msgstr ""
 
-#: inc/admin.php:259
+#: inc/admin.php:265
 msgid "SSL/TLS"
 msgstr ""
 
-#: inc/admin.php:260
+#: inc/admin.php:266
 msgid "Keine (nicht empfohlen)"
 msgstr ""
 
-#: inc/admin.php:266
+#: inc/admin.php:272
 msgid "Anmeldung"
 msgstr ""
 
-#: inc/admin.php:266
+#: inc/admin.php:272
 msgid "Der Server verlangt Benutzername und Passwort."
 msgstr ""
 
-#: inc/admin.php:267
+#: inc/admin.php:273
 msgid "Benutzername"
 msgstr ""
 
-#: inc/admin.php:270
+#: inc/admin.php:276
 msgid "Passwort"
 msgstr ""
 
-#: inc/admin.php:273
+#: inc/admin.php:279
 msgid "Wird verschlüsselt gespeichert. Alternativ die Konstante MLAB_SMTP_SMTP_PASS in der wp-config.php setzen."
 msgstr ""
 
-#: inc/admin.php:284
+#: inc/admin.php:290
 msgid "In Microsoft Entra eine App registrieren, die Anwendungsberechtigung „Mail.Send“ (Microsoft Graph) hinzufügen und den Administratorzugriff erteilen. Die App kann danach aus Postfächern senden. Beschränke sie mit einer Application Access Policy auf das Absender-Postfach."
 msgstr ""
 
-#: inc/admin.php:286
+#: inc/admin.php:292
 msgid "Verzeichnis-ID (Tenant)"
 msgstr ""
 
-#: inc/admin.php:287
+#: inc/admin.php:293
 msgid "Anwendungs-ID (Client)"
 msgstr ""
 
-#: inc/admin.php:290
+#: inc/admin.php:296
 msgid "Geheimer Clientschlüssel"
 msgstr ""
 
-#: inc/admin.php:293
+#: inc/admin.php:299
 msgid "Der Wert des Schlüssels, nicht seine ID."
 msgstr ""
 
-#: inc/admin.php:304
+#: inc/admin.php:310
 msgid "In der Google Cloud Console ein OAuth-Client vom Typ „Webanwendung“ anlegen, die Gmail API aktivieren und die untenstehende Weiterleitungs-URI eintragen. Danach Client-ID und Secret speichern und das Konto verbinden."
 msgstr ""
 
-#: inc/admin.php:306
+#: inc/admin.php:312
 msgid "Weiterleitungs-URI"
 msgstr ""
 
-#: inc/admin.php:307
+#: inc/admin.php:313
 msgid "Client-ID"
 msgstr ""
 
-#: inc/admin.php:308
+#: inc/admin.php:314
 msgid "Client-Secret"
 msgstr ""
 
-#: inc/admin.php:309
+#: inc/admin.php:315
 msgid "Verbindung"
 msgstr ""
 
-#: inc/admin.php:320
+#: inc/admin.php:326
 msgid "Verbunden."
 msgstr ""
 
-#: inc/admin.php:320
+#: inc/admin.php:326
 msgid "Trennen"
 msgstr ""
 
-#: inc/admin.php:324
+#: inc/admin.php:330
 msgid "Mit Google verbinden"
 msgstr ""
 
-#: inc/admin.php:325
+#: inc/admin.php:331
 msgid "Zuerst Client-ID und Secret speichern."
 msgstr ""
 
-#: inc/admin.php:332
+#: inc/admin.php:338
 msgid "Protokoll"
 msgstr ""
 
-#: inc/admin.php:333
+#: inc/admin.php:339
 msgid "Versand protokollieren"
 msgstr ""
 
-#: inc/admin.php:333
+#: inc/admin.php:339
 msgid "Speichert Empfänger, Betreff und Ergebnis der letzten 50 Nachrichten, nie den Inhalt."
 msgstr ""
 
-#: inc/admin.php:342
-#: inc/admin.php:347
+#: inc/admin.php:348
+#: inc/admin.php:353
 msgid "Testmail senden"
 msgstr ""
 
-#: inc/admin.php:358
+#: inc/admin.php:349
+msgid "Wird gesendet …"
+msgstr ""
+
+#: inc/admin.php:364
 msgid "Bitte eine gültige E-Mail-Adresse eingeben."
 msgstr ""
 
-#. translators: %s: site name
-#: inc/admin.php:368
-#, php-format
-msgid "Testmail von %s"
-msgstr ""
-
-#: inc/admin.php:369
-msgid "Diese Nachricht bestätigt, dass der E-Mail-Versand funktioniert."
-msgstr ""
-
 #. translators: %s: recipient address
-#: inc/admin.php:374
+#: inc/admin.php:371
 #, php-format
 msgid "Die Testmail an %s wurde versendet."
 msgstr ""
 
-#: inc/admin.php:376
-msgid "Unbekannter Fehler."
-msgstr ""
-
 #. translators: %s: error message
-#: inc/admin.php:378
+#: inc/admin.php:374
 #, php-format
 msgid "Der Versand ist fehlgeschlagen: %s"
 msgstr ""
 
-#: inc/admin.php:388
+#: inc/admin.php:386
+msgid "Benutzername oder Passwort stimmen nicht. Bitte beide neu eingeben und speichern."
+msgstr ""
+
+#: inc/admin.php:387
+msgid "Der Mailserver ist nicht erreichbar. Prüfe Server, Port und Verschlüsselung (587 = STARTTLS, 465 = SSL/TLS). Manche Hostings sperren ausgehende SMTP-Verbindungen, dann hilft nur Microsoft 365 oder Google."
+msgstr ""
+
+#. translators: %s: site name
+#: inc/admin.php:418
+#, php-format
+msgid "Testmail von %s"
+msgstr ""
+
+#: inc/admin.php:419
+msgid "Diese Nachricht bestätigt, dass der E-Mail-Versand funktioniert."
+msgstr ""
+
+#: inc/admin.php:427
+msgid "Unbekannter Fehler."
+msgstr ""
+
+#: inc/admin.php:437
 msgid "Letzte Nachrichten"
 msgstr ""
 
-#: inc/admin.php:390
+#: inc/admin.php:439
 msgid "Noch keine Nachrichten."
 msgstr ""
 
-#: inc/admin.php:393
+#: inc/admin.php:442
 msgid "Zeit"
 msgstr ""
 
-#: inc/admin.php:393
+#: inc/admin.php:442
 msgid "Empfänger"
 msgstr ""
 
-#: inc/admin.php:393
+#: inc/admin.php:442
 msgid "Betreff"
 msgstr ""
 
-#: inc/admin.php:393
+#: inc/admin.php:442
 msgid "Ergebnis"
 msgstr ""
 
-#: inc/admin.php:395
+#: inc/admin.php:444
 msgid "Gesendet"
 msgstr ""
 
-#: inc/admin.php:406
+#: inc/admin.php:455
 msgid "Protokoll leeren"
 msgstr ""
 

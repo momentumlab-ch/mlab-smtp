@@ -17,3 +17,17 @@
 	} );
 	update();
 }() );
+
+( function () {
+	'use strict';
+
+	var form = document.querySelector( 'form.mlab-smtp-test' );
+	if ( ! form ) {
+		return;
+	}
+	form.addEventListener( 'submit', function () {
+		var button = form.querySelector( '[type="submit"]' );
+		button.disabled = true;
+		button.value = form.dataset.busy;
+	} );
+}() );

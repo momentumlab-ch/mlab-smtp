@@ -41,7 +41,7 @@ function mlab_smtp_send_m365( string $mime, string $from ) {
 	$response = wp_remote_post(
 		'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $from ) . '/sendMail',
 		array(
-			'timeout' => 20,
+			'timeout' => MLAB_SMTP_TIMEOUT,
 			'headers' => array(
 				'Authorization' => 'Bearer ' . $token,
 				'Content-Type'  => 'text/plain',
