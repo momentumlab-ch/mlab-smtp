@@ -1,6 +1,6 @@
 <?php
 /**
- * Backend: Einstellungsseite unter Einstellungen > MLab SMTP, Testmail und Protokoll.
+ * Backend: Einstellungsseite unter Einstellungen > MomentumLab SMTP, Testmail und Protokoll.
  *
  * @package mlab-smtp
  */
@@ -61,8 +61,8 @@ function mlab_smtp_back(): void {
  */
 function mlab_smtp_add_menu(): void {
 	add_options_page(
-		__( 'MLab SMTP', 'mlab-smtp' ),
-		__( 'MLab SMTP', 'mlab-smtp' ),
+		__( 'MomentumLab SMTP', 'mlab-smtp' ),
+		__( 'MomentumLab SMTP', 'mlab-smtp' ),
 		'manage_options',
 		'mlab-smtp',
 		'mlab_smtp_render_page'
@@ -123,7 +123,7 @@ function mlab_smtp_render_page(): void {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
-	echo '<div class="wrap mlab-smtp"><h1>' . esc_html__( 'MLab SMTP', 'mlab-smtp' ) . '</h1>';
+	echo '<div class="wrap mlab-smtp"><h1>' . esc_html__( 'MomentumLab SMTP', 'mlab-smtp' ) . '</h1>';
 	mlab_smtp_render_flash();
 	echo '<form method="post" action="options.php">';
 	settings_fields( 'mlab_smtp' );
@@ -373,8 +373,9 @@ function mlab_smtp_send_test(): void {
 		/* translators: %s: recipient address */
 		mlab_smtp_flash( 'success', sprintf( __( 'Die Testmail an %s wurde versendet.', 'mlab-smtp' ), $to ) );
 	} else {
+		$reason = $errors ? implode( ' ', $errors ) : __( 'Unbekannter Fehler.', 'mlab-smtp' );
 		/* translators: %s: error message */
-		mlab_smtp_flash( 'error', sprintf( __( 'Der Versand ist fehlgeschlagen: %s', 'mlab-smtp' ), implode( ' ', $errors ) ) );
+		mlab_smtp_flash( 'error', sprintf( __( 'Der Versand ist fehlgeschlagen: %s', 'mlab-smtp' ), $reason ) );
 	}
 	mlab_smtp_back();
 }

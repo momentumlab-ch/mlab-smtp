@@ -1,10 +1,10 @@
-=== MLab SMTP ===
+=== MomentumLab SMTP ===
 Contributors: momentumlab
 Tags: smtp, email, microsoft 365, gmail, mail
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Versendet WordPress-E-Mails über einen eigenen Mailserver (SMTP), Microsoft 365
 
 == Description ==
 
-MLab SMTP ersetzt den unzuverlässigen Standardversand von WordPress. Du wählst eine von drei Versandarten:
+MomentumLab SMTP ersetzt den unzuverlässigen Standardversand von WordPress. Du wählst eine von drei Versandarten:
 
 * **Eigener Mailserver (SMTP):** Server, Port, Verschlüsselung, Benutzername und Passwort.
 * **Microsoft 365:** Versand über die Graph-API mit einer App-Registrierung, ohne Benutzer-Login und ohne SMTP-Passwort.
@@ -26,7 +26,7 @@ Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ la
 
 1. Plugins > Installieren > Plugin hochladen: `mlab-smtp.zip` aus dem neuesten Release wählen.
 2. Plugin aktivieren.
-3. Einstellungen > MLab SMTP öffnen, Versandart wählen und speichern.
+3. Einstellungen > MomentumLab SMTP öffnen, Versandart wählen und speichern.
 4. Testmail senden.
 
 = Microsoft 365 einrichten =
@@ -43,6 +43,10 @@ Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ la
 3. Client-ID und Secret im Plugin speichern und auf „Mit Google verbinden“ klicken.
 
 == Changelog ==
+
+= 1.0.1 =
+* Behoben: Beim ersten Speichern wurden Passwörter und Secrets doppelt verschlüsselt, dadurch schlug der Versand (auch die Testmail) fehl.
+* Der Plugin-Name lautet jetzt „MomentumLab SMTP“.
 
 = 1.0.0 =
 * Erste Version: Versand über SMTP, Microsoft 365 und Google, Testmail, Protokoll.

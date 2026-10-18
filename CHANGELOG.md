@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1
+
+- Behoben: Beim ersten Speichern wurden Passwörter und Secrets doppelt verschlüsselt, dadurch schlug der Versand (auch die Testmail) fehl.
+- Der Plugin-Name lautet jetzt „MomentumLab SMTP“.
+
 ## 1.0.0
 
 - Erste Version.
