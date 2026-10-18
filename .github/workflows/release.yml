@@ -1,0 +1,109 @@
+# Release-Automatik: baut <slug>.zip, sobald main eine Version trägt, die noch kein Release hat.
+# Läuft auch bei einem Tag v*.*.* und von Hand (Actions > Release > Run workflow).
+# Vorlage aus dem Skill wordpress-development. Ins Projekt unter .github/workflows/release.yml kopieren.
+# Der Slug ist der Repo-Name. Die Hauptdatei heisst <slug>.php, bei Themes style.css.
+name: Release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version lesen und prüfen
+        id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLUG: ${{ github.event.repository.name }}
+        run: |
+          set -euo pipefail
+          if [ -f "$SLUG.php" ]; then HEADER="$SLUG.php"; else HEADER="style.css"; fi
+          VERSION=$(grep -m1 -E '^[[:space:]*]*Version:' "$HEADER" | sed 's/.*Version:[[:space:]]*//; s/[[:space:]]*$//')
+          TAG="v$VERSION"
+          if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "$GITHUB_REF_NAME" != "$TAG" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME passt nicht zur Version $VERSION"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if ASSETS=$(gh release view "$TAG" --json assets --jq '.assets[].name' 2>/dev/null); then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            case "$ASSETS" in *"$SLUG.zip"*) echo "skip=true" >> "$GITHUB_OUTPUT" ;; esac
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: ZIP bauen und prüfen
+        if: steps.version.outputs.skip != 'true'
+        env:
+          SLUG: ${{ github.event.repository.name }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          STAGE="$RUNNER_TEMP/stage"
+          mkdir -p "$STAGE/$SLUG"
+          tar --exclude-from=.distignore -cf - . | tar -xf - -C "$STAGE/$SLUG"
+
+          if [ -f "$STAGE/$SLUG/readme.txt" ]; then
+            STABLE=$(grep -m1 -i '^Stable tag:' "$STAGE/$SLUG/readme.txt" | sed 's/^[^:]*:[[:space:]]*//; s/[[:space:]]*$//' || true)
+            if [ "$STABLE" != "$VERSION" ]; then
+              echo "::error::Stable tag in readme.txt ($STABLE) passt nicht zur Version ($VERSION)"
+              exit 1
+            fi
+          fi
+
+          CONSTANT=$(grep -m1 -oE "define\( *'[A-Z_]*_VERSION', *'[^']*'" "$STAGE/$SLUG/$SLUG.php" "$STAGE/$SLUG/functions.php" 2>/dev/null | sed "s/.*'\([^']*\)'$/\1/" | head -n 1 || true)
+          if [ -n "$CONSTANT" ] && [ "$CONSTANT" != "$VERSION" ]; then
+            echo "::error::Versionskonstante ($CONSTANT) passt nicht zur Version ($VERSION)"
+            exit 1
+          fi
+
+          (cd "$STAGE" && zip -qr "$GITHUB_WORKSPACE/$SLUG.zip" "$SLUG")
+          unzip -Z1 "$GITHUB_WORKSPACE/$SLUG.zip" > "$RUNNER_TEMP/zip-list.txt"
+          if grep -qE '(^|/)(wp-config[^/]*\.php|\.env[^/]*)$' "$RUNNER_TEMP/zip-list.txt"; then
+            echo "::error::ZIP enthält eine Konfigurations- oder Secret-Datei (wp-config, .env)"
+            exit 1
+          fi
+          TOP=$(cut -d/ -f1 "$RUNNER_TEMP/zip-list.txt" | sort -u)
+          if [ "$TOP" != "$SLUG" ]; then
+            echo "::error::ZIP hat nicht genau einen Ordner oben namens $SLUG: $TOP"
+            exit 1
+          fi
+
+          SIZE=$(stat -c%s "$GITHUB_WORKSPACE/$SLUG.zip")
+          if [ "$SIZE" -gt 8388608 ]; then
+            echo "::warning::ZIP ist grösser als 8 MB ($SIZE Bytes). Viele Hostings haben dort ein Upload-Limit."
+          fi
+
+      - name: Release anlegen oder ZIP ergänzen
+        if: steps.version.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLUG: ${{ github.event.repository.name }}
+          VERSION: ${{ steps.version.outputs.version }}
+          EXISTS: ${{ steps.version.outputs.exists }}
+        run: |
+          set -euo pipefail
+          TAG="v$VERSION"
+          ZIP="$GITHUB_WORKSPACE/$SLUG.zip"
+          if [ "$EXISTS" = "true" ]; then
+            gh release upload "$TAG" "$ZIP" --clobber
+            exit 0
+          fi
+          awk -v v="$VERSION" '
+            /^## / { if (found) exit; x = $2; gsub(/[][]/, "", x); if (x == v) { found = 1; next } }
+            found' CHANGELOG.md > "$RUNNER_TEMP/notes.md" 2>/dev/null || true
+          [ -s "$RUNNER_TEMP/notes.md" ] || echo "Änderungen: siehe CHANGELOG.md." > "$RUNNER_TEMP/notes.md"
+          gh release create "$TAG" "$ZIP" --target "$GITHUB_SHA" --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md"

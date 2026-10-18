@@ -1,0 +1,12 @@
+.mlab-smtp .mlab-smtp-providers label {
+	display: inline-block;
+	margin-right: 1.5em;
+}
+
+.mlab-smtp .mlab-smtp-panel[hidden] {
+	display: none;
+}
+
+.mlab-smtp .mlab-smtp-panel > .description {
+	max-width: 50em;
+}
