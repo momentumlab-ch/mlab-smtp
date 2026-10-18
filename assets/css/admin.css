@@ -10,3 +10,10 @@
 .mlab-smtp .mlab-smtp-panel > .description {
 	max-width: 50em;
 }
+
+.mlab-smtp .mlab-smtp-debug {
+	max-height: 20em;
+	overflow: auto;
+	white-space: pre-wrap;
+	word-break: break-all;
+}

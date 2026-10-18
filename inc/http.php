@@ -56,7 +56,7 @@ function mlab_smtp_request_token( string $url, array $body ) {
 		wp_remote_post(
 			$url,
 			array(
-				'timeout' => 20,
+				'timeout' => MLAB_SMTP_TIMEOUT,
 				'body'    => $body,
 			)
 		)

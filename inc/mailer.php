@@ -75,14 +75,41 @@ function mlab_smtp_configure_mailer( $phpmailer ): void {
 	$phpmailer->Port        = (int) mlab_smtp_get( 'smtp_port' );
 	$phpmailer->SMTPSecure  = 'none' === $secure ? '' : $secure;
 	$phpmailer->SMTPAutoTLS = 'tls' === $secure;
-	$phpmailer->Timeout     = 20;
-	$phpmailer->SMTPAuth    = (bool) mlab_smtp_get( 'smtp_auth' );
+	$phpmailer->Timeout     = MLAB_SMTP_TIMEOUT;
+	// PHPMailer waits up to 300 seconds for each server reply by default. A silent server (wrong port,
+	// wrong encryption, delayed answer after a wrong password) then blocks the page until the 504.
+	$phpmailer->getSMTPInstance()->Timelimit = MLAB_SMTP_TIMEOUT;
+	$phpmailer->SMTPAuth                     = (bool) mlab_smtp_get( 'smtp_auth' );
 	if ( $phpmailer->SMTPAuth ) {
 		$phpmailer->Username = (string) mlab_smtp_get( 'smtp_user' );
 		$phpmailer->Password = (string) mlab_smtp_get( 'smtp_pass' );
 	}
+	if ( apply_filters( 'mlab_smtp_debug', false ) ) {
+		$phpmailer->SMTPDebug   = 2;
+		$phpmailer->Debugoutput = 'mlab_smtp_debug_output';
+	}
 }
 // phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+/**
+ * Passes one line of the SMTP conversation on, with login data masked.
+ *
+ * @param string $line One debug line from PHPMailer.
+ */
+function mlab_smtp_debug_output( $line ): void {
+	static $secret_expected = false;
+
+	$line = trim( (string) $line );
+	if ( str_starts_with( $line, 'CLIENT -> SERVER: ' ) ) {
+		// After a 334 prompt the client sends user name or password; AUTH PLAIN carries them inline.
+		if ( $secret_expected ) {
+			$line = 'CLIENT -> SERVER: ********';
+		}
+		$line = (string) preg_replace( '/^(CLIENT -> SERVER: AUTH \S+) \S+$/', '$1 ********', $line );
+	}
+	$secret_expected = str_starts_with( $line, 'SERVER -> CLIENT: 334' );
+	do_action( 'mlab_smtp_debug_line', $line );
+}
 
 /**
  * Sender address.

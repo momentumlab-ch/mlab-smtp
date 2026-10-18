@@ -144,7 +144,7 @@ function mlab_smtp_send_google( string $mime ) {
 	$response = wp_remote_post(
 		'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
 		array(
-			'timeout' => 20,
+			'timeout' => MLAB_SMTP_TIMEOUT,
 			'headers' => array(
 				'Authorization' => 'Bearer ' . $token,
 				'Content-Type'  => 'application/json',

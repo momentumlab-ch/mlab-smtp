@@ -36,13 +36,15 @@ function mlab_smtp_page_url(): string {
  *
  * @param string $type    success or error.
  * @param string $message Message text.
+ * @param string $detail  Optional technical detail, shown below the message.
  */
-function mlab_smtp_flash( string $type, string $message ): void {
+function mlab_smtp_flash( string $type, string $message, string $detail = '' ): void {
 	set_transient(
 		'mlab_smtp_flash_' . get_current_user_id(),
 		array(
 			'type'    => $type,
 			'message' => $message,
+			'detail'  => $detail,
 		),
 		60
 	);
@@ -113,7 +115,11 @@ function mlab_smtp_render_flash(): void {
 	}
 	delete_transient( $key );
 	$class = 'success' === $flash['type'] ? 'notice-success' : 'notice-error';
-	printf( '<div class="notice %1$s is-dismissible"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $flash['message'] ) );
+	printf( '<div class="notice %1$s is-dismissible"><p>%2$s</p>', esc_attr( $class ), esc_html( $flash['message'] ) );
+	if ( ! empty( $flash['detail'] ) ) {
+		echo '<p>' . esc_html__( 'Verlauf der Verbindung:', 'mlab-smtp' ) . '</p><pre class="mlab-smtp-debug">' . esc_html( $flash['detail'] ) . '</pre>';
+	}
+	echo '</div>';
 }
 
 /**
@@ -340,7 +346,7 @@ function mlab_smtp_render_log_setting(): void {
 function mlab_smtp_render_test_form(): void {
 	$user = wp_get_current_user();
 	echo '<hr><h2>' . esc_html__( 'Testmail senden', 'mlab-smtp' ) . '</h2>';
-	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+	echo '<form method="post" class="mlab-smtp-test" data-busy="' . esc_attr__( 'Wird gesendet …', 'mlab-smtp' ) . '" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 	echo '<input type="hidden" name="action" value="mlab_smtp_test">';
 	wp_nonce_field( 'mlab_smtp_test' );
 	echo '<p><input type="email" name="to" class="regular-text" required value="' . esc_attr( $user->user_email ) . '"> ';
@@ -359,25 +365,68 @@ function mlab_smtp_send_test(): void {
 		mlab_smtp_back();
 	}
 
-	$errors  = array();
-	$capture = static function ( WP_Error $error ) use ( &$errors ): void {
-		$errors[] = $error->get_error_message();
-	};
-	add_action( 'wp_mail_failed', $capture );
-	/* translators: %s: site name */
-	$subject = sprintf( __( 'Testmail von %s', 'mlab-smtp' ), wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ) );
-	$sent    = wp_mail( $to, $subject, __( 'Diese Nachricht bestätigt, dass der E-Mail-Versand funktioniert.', 'mlab-smtp' ) );
-	remove_action( 'wp_mail_failed', $capture );
-
-	if ( $sent ) {
+	$result = mlab_smtp_run_test( $to );
+	if ( true === $result['sent'] ) {
 		/* translators: %s: recipient address */
 		mlab_smtp_flash( 'success', sprintf( __( 'Die Testmail an %s wurde versendet.', 'mlab-smtp' ), $to ) );
 	} else {
-		$reason = $errors ? implode( ' ', $errors ) : __( 'Unbekannter Fehler.', 'mlab-smtp' );
 		/* translators: %s: error message */
-		mlab_smtp_flash( 'error', sprintf( __( 'Der Versand ist fehlgeschlagen: %s', 'mlab-smtp' ), $reason ) );
+		mlab_smtp_flash( 'error', sprintf( __( 'Der Versand ist fehlgeschlagen: %s', 'mlab-smtp' ), $result['error'] ), $result['debug'] );
 	}
 	mlab_smtp_back();
+}
+
+/**
+ * Adds a hint on what to check for the most common SMTP errors.
+ *
+ * @param string $error Error message of the mailer.
+ */
+function mlab_smtp_explain_error( string $error ): string {
+	$hints = array(
+		'authenticate' => __( 'Benutzername oder Passwort stimmen nicht. Bitte beide neu eingeben und speichern.', 'mlab-smtp' ),
+		'connect'      => __( 'Der Mailserver ist nicht erreichbar. Prüfe Server, Port und Verschlüsselung (587 = STARTTLS, 465 = SSL/TLS). Manche Hostings sperren ausgehende SMTP-Verbindungen, dann hilft nur Microsoft 365 oder Google.', 'mlab-smtp' ),
+	);
+	foreach ( $hints as $needle => $hint ) {
+		if ( false !== stripos( $error, $needle ) ) {
+			return rtrim( $error, '. ' ) . '. ' . $hint;
+		}
+	}
+	return $error;
+}
+
+/**
+ * Sends one test mail and collects the error and the last lines of the SMTP conversation.
+ * There is exactly one attempt: a failure is reported right away instead of being retried.
+ *
+ * @param string $to Recipient.
+ * @return array{sent:bool, error:string, debug:string}
+ */
+function mlab_smtp_run_test( string $to ): array {
+	$errors  = array();
+	$lines   = array();
+	$capture = static function ( WP_Error $error ) use ( &$errors ): void {
+		$errors[] = $error->get_error_message();
+	};
+	$collect = static function ( string $line ) use ( &$lines ): void {
+		$lines[] = $line;
+	};
+	add_action( 'wp_mail_failed', $capture );
+	add_action( 'mlab_smtp_debug_line', $collect );
+	add_filter( 'mlab_smtp_debug', '__return_true' );
+
+	/* translators: %s: site name */
+	$subject = sprintf( __( 'Testmail von %s', 'mlab-smtp' ), wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ) );
+	$sent    = wp_mail( $to, $subject, __( 'Diese Nachricht bestätigt, dass der E-Mail-Versand funktioniert.', 'mlab-smtp' ) );
+
+	remove_filter( 'mlab_smtp_debug', '__return_true' );
+	remove_action( 'mlab_smtp_debug_line', $collect );
+	remove_action( 'wp_mail_failed', $capture );
+
+	return array(
+		'sent'  => $sent,
+		'error' => mlab_smtp_explain_error( $errors ? implode( ' ', $errors ) : __( 'Unbekannter Fehler.', 'mlab-smtp' ) ),
+		'debug' => implode( "\n", array_slice( $lines, -15 ) ),
+	);
 }
 
 /**
