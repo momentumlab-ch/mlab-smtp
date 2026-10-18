@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+PHPCS-Konfiguration für ein WordPress-Plugin oder -Theme.
+Platzhalter: mlab-smtp durch die Textdomain des Projekts ersetzen (meist der Slug).
+Aufruf: vendor/bin/phpcs  (oder phpcs, wenn global installiert)
+-->
+<ruleset name="mlab-smtp">
+	<description>WordPress Coding Standards für mlab-smtp.</description>
+
+	<file>.</file>
+	<exclude-pattern>lib/*</exclude-pattern>
+	<exclude-pattern>vendor/*</exclude-pattern>
+	<exclude-pattern>node_modules/*</exclude-pattern>
+	<exclude-pattern>tests/*</exclude-pattern>
+
+	<arg name="extensions" value="php" />
+	<arg name="colors" />
+	<arg name="parallel" value="8" />
+
+	<config name="testVersion" value="8.0-" />
+	<config name="minimum_supported_wp_version" value="6.4" />
+
+	<rule ref="WordPress" />
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array" value="mlab-smtp" />
+		</properties>
+	</rule>
+</ruleset>

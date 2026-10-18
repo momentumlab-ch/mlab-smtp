@@ -1,0 +1,16 @@
+.git
+.github
+.gitignore
+.distignore
+node_modules
+tests
+phpcs.xml.dist
+composer.json
+composer.lock
+package.json
+package-lock.json
+.env
+.env.*
+wp-config.php
+*.log
+*.map
