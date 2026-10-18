@@ -31,6 +31,15 @@ function mlab_smtp_encrypt( string $plain ): string {
 }
 
 /**
+ * True when the value is already a ciphertext of this site.
+ *
+ * @param string $value Value to check.
+ */
+function mlab_smtp_is_encrypted( string $value ): bool {
+	return str_starts_with( $value, MLAB_SMTP_CIPHER_PREFIX ) && '' !== mlab_smtp_decrypt( $value );
+}
+
+/**
  * Decrypts a stored value. Values without the prefix are returned unchanged. A value that no longer
  * decrypts (for example after the salts changed) returns an empty string.
  *

@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: MLab SMTP
+ * Plugin Name: MomentumLab SMTP
  * Description: Versendet WordPress-E-Mails über einen eigenen Mailserver (SMTP), Microsoft 365 oder Google.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: MomentumLab
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MLAB_SMTP_VERSION', '1.0.0' );
+define( 'MLAB_SMTP_VERSION', '1.0.1' );
 define( 'MLAB_SMTP_FILE', __FILE__ );
 define( 'MLAB_SMTP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MLAB_SMTP_URL', plugin_dir_url( __FILE__ ) );

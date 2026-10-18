@@ -140,9 +140,11 @@ function mlab_smtp_sanitize( $input ): array {
 
 	foreach ( array( 'smtp_pass', 'm365_client_secret', 'google_client_secret' ) as $secret ) {
 		$value = trim( (string) ( $input[ $secret ] ?? '' ) );
-		if ( '' !== $value ) {
-			$new[ $secret ] = mlab_smtp_encrypt( $value );
+		if ( '' === $value ) {
+			continue;
 		}
+		// WordPress runs this callback twice on the first save, the second time with the stored result.
+		$new[ $secret ] = mlab_smtp_is_encrypted( $value ) ? $value : mlab_smtp_encrypt( $value );
 	}
 	return $new;
 }
