@@ -97,6 +97,7 @@ state.php (Option `mlab_smtp_state`, autoload=no)
 
 notify.php
 - Bei Fehlschlag (`mlab_smtp_record` mit ok=false): wenn notify_enabled & instant → höchstens 1×/Stunde Mail an notify_email; Versand über Ersatzweg wenn aktiv, sonst Bypass (PHP mail()). Daily-Modus: Cron `mlab_smtp_daily` fasst zusammen.
+- `mlab_smtp_activate(): void` / `mlab_smtp_deactivate(): void` (in notify.php, im Hauptfile registriert): Cron planen bzw. entfernen.
 - Cron `mlab_smtp_daily` (registrieren bei Aktivierung bzw. falls fehlend): Protokoll kürzen (Aufbewahrung), Secret-Ablauf ≤30 Tage → Benachrichtigung (1× pro Schwelle 30/7/1 Tage).
 - Admin-Hinweis (`admin_notices`, nur `manage_options`, nicht auf der Plugin-Seite): nicht eingerichtet (nur auf Dashboard und Plugins-Seite, wegklickbar) / Störung (überall).
 
