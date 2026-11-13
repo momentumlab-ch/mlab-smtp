@@ -57,7 +57,7 @@ log_retention       7|30|90                    default 30
 ```
 Secrets (verschlüsselt): `smtp_pass, fb_smtp_pass, m365_client_secret, google_client_secret, google_refresh_token`.
 
-Migration: Bestehende Installationen mit gesetztem `smtp_host` bzw. M365/Google-Daten gelten als eingerichtet (`setup_done=1`, provider bleibt). `mlab_smtp_maybe_migrate()` auf `admin_init`, gesteuert über Option `mlab_smtp_db_version`.
+Migration: Bestehende Installationen mit gesetztem `smtp_host` bzw. M365/Google-Daten gelten als eingerichtet (`setup_done=1`, provider bleibt). `mlab_smtp_maybe_migrate()` auf `init` (günstiger Versionsvergleich; Konstanten aus wp-config.php zählen mit), gesteuert über Option `mlab_smtp_db_version`.
 
 ## Backend-API (Signaturen sind Vertrag)
 

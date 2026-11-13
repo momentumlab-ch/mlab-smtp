@@ -50,9 +50,15 @@ function mlab_smtp_intercepting(): bool {
 
 /**
  * True when the result of the current mail belongs in the log and the state.
+ * Test mails of the wizard (force flag) while the plugin is not configured, or for a draft provider that
+ * is not the live one, are neither recorded nor notified; they only return their result.
  */
 function mlab_smtp_tracking(): bool {
-	return mlab_smtp_intercepting() && ! mlab_smtp_flag( 'fallback_only' );
+	if ( ! mlab_smtp_intercepting() || mlab_smtp_flag( 'fallback_only' ) ) {
+		return false;
+	}
+	$draft = '' !== mlab_smtp_provider_override() && mlab_smtp_provider_override() !== (string) ( mlab_smtp_get_all()['provider'] ?? '' );
+	return ! ( mlab_smtp_flag( 'force' ) && ( ! mlab_smtp_is_configured() || $draft ) );
 }
 
 /**
@@ -226,7 +232,7 @@ function mlab_smtp_filter_from_name( $name ) {
  */
 function mlab_smtp_dispatch( string $mime, string $from ) {
 	if ( ! is_email( (string) mlab_smtp_get( 'from_email' ) ) ) {
-		return new WP_Error( 'mlab_smtp_no_sender', __( 'Es ist keine Absender-Adresse hinterlegt. Bitte unter «Einstellungen» die Adresse des Postfachs eintragen, aus dem gesendet werden soll.', 'mlab-smtp' ) );
+		return new WP_Error( 'mlab_smtp_no_sender', __( 'Es ist keine Absender-Adresse hinterlegt. Bitte unter «Einstellungen › Absender» die Adresse des Postfachs eintragen, aus dem gesendet werden soll.', 'mlab-smtp' ) );
 	}
 	if ( 'm365' === mlab_smtp_get( 'provider' ) ) {
 		return mlab_smtp_send_m365( $mime, $from );

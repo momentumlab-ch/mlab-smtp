@@ -138,7 +138,7 @@ function mlab_smtp_error_hints(): array {
 		array(
 			'pattern'  => '/\b404\b/',
 			'provider' => 'm365',
-			'hint'     => __( 'Das Postfach der Absender-Adresse existiert in Microsoft 365 nicht. Tragen Sie unter «Einstellungen» die Adresse eines vorhandenen Postfachs ein.', 'mlab-smtp' ),
+			'hint'     => __( 'Das Postfach der Absender-Adresse existiert in Microsoft 365 nicht. Tragen Sie unter «Einstellungen › Absender» die Adresse eines vorhandenen Postfachs ein.', 'mlab-smtp' ),
 		),
 		array(
 			'pattern' => '/\b413\b|zu gross|too large|size limit|message size/i',

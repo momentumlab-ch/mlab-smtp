@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 const MLAB_SMTP_OPTION     = 'mlab_smtp_options';
 const MLAB_SMTP_DB_VERSION = '1.2.0';
 
-add_action( 'admin_init', 'mlab_smtp_maybe_migrate' );
+add_action( 'init', 'mlab_smtp_maybe_migrate' );
 
 /**
  * Keys that are stored encrypted.
@@ -120,6 +120,38 @@ function mlab_smtp_is_locked( string $key ): bool {
 }
 
 /**
+ * Request-scoped provider override: the setup wizard checks and tests the provider it is working on
+ * without switching the live one. A constant in wp-config.php still wins.
+ *
+ * @param string|null $set Provider key, empty string to clear, null to only read.
+ * @return string Current override, empty when none.
+ */
+function mlab_smtp_provider_override( ?string $set = null ): string {
+	static $override = '';
+	if ( null !== $set ) {
+		$override = in_array( $set, mlab_smtp_choices()['provider'], true ) ? $set : '';
+	}
+	return $override;
+}
+
+/**
+ * Runs a callback with the provider override set, and restores the previous override afterwards.
+ *
+ * @param string   $provider Provider key.
+ * @param callable $callback Work to do.
+ * @return mixed Result of the callback.
+ */
+function mlab_smtp_with_provider( string $provider, callable $callback ) {
+	$previous = mlab_smtp_provider_override();
+	mlab_smtp_provider_override( $provider );
+	try {
+		return $callback();
+	} finally {
+		mlab_smtp_provider_override( $previous );
+	}
+}
+
+/**
  * One setting. A constant in wp-config.php wins over the stored value; secrets come back decrypted.
  * A constant with a value outside the allowed choices is ignored in favour of the default.
  *
@@ -134,6 +166,9 @@ function mlab_smtp_get( string $key ) {
 			return $value;
 		}
 		return mlab_smtp_defaults()[ $key ];
+	}
+	if ( 'provider' === $key && '' !== mlab_smtp_provider_override() ) {
+		return mlab_smtp_provider_override();
 	}
 	$value = mlab_smtp_get_all()[ $key ] ?? '';
 	if ( in_array( $key, mlab_smtp_secret_keys(), true ) ) {
@@ -167,10 +202,11 @@ function mlab_smtp_store( array $changes ): void {
 		}
 		$options[ $key ] = in_array( $key, mlab_smtp_secret_keys(), true ) ? mlab_smtp_encrypt( (string) $value ) : $value;
 	}
-	update_option( MLAB_SMTP_OPTION, $options, false );
 	if ( $changed ) {
+		// Before the write: the cached tokens belong to the old credentials.
 		mlab_smtp_clear_tokens();
 	}
+	update_option( MLAB_SMTP_OPTION, $options, false );
 }
 
 /**
@@ -199,6 +235,9 @@ function mlab_smtp_save_fields( array $input, array $keys ): array {
 			continue;
 		}
 		$value = mlab_smtp_sanitize_field( $key, $input[ $key ] ?? null, $defaults[ $key ] );
+		if ( null !== $value && ! is_wp_error( $value ) && mlab_smtp_host_change_denied( $key, $value ) ) {
+			$value = new WP_Error( 'mlab_smtp_host', __( 'Server und Port dürfen auf einer Multisite nur Netzwerk-Administratoren ändern. Der bisherige Wert bleibt erhalten.', 'mlab-smtp' ) );
+		}
 		if ( is_wp_error( $value ) ) {
 			$errors[] = $value->get_error_message();
 		} elseif ( null !== $value ) {
@@ -209,6 +248,29 @@ function mlab_smtp_save_fields( array $input, array $keys ): array {
 		mlab_smtp_store( $changes );
 	}
 	return $errors;
+}
+
+/**
+ * True when a change of a mail server host or port is not allowed for the current user.
+ * On a multisite network a site administrator could otherwise point the server at internal hosts (SSRF).
+ *
+ * @param string     $key   Setting key.
+ * @param string|int $value New value.
+ */
+function mlab_smtp_host_change_denied( string $key, $value ): bool {
+	if ( ! is_multisite() || ! in_array( $key, array( 'smtp_host', 'smtp_port', 'fb_smtp_host', 'fb_smtp_port' ), true ) ) {
+		return false;
+	}
+	if ( (string) mlab_smtp_get( $key ) === (string) $value ) {
+		return false;
+	}
+	/**
+	 * Filters whether the current user may change a mail server host or port on a multisite network.
+	 *
+	 * @param bool   $allowed Default: the user can manage network options.
+	 * @param string $key     Setting key.
+	 */
+	return ! apply_filters( 'mlab_smtp_can_change_host', current_user_can( 'manage_network_options' ), $key );
 }
 
 /**
@@ -303,28 +365,38 @@ function mlab_smtp_required_keys( string $provider ): array {
 }
 
 /**
- * One-time upgrade of data from older versions. Runs on admin_init, controlled by mlab_smtp_db_version.
- * Installations of 1.0.x that already have connection data count as set up.
+ * True when the provider has all its required fields, counting constants from wp-config.php.
+ * A stored secret that can no longer be decrypted counts as present: the problem is reported separately.
+ *
+ * @param string $provider smtp, m365 or google.
+ */
+function mlab_smtp_provider_ready( string $provider ): bool {
+	$keys = mlab_smtp_required_keys( $provider );
+	foreach ( $keys as $key ) {
+		if ( '' === (string) mlab_smtp_get( $key ) && ! mlab_smtp_secret_unreadable( $key ) ) {
+			return false;
+		}
+	}
+	return (bool) $keys;
+}
+
+/**
+ * One-time upgrade of data from older versions. Runs on init (a cheap version compare), controlled by
+ * mlab_smtp_db_version. Installations of 1.0.x that already have connection data count as set up, also
+ * when the data comes from wp-config.php constants only.
  */
 function mlab_smtp_maybe_migrate(): void {
 	if ( version_compare( (string) get_option( 'mlab_smtp_db_version', '0' ), MLAB_SMTP_DB_VERSION, '>=' ) ) {
 		return;
 	}
-	if ( false !== get_option( MLAB_SMTP_OPTION ) ) {
-		$all      = mlab_smtp_get_all();
-		$provider = (string) $all['provider'];
-		$ready    = '' !== $provider && ! array_filter(
-			mlab_smtp_required_keys( $provider ),
-			static function ( string $key ) use ( $all ): bool {
-				return '' === (string) $all[ $key ];
-			}
-		);
-		mlab_smtp_store(
-			array(
-				'provider'   => $ready ? $provider : '',
-				'setup_done' => $ready ? 1 : 0,
-			)
-		);
+	$provider = (string) mlab_smtp_get( 'provider' );
+	$ready    = mlab_smtp_provider_ready( $provider );
+	if ( false !== get_option( MLAB_SMTP_OPTION ) || $ready ) {
+		$changes = array( 'setup_done' => $ready ? 1 : 0 );
+		if ( ! mlab_smtp_is_locked( 'provider' ) ) {
+			$changes['provider'] = $ready ? $provider : '';
+		}
+		mlab_smtp_store( $changes );
 	}
 	mlab_smtp_log_upgrade();
 	mlab_smtp_schedule();

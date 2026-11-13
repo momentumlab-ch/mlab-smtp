@@ -73,7 +73,7 @@ function mlab_smtp_health_connection(): array {
 }
 
 /**
- * Check: stored secrets that can no longer be decrypted (salts changed).
+ * Check: stored secrets that can no longer be decrypted (salts changed) or required fields that are missing.
  *
  * @return array|null Row, null when all secrets are readable.
  */
@@ -82,6 +82,9 @@ function mlab_smtp_health_credentials(): ?array {
 		if ( ! mlab_smtp_is_locked( $key ) && mlab_smtp_secret_unreadable( $key ) ) {
 			return mlab_smtp_health_row( 'bad', __( 'Zugangsdaten nicht lesbar', 'mlab-smtp' ), __( 'Gespeicherte Passwörter oder Schlüssel können nicht mehr entschlüsselt werden, zum Beispiel nach einem Wechsel der WordPress-Schlüssel. Bitte geben Sie sie in den Einstellungen neu ein.', 'mlab-smtp' ), __( 'Einstellungen öffnen', 'mlab-smtp' ), mlab_smtp_health_settings_url() );
 		}
+	}
+	if ( ! mlab_smtp_has_credentials() ) {
+		return mlab_smtp_health_row( 'bad', __( 'Zugangsdaten fehlen', 'mlab-smtp' ), mlab_smtp_credentials_error(), __( 'Assistent öffnen', 'mlab-smtp' ), mlab_smtp_page_url( array( 'view' => 'wizard' ) ) );
 	}
 	return null;
 }

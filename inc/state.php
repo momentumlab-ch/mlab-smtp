@@ -43,10 +43,12 @@ function mlab_smtp_state_set( array $changes ): void {
 }
 
 /**
- * True when the plugin has everything it needs for the chosen provider and the setup was finished.
+ * True when the setup was finished and a provider is chosen. This alone decides whether the plugin takes over
+ * wp_mail(): missing or unreadable credentials must make sending fail visibly instead of silently falling
+ * back to PHP mail(). See mlab_smtp_has_credentials() for the credentials.
  */
 function mlab_smtp_is_configured(): bool {
-	return 1 === (int) mlab_smtp_get( 'setup_done' ) && mlab_smtp_has_credentials();
+	return 1 === (int) mlab_smtp_get( 'setup_done' ) && in_array( mlab_smtp_get( 'provider' ), mlab_smtp_choices()['provider'], true );
 }
 
 /**
@@ -61,6 +63,13 @@ function mlab_smtp_has_credentials(): bool {
 		}
 	}
 	return (bool) $keys;
+}
+
+/**
+ * Error text for credentials that are missing or can no longer be decrypted.
+ */
+function mlab_smtp_credentials_error(): string {
+	return __( 'Zugangsdaten nicht lesbar / fehlen – bitte im Assistenten neu eingeben.', 'mlab-smtp' );
 }
 
 /**
@@ -143,6 +152,16 @@ function mlab_smtp_status(): array {
 				'state' => 'none',
 				'title' => __( 'Noch nicht eingerichtet', 'mlab-smtp' ),
 				'text'  => __( 'WordPress versendet Mails direkt über den Webserver. Starten Sie die Einrichtung, damit sie zuverlässig ankommen.', 'mlab-smtp' ),
+			)
+		);
+	}
+	if ( ! mlab_smtp_has_credentials() ) {
+		return array_merge(
+			$result,
+			array(
+				'state' => 'bad',
+				'title' => __( 'Mails werden nicht zugestellt', 'mlab-smtp' ),
+				'text'  => mlab_smtp_credentials_error(),
 			)
 		);
 	}
