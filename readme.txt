@@ -4,7 +4,7 @@ Tags: smtp, email, microsoft 365, gmail, mail
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.0.2
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,7 +18,7 @@ MomentumLab SMTP ersetzt den unzuverlässigen Standardversand von WordPress. Du 
 * **Microsoft 365:** Versand über die Graph-API mit einer App-Registrierung, ohne Benutzer-Login und ohne SMTP-Passwort.
 * **Google:** Versand über die Gmail-API. Das Konto wird einmalig im Backend verbunden.
 
-Dazu kommen Testmail, Protokoll der letzten 50 Nachrichten (ohne Inhalt) und ein erzwungener Absender.
+Ein Assistent führt in 4 Schritten durch die Einrichtung. Dazu kommen Übersicht mit Gesundheitsprüfung, Ersatzweg über einen zweiten Mailserver, Benachrichtigung bei Fehlern, Testmail und Protokoll (ohne Inhalt).
 
 Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ lassen sich alle Werte mit Konstanten in der `wp-config.php` setzen, z. B. `MLAB_SMTP_SMTP_PASS` oder `MLAB_SMTP_M365_CLIENT_SECRET`.
 
@@ -26,8 +26,8 @@ Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ la
 
 1. Plugins > Installieren > Plugin hochladen: `mlab-smtp.zip` aus dem neuesten Release wählen.
 2. Plugin aktivieren.
-3. Einstellungen > MomentumLab SMTP öffnen, Versandart wählen und speichern.
-4. Testmail senden.
+3. Einstellungen > E-Mail-Versand öffnen und «Einrichtung starten» wählen.
+4. Der Assistent führt durch Anbieter, Verbindung, Absender und Testmail.
 
 = Microsoft 365 einrichten =
 
@@ -40,9 +40,15 @@ Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ la
 
 1. In der Google Cloud Console die Gmail API aktivieren und einen OAuth-Client vom Typ „Webanwendung“ anlegen.
 2. Die im Plugin angezeigte Weiterleitungs-URI als autorisierte Weiterleitungs-URI eintragen.
-3. Client-ID und Secret im Plugin speichern und auf „Mit Google verbinden“ klicken.
+3. Den OAuth-Zustimmungsbildschirm auf «In Produktion» stellen. Im Testmodus läuft der Zugriff nach 7 Tagen ab.
+4. Client-ID und Secret im Assistenten eintragen und «Mit Google anmelden» wählen.
 
 == Changelog ==
+
+= 1.2.0 =
+* Neue Oberfläche mit Einrichtungs-Assistent, Übersicht, Protokoll und Einstellungen.
+* Neu: Ersatzweg, Benachrichtigung bei Fehlern, Gesundheitsprüfung (SPF, DMARC, Schlüssel-Ablauf), Verbindung prüfen, Antwortadresse.
+* Behoben: Google-Verbindung wurde nie gespeichert, stiller Versand ohne eingerichteten Server, Token-Cache nach Änderungen und weitere Fehler (siehe CHANGELOG.md).
 
 = 1.0.2 =
 * Behoben: Antwortete der Mailserver nicht (falscher Port, falsche Verschlüsselung, falsches Passwort), hing die Testmail bis zum Fehler 504. Jeder Schritt bricht jetzt nach 10 Sekunden ab.

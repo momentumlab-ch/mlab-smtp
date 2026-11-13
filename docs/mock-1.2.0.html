@@ -1,0 +1,410 @@
+<title>MomentumLab SMTP Mock</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: WordPress-Admin-Rahmen, darin eine Plugin-Seite mit Tabs (Übersicht, Protokoll, Einstellungen) und einem Einrichtungs-Assistenten in 4 Schritten. */
+:root{
+  --bg:#f0f0f1; --surface:#ffffff; --surface-2:#f6f7f7; --line:#dcdcde; --line-strong:#c3c4c7;
+  --fg:#1d2327; --muted:#50575e; --faint:#787c82;
+  --accent:#2271b1; --accent-ink:#ffffff; --accent-soft:#e7f0f8;
+  --ok:#00744a; --ok-soft:#e6f4ee; --warn:#8a5a00; --warn-soft:#fcf3e1; --bad:#b32d2e; --bad-soft:#fbeaea;
+  --chrome:#1d2327; --chrome-ink:#f0f0f1; --chrome-muted:#a7aaad; --chrome-active:#2271b1;
+  --demo:#2c3338;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#16191c; --surface:#1f2327; --surface-2:#262b30; --line:#343a40; --line-strong:#454c53;
+  --fg:#e8eaec; --muted:#b0b6bc; --faint:#8b9298;
+  --accent:#4f9fe0; --accent-ink:#0d1b27; --accent-soft:#1c2e3e;
+  --ok:#4cc38a; --ok-soft:#173026; --warn:#e2b04a; --warn-soft:#33291a; --bad:#f07070; --bad-soft:#3a1f20;
+  --chrome:#101214; --chrome-ink:#e8eaec; --chrome-muted:#8b9298; --chrome-active:#2f6ea3; --demo:#0b0d0f;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#16191c; --surface:#1f2327; --surface-2:#262b30; --line:#343a40; --line-strong:#454c53;
+  --fg:#e8eaec; --muted:#b0b6bc; --faint:#8b9298;
+  --accent:#4f9fe0; --accent-ink:#0d1b27; --accent-soft:#1c2e3e;
+  --ok:#4cc38a; --ok-soft:#173026; --warn:#e2b04a; --warn-soft:#33291a; --bad:#f07070; --bad-soft:#3a1f20;
+  --chrome:#101214; --chrome-ink:#e8eaec; --chrome-muted:#8b9298; --chrome-active:#2f6ea3; --demo:#0b0d0f;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:14px/1.5 var(--font)}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.demo{background:var(--demo);color:#fff;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));font-size:13px}
+.demo b{font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:11px;color:#c3c4c7}
+.demo .seg button{background:transparent;border:1px solid #50575e;color:#dcdcde;padding:3px 10px;cursor:pointer}
+.demo .seg button:first-child{border-radius:4px 0 0 4px}.demo .seg button:last-child{border-radius:0 4px 4px 0}
+.demo .seg button[aria-pressed="true"]{background:#fff;color:#1d2327;border-color:#fff}
+.demo .seg{display:flex}
+.adminbar{height:32px;background:var(--chrome);color:var(--chrome-ink);display:flex;align-items:center;gap:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));font-size:13px}
+.adminbar span{color:var(--chrome-muted)}
+.shell{display:grid;grid-template-columns:160px minmax(0,1fr);min-height:calc(100vh - 70px)}
+.side{background:var(--chrome);color:var(--chrome-ink);font-size:14px;padding-top:8px}
+.side div{padding:7px 12px;color:var(--chrome-ink)}
+.side .cur{background:var(--chrome-active);color:#fff}
+.side .sub{padding:4px 12px 4px 24px;font-size:13px;color:var(--chrome-muted)}
+.side .sub.cur{background:transparent;color:#fff;font-weight:600}
+main{padding-block:18px 60px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));min-width:0}
+.wrap{max-width:980px}
+h1{font-size:23px;font-weight:400;margin:0 0 4px;text-wrap:balance}
+h2{font-size:16px;font-weight:600;margin:0 0 4px}
+h3{font-size:14px;font-weight:600;margin:0 0 2px}
+p{margin:0}
+.lead{color:var(--muted);margin-bottom:14px}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--line-strong);margin:14px 0 20px;overflow-x:auto}
+.tabs button{background:transparent;border:0;border-bottom:3px solid transparent;padding:10px 14px;cursor:pointer;color:var(--muted);white-space:nowrap;font-weight:500}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.tabs .count{background:var(--bad);color:#fff;border-radius:9px;font-size:11px;padding:0 6px;margin-left:6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.stack{display:grid;gap:16px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);border-radius:4px;padding:6px 14px;cursor:pointer;min-height:36px;text-decoration:none;font-weight:500}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn[disabled]{opacity:.55;cursor:default}
+.muted{color:var(--muted)} .small{font-size:12.5px}
+.status{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;border-left-width:4px}
+.status.ok{border-color:var(--line);box-shadow:inset 4px 0 0 var(--ok)}
+.status.bad{box-shadow:inset 4px 0 0 var(--bad);background:var(--bad-soft);border-color:transparent}
+.status.none{box-shadow:inset 4px 0 0 var(--warn)}
+.dot{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:18px}
+.ok .dot{background:var(--ok-soft);color:var(--ok)} .bad .dot{background:var(--surface);color:var(--bad)} .none .dot{background:var(--warn-soft);color:var(--warn)}
+.status h2{font-size:18px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.kpi{background:var(--surface);padding:14px 16px}
+.kpi .n{font-size:22px;font-variant-numeric:tabular-nums;font-weight:600}
+.kpi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.two{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
+.two.split{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.checks{list-style:none;margin:10px 0 0;padding:0;display:grid}
+.checks li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;padding:10px 0;border-top:1px solid var(--line);align-items:start}
+.checks li:first-child{border-top:0}
+.ic{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;margin-top:1px}
+.ic.ok{background:var(--ok-soft);color:var(--ok)} .ic.warn{background:var(--warn-soft);color:var(--warn)} .ic.bad{background:var(--bad-soft);color:var(--bad)}
+.pill{display:inline-block;font-size:12px;border-radius:10px;padding:1px 8px;font-weight:600;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.neu{background:var(--surface-2);color:var(--muted)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr{cursor:pointer} tbody tr:hover{background:var(--surface-2)}
+tbody tr.sel{background:var(--accent-soft)}
+td.t{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line-strong);background:var(--surface);border-radius:16px;padding:4px 12px;cursor:pointer;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+input[type=text],input[type=email],input[type=password],input[type=date],select{width:100%;max-width:420px;border:1px solid var(--line-strong);border-radius:4px;padding:7px 10px;background:var(--surface);min-height:36px}
+label.f{display:grid;gap:4px;font-weight:600}
+label.f .h{font-weight:400;color:var(--muted);font-size:12.5px}
+.fields{display:grid;gap:14px}
+.stepper{display:flex;gap:0;margin:6px 0 22px;counter-reset:s;flex-wrap:wrap}
+.stepper li{list-style:none;display:flex;align-items:center;gap:8px;color:var(--faint);padding-right:18px;font-weight:500}
+.stepper li::before{counter-increment:s;content:counter(s);width:26px;height:26px;border-radius:50%;border:2px solid var(--line-strong);display:grid;place-items:center;font-size:12.5px;font-weight:700}
+.stepper li.done{color:var(--muted)} .stepper li.done::before{content:"✓";background:var(--ok);border-color:var(--ok);color:#fff}
+.stepper li.now{color:var(--fg)} .stepper li.now::before{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.stepper ol{display:contents}
+.providers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.prov{text-align:left;border:1px solid var(--line-strong);border-radius:var(--r);background:var(--surface);padding:16px;cursor:pointer;display:grid;gap:6px;align-content:start;position:relative}
+.prov[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:var(--accent-soft)}
+.prov .logo{width:34px;height:34px;border-radius:6px;display:grid;place-items:center;font-weight:700;color:#fff;font-size:14px}
+.prov .tag{position:absolute;top:12px;right:12px}
+.prov ul{margin:4px 0 0;padding-left:18px;color:var(--muted);font-size:13px}
+.hint{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);background:var(--accent-soft);font-size:13.5px}
+.hint.warn{background:var(--warn-soft)} .hint.bad{background:var(--bad-soft)} .hint.ok{background:var(--ok-soft)}
+.todo{counter-reset:t;display:grid;gap:0;margin:0;padding:0}
+.todo li{list-style:none;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.todo li::before{counter-increment:t;content:counter(t);width:24px;height:24px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line-strong);display:grid;place-items:center;font-size:12px;font-weight:700}
+.copy{display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap}
+code,.code{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:3px 6px;word-break:break-all}
+.seg2{display:inline-flex;border:1px solid var(--line-strong);border-radius:4px;overflow:hidden;flex-wrap:wrap}
+.seg2 button{border:0;background:var(--surface);padding:7px 12px;cursor:pointer;border-right:1px solid var(--line-strong)}
+.seg2 button:last-child{border-right:0}
+.seg2 button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.foot{display:flex;justify-content:space-between;gap:10px;margin-top:20px;flex-wrap:wrap}
+.result{margin-top:14px}
+pre.log{font-family:var(--mono);font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:10px;max-height:180px;overflow:auto;white-space:pre-wrap;margin:8px 0 0}
+details summary{cursor:pointer;color:var(--accent)}
+.drawer{border-left:1px solid var(--line);padding-left:16px}
+.dl{display:grid;grid-template-columns:110px minmax(0,1fr);gap:6px 12px;font-size:13.5px;margin:10px 0}
+.dl dt{color:var(--muted)} .dl dd{margin:0;word-break:break-word}
+.set{display:grid;grid-template-columns:220px minmax(0,1fr);gap:20px;padding:20px 0;border-top:1px solid var(--line)}
+.set:first-child{border-top:0;padding-top:0}
+.switch{display:inline-flex;gap:10px;align-items:center;cursor:pointer;font-weight:500}
+.switch input{appearance:none;width:36px;height:20px;border-radius:10px;background:var(--line-strong);position:relative;cursor:pointer;margin:0;flex:none}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}
+.switch input:checked{background:var(--accent)} .switch input:checked::after{left:18px}
+.lock{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted)}
+.spin{width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:2s}.switch input::after{transition:none}}
+.toast{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:6px;font-weight:500;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+.mini{display:flex;align-items:flex-end;gap:3px;height:40px;margin-top:8px}
+.mini span{flex:1;background:var(--accent);opacity:.75;border-radius:2px 2px 0 0;min-height:2px}
+.mini span.f{background:var(--bad);opacity:1}
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr)} .side{display:none}
+  .providers,.two,.two.split{grid-template-columns:minmax(0,1fr)}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .set{grid-template-columns:minmax(0,1fr);gap:8px}
+  .drawer{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:14px}
+  .status{grid-template-columns:auto minmax(0,1fr)} .status .act{grid-column:1/-1}
+  main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+}
+</style>
+
+<div class="demo" role="region" aria-label="Mock-Steuerung">
+  <b>Mock</b>
+  <span>Zustand der Website:</span>
+  <div class="seg" id="stateSeg">
+    <button data-state="none">Nicht eingerichtet</button>
+    <button data-state="ok" aria-pressed="true">Läuft</button>
+    <button data-state="bad">Störung</button>
+  </div>
+</div>
+<div class="adminbar"><strong>Kanzlei Muster AG</strong><span>Dashboard</span><span>Neu</span><span style="margin-left:auto">Hallo, Chris</span></div>
+<div class="shell">
+  <nav class="side" aria-label="WordPress-Menü">
+    <div>Dashboard</div><div>Beiträge</div><div>Medien</div><div>Seiten</div><div>Plugins</div><div>Benutzer</div>
+    <div class="cur">Einstellungen</div>
+    <div class="sub">Allgemein</div><div class="sub">Lesen</div><div class="sub cur">E-Mail-Versand</div><div class="sub">Datenschutz</div>
+  </nav>
+  <main><div class="wrap" id="app"></div></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+'use strict';
+var S={state:'ok',tab:'overview',wizard:false,step:1,provider:'m365',checked:false,checking:false,google:false,
+  smtpHost:'infomaniak',smtpSec:'587',test:null,filter:'all',q:'',sel:0,fallback:true,notify:true,confirmClear:false};
+var LOG=[
+ {t:'13.11. 15:31',to:'anna.keller@bluewin.ch',s:'Ihre Terminbestätigung',ok:true,via:'Microsoft 365'},
+ {t:'13.11. 15:02',to:'info@kanzlei-muster.ch',s:'Neue Kontaktanfrage: Erbrecht',ok:true,via:'Microsoft 365'},
+ {t:'13.11. 14:47',to:'m.frei@gmx.ch',s:'Passwort zurücksetzen',ok:false,via:'Microsoft 365',err:'Der Anbieter hat mit Fehler 413 geantwortet: Request Entity Too Large',fix:'Die Nachricht ist grösser als 4 MB (Anhang). Microsoft 365 nimmt so grosse Nachrichten über diesen Weg nicht an. Sie wurde über den Ersatzweg zugestellt.',fb:true},
+ {t:'13.11. 11:20',to:'anna.keller@bluewin.ch',s:'Rechnung 2026-114',ok:true,via:'Microsoft 365'},
+ {t:'12.11. 18:05',to:'info@kanzlei-muster.ch',s:'Neue Kontaktanfrage: Mietrecht',ok:true,via:'Microsoft 365'},
+ {t:'12.11. 09:12',to:'chris@momentumlab.ch',s:'Testmail von Kanzlei Muster AG',ok:true,via:'Microsoft 365'}];
+var LOGBAD=[
+ {t:'13.11. 15:31',to:'anna.keller@bluewin.ch',s:'Ihre Terminbestätigung',ok:false,via:'Google',err:'invalid_grant: Token has been expired or revoked.',fix:'Google hat den Zugriff entzogen. Das passiert, wenn das Passwort des Kontos geändert wurde oder die Google-App im Testmodus ist (Zugriff gilt dann nur 7 Tage). Bitte neu verbinden.'},
+ {t:'13.11. 15:02',to:'info@kanzlei-muster.ch',s:'Neue Kontaktanfrage: Erbrecht',ok:false,via:'Google',err:'invalid_grant: Token has been expired or revoked.',fix:'Google hat den Zugriff entzogen. Bitte neu verbinden.'},
+ {t:'13.11. 13:02',to:'m.frei@gmx.ch',s:'Passwort zurücksetzen',ok:false,via:'Google',err:'invalid_grant: Token has been expired or revoked.',fix:'Google hat den Zugriff entzogen. Bitte neu verbinden.'},
+ {t:'13.11. 11:20',to:'anna.keller@bluewin.ch',s:'Rechnung 2026-114',ok:true,via:'Google'}];
+var PROV={
+ m365:{name:'Microsoft 365',color:'#0f6cbd',letter:'M',sender:'noreply@kanzlei-muster.ch'},
+ google:{name:'Google Workspace',color:'#1e8e3e',letter:'G',sender:'info@kanzlei-muster.ch'},
+ smtp:{name:'Eigener Mailserver',color:'#50575e',letter:'@',sender:'website@kanzlei-muster.ch'}};
+var HOSTS={infomaniak:['mail.infomaniak.com','Infomaniak'],hostpoint:['asmtp.mail.hostpoint.ch','Hostpoint'],cyon:['mail.cyon.ch','cyon'],other:['','Anderer Anbieter']};
+var app=document.getElementById('app');
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true;},2600);}
+function log(){return S.state==='bad'?LOGBAD:LOG;}
+function failCount(){return log().filter(function(e){return !e.ok&&!e.fb;}).length;}
+
+function render(){
+  document.querySelectorAll('#stateSeg button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.state===S.state));});
+  if(S.wizard){app.innerHTML=wizard();return;}
+  var fc=S.state==='bad'?failCount():0;
+  var h='<h1>E-Mail-Versand</h1><p class="lead">Sorgt dafür, dass Mails dieser Website zuverlässig ankommen und nicht im Spam landen.</p>';
+  h+='<div class="tabs" role="tablist">'+tab('overview','Übersicht')+tab('log','Protokoll',fc)+tab('settings','Einstellungen')+'</div>';
+  h+=S.tab==='overview'?overview():S.tab==='log'?logView():settings();
+  app.innerHTML=h;
+}
+function tab(id,label,count){return '<button role="tab" data-tab="'+id+'" aria-selected="'+(S.tab===id)+'">'+label+(count?'<span class="count">'+count+'</span>':'')+'</button>';}
+
+/* ---------- Übersicht ---------- */
+function overview(){
+  if(S.state==='none'){
+    return '<div class="stack"><div class="card status none"><div class="dot">!</div><div><h2>Noch nicht eingerichtet</h2><p class="muted">WordPress versendet Mails direkt über den Webserver. Viele davon landen im Spam oder kommen gar nicht an: Kontaktformulare, Bestellungen, Passwort-Links.</p></div><div class="act"><button class="btn primary" data-act="startWizard">Einrichtung starten</button></div></div>'+
+    '<div class="card"><h2>So geht es weiter</h2><p class="muted small" style="margin-bottom:6px">Dauert etwa 3 Minuten. Sie brauchen den Zugang zum Mailkonto Ihrer Firma.</p><ol class="todo"><li><div><h3>Mailanbieter wählen</h3><p class="muted small">Wir schlagen den passenden anhand Ihrer Domain vor.</p></div></li><li><div><h3>Verbinden</h3><p class="muted small">Zugangsdaten eingeben oder mit dem Konto anmelden. Wir prüfen die Verbindung sofort.</p></div></li><li><div><h3>Absender festlegen</h3><p class="muted small">Ist bereits ausgefüllt.</p></div></li><li><div><h3>Testmail senden</h3><p class="muted small">Erst danach ist die Einrichtung abgeschlossen.</p></div></li></ol></div></div>';
+  }
+  var bad=S.state==='bad', p=bad?PROV.google:PROV[S.provider];
+  var h='<div class="stack">';
+  if(bad){
+    h+='<div class="card status bad"><div class="dot">✕</div><div><h2>Mails werden seit 13:02 nicht zugestellt</h2><p>Google hat den Zugriff der Website entzogen. 3 Mails sind betroffen. Sie wurden gespeichert und werden nach dem Neuverbinden automatisch nachgesendet.</p></div><div class="act"><button class="btn primary" data-act="reconnect">Neu mit Google verbinden</button></div></div>';
+  }else{
+    h+='<div class="card status ok"><div class="dot">✓</div><div><h2>Mails werden zugestellt</h2><p class="muted">Über <strong>'+p.name+'</strong> als <strong>'+p.sender+'</strong> · zuletzt geprüft vor 4 Minuten</p></div><div class="act row"><button class="btn" data-act="openTest">Testmail senden</button></div></div>';
+  }
+  if(S.test==='overview'){h+='<div class="card"><div class="row"><label class="f" style="flex:1;min-width:220px">Testmail an<input type="email" id="ovTo" value="chris@momentumlab.ch"></label><button class="btn primary" data-act="sendQuick" style="align-self:end">Senden</button><button class="btn ghost" data-act="closeTest" style="align-self:end">Abbrechen</button></div></div>';}
+  h+='<div class="kpis"><div class="kpi"><div class="l">Gesendet, 7 Tage</div><div class="n">'+(bad?'38':'142')+'</div></div><div class="kpi"><div class="l">Fehlgeschlagen</div><div class="n" style="color:'+(bad?'var(--bad)':'inherit')+'">'+(bad?'3':'1')+'</div></div><div class="kpi"><div class="l">Über Ersatzweg</div><div class="n">'+(bad?'0':'1')+'</div></div><div class="kpi"><div class="l">Letzte Mail</div><div class="n">15:31</div></div></div>';
+  h+='<div class="two"><div class="card"><h2>Gesundheit</h2><p class="muted small">Wird täglich automatisch geprüft.</p><ul class="checks">';
+  if(bad){h+=chk('bad','Google-Zugriff entzogen','Die Google-App steht im Testmodus. Der Zugriff läuft dann nach 7 Tagen ab. In der Google Cloud Console auf «In Produktion» stellen.','<a href="#" data-act="reconnect">Beheben</a>');}
+  else{h+=chk('warn','Zugangsschlüssel läuft bald ab','Der geheime Schlüssel bei Microsoft gilt noch bis 02.01.2027 (50 Tage). Danach stoppt der Versand.','<a href="#" data-act="renew">Erneuern</a>');}
+  h+=chk('ok','SPF erlaubt den Versand','Ihre Domain kanzlei-muster.ch erlaubt '+p.name+'.','');
+  h+=chk('warn','DMARC fehlt','Ohne DMARC stufen Gmail und Outlook Mails eher als Spam ein.','<a href="#" data-act="dmarc">Anleitung</a>');
+  h+=chk(S.notify?'ok':'warn',S.notify?'Benachrichtigung aktiv':'Keine Benachrichtigung',S.notify?'Bei Fehlern geht eine Nachricht an chris@momentumlab.ch.':'Sie erfahren nicht, wenn der Versand ausfällt.','');
+  h+='</ul></div><div class="card"><h2>Letzte Mails</h2><div class="mini" aria-label="Mails pro Tag, letzte 14 Tage">'+[8,12,9,14,10,4,3,11,13,9,16,12,7,(bad?3:14)].map(function(n,i){return '<span style="height:'+(n/16*100)+'%"'+(bad&&i===13?' class="f"':'')+'></span>';}).join('')+'</div><p class="muted small" style="margin-top:4px">14 Tage</p><ul class="checks" style="margin-top:6px">';
+  log().slice(0,3).forEach(function(e){h+='<li style="grid-template-columns:minmax(0,1fr) auto"><div><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(e.s)+'</div><div class="muted small">'+e.t+' · '+esc(e.to)+'</div></div>'+pill(e)+'</li>';});
+  h+='</ul><p style="margin-top:8px"><a href="#" data-tab="log">Ganzes Protokoll</a></p></div></div></div>';
+  return h;
+}
+function chk(k,t,d,a){return '<li><span class="ic '+k+'">'+(k==='ok'?'✓':k==='warn'?'!':'✕')+'</span><div><h3>'+t+'</h3><p class="muted small">'+d+'</p></div><div class="small">'+a+'</div></li>';}
+function pill(e){return e.ok?'<span class="pill ok">Zugestellt</span>':e.fb?'<span class="pill warn">Ersatzweg</span>':'<span class="pill bad">Fehlgeschlagen</span>';}
+
+/* ---------- Protokoll ---------- */
+function logView(){
+  var L=log().filter(function(e){
+    if(S.filter==='ok'&&!e.ok)return false; if(S.filter==='bad'&&e.ok)return false;
+    var q=S.q.toLowerCase(); return !q||(e.to+e.s).toLowerCase().indexOf(q)>-1;});
+  var h='<div class="row" style="justify-content:space-between;margin-bottom:12px"><div class="chips">'+
+    chip('all','Alle')+chip('ok','Zugestellt')+chip('bad','Fehlgeschlagen')+'</div>'+
+    '<input type="text" id="q" placeholder="Empfänger oder Betreff suchen" value="'+esc(S.q)+'" style="max-width:260px"></div>';
+  var sel=L[S.sel]||L[0];
+  h+='<div class="two split"><div class="tablewrap"><table><thead><tr><th>Zeit</th><th>Empfänger · Betreff</th><th>Ergebnis</th></tr></thead><tbody>';
+  if(!L.length)h+='<tr><td colspan="3" class="muted">Keine Einträge für diesen Filter.</td></tr>';
+  L.forEach(function(e,i){h+='<tr data-row="'+i+'" class="'+(e===sel?'sel':'')+'"><td class="t">'+e.t+'</td><td><div>'+esc(e.s)+'</div><div class="muted small">'+esc(e.to)+'</div></td><td>'+pill(e)+'</td></tr>';});
+  h+='</tbody></table></div><div class="card drawer" style="border:1px solid var(--line)">';
+  if(sel){
+    h+='<h2>'+esc(sel.s)+'</h2>'+pill(sel)+'<dl class="dl"><dt>Zeit</dt><dd>'+sel.t+'</dd><dt>Empfänger</dt><dd>'+esc(sel.to)+'</dd><dt>Versandweg</dt><dd>'+sel.via+(sel.fb?' → Eigener Mailserver (Ersatzweg)':'')+'</dd></dl>';
+    if(!sel.ok||sel.fb){h+='<div class="hint '+(sel.fb?'warn':'bad')+'"><div><strong>Was ist passiert?</strong><p style="margin-top:4px">'+esc(sel.fix)+'</p><details style="margin-top:8px"><summary>Technische Meldung</summary><pre class="log">'+esc(sel.err)+'</pre></details></div></div>';
+      if(!sel.ok&&!sel.fb)h+='<div class="row" style="margin-top:12px"><button class="btn" data-act="resend">Erneut senden</button></div>';}
+    else h+='<p class="muted small">Der Inhalt der Mail wird aus Datenschutzgründen nicht gespeichert.</p>';
+  }
+  h+='</div></div><div class="row" style="justify-content:space-between;margin-top:14px"><p class="muted small">Einträge werden nach 30 Tagen automatisch gelöscht. Inhalte werden nie gespeichert.</p>';
+  h+=S.confirmClear?'<div class="row"><span class="small">Alle Einträge löschen?</span><button class="btn danger" data-act="clearYes">Ja, löschen</button><button class="btn ghost" data-act="clearNo">Abbrechen</button></div>':'<button class="btn ghost" data-act="clear">Protokoll leeren</button>';
+  return h+'</div>';
+}
+function chip(id,l){return '<button class="chip" data-filter="'+id+'" aria-pressed="'+(S.filter===id)+'">'+l+'</button>';}
+
+/* ---------- Einstellungen ---------- */
+function settings(){
+  var p=PROV[S.state==='bad'?'google':S.provider];
+  var h='<div class="card"><div class="stack" style="gap:0">';
+  h+=set('Verbindung','Über welchen Dienst die Website Mails versendet.','<div class="row"><span class="logo" style="'+logo(p)+'">'+p.letter+'</span><div style="flex:1;min-width:160px"><strong>'+p.name+'</strong><div class="muted small">'+p.sender+'</div></div><button class="btn" data-act="startWizard">Ändern</button></div>');
+  h+=set('Ersatzweg','Springt ein, wenn die Hauptverbindung ausfällt oder eine Mail ablehnt.','<label class="switch"><input type="checkbox" id="fb" '+(S.fallback?'checked':'')+'> Ersatzweg verwenden</label>'+(S.fallback?'<div class="fields" style="margin-top:12px"><label class="f">Ersatzweg<select id="fbSel"><option>Eigener Mailserver · mail.infomaniak.com</option><option>Neuen Ersatzweg einrichten …</option></select></label></div>':''));
+  h+=set('Benachrichtigung','Damit Sie erfahren, wenn Mails nicht ankommen.','<label class="switch"><input type="checkbox" id="nt" '+(S.notify?'checked':'')+'> Bei Fehlern benachrichtigen</label>'+(S.notify?'<div class="fields" style="margin-top:12px"><label class="f">An<input type="email" value="chris@momentumlab.ch"><span class="h">Wird über den Ersatzweg verschickt, falls die Hauptverbindung ausfällt.</span></label><label class="f">Wann<select><option>Sofort beim ersten Fehler, danach höchstens 1× pro Stunde</option><option>Tägliche Zusammenfassung</option></select></label></div>':''));
+  h+=set('Absender','Name und Adresse, die Empfänger sehen.','<div class="fields"><label class="f">Absender-Name<input type="text" value="Kanzlei Muster AG"></label><label class="f">Absender-Adresse<input type="email" value="'+p.sender+'"'+(S.provider!=='smtp'?' readonly':'')+'><span class="h">'+(S.provider!=='smtp'?'Vorgegeben durch das verbundene Postfach.':'')+'</span></label><label class="f">Antworten gehen an <span class="h">optional</span><input type="email" placeholder="z. B. info@kanzlei-muster.ch"></label><label class="switch"><input type="checkbox" checked> Absender auch verwenden, wenn ein anderes Plugin einen eigenen setzt</label></div>');
+  h+=set('Protokoll','Empfänger, Betreff und Ergebnis, nie der Inhalt.','<label class="switch"><input type="checkbox" checked> Versand protokollieren</label><div class="fields" style="margin-top:12px"><label class="f">Aufbewahren<select><option>30 Tage</option><option>7 Tage</option><option>90 Tage</option></select></label></div>');
+  h+=set('Aus wp-config.php','Diese Werte sind in der Datei gesetzt und lassen sich hier nicht ändern.','<span class="lock">🔒 <code>MLAB_SMTP_SMTP_PASS</code> gesetzt</span>');
+  h+='</div><div class="row" style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px"><button class="btn primary" data-act="save">Änderungen speichern</button></div></div>';
+  return h;
+}
+function set(t,d,c){return '<div class="set"><div><h3>'+t+'</h3><p class="muted small">'+d+'</p></div><div>'+c+'</div></div>';}
+function logo(p){return 'width:34px;height:34px;border-radius:6px;display:grid;place-items:center;color:#fff;font-weight:700;background:'+p.color;}
+
+/* ---------- Assistent ---------- */
+function wizard(){
+  var steps=['Anbieter','Verbinden','Absender','Testen'];
+  var h='<div class="row" style="justify-content:space-between"><h1>E-Mail-Versand einrichten</h1><button class="btn ghost" data-act="exitWizard">Abbrechen</button></div><ol class="stepper">';
+  steps.forEach(function(s,i){var n=i+1;h+='<li class="'+(n<S.step?'done':n===S.step?'now':'')+'">'+s+'</li>';});
+  h+='</ol><div class="card">';
+  h+=[null,w1,w2,w3,w4][S.step]();
+  return h+'</div>';
+}
+function w1(){
+  var h='<h2>Über welchen Dienst laufen Ihre Firmen-Mails?</h2><p class="muted" style="margin-bottom:14px">Wählen Sie den Dienst, bei dem Ihr Postfach liegt. So kommen Mails am zuverlässigsten an.</p>';
+  h+='<div class="hint" style="margin-bottom:16px"><span>💡</span><div>Für <strong>kanzlei-muster.ch</strong> haben wir <strong>Microsoft 365</strong> erkannt.<div class="muted small">Gefunden im Mail-Eintrag der Domain (MX: kanzlei-muster-ch.mail.protection.outlook.com)</div></div></div>';
+  h+='<div class="providers">'+prov('m365','Postfach bei Microsoft (Outlook, Exchange Online).',['Kein Passwort auf der Website','Einmalig App in Microsoft anlegen'],'Erkannt')+prov('google','Postfach bei Google (Gmail, Workspace).',['Anmelden mit Google-Konto','Einmalig Zugang in Google Cloud anlegen'],'')+prov('smtp','Mailserver Ihres Hosters, z. B. Infomaniak, Hostpoint, cyon.',['Server, Benutzer und Passwort','Funktioniert mit fast jedem Anbieter'],'')+'</div>';
+  return h+'<div class="foot"><span></span><button class="btn primary" data-act="next">Weiter</button></div>';
+}
+function prov(id,d,li,tag){var p=PROV[id];return '<button class="prov" data-prov="'+id+'" aria-pressed="'+(S.provider===id)+'"><span class="logo" style="'+logo(p)+'">'+p.letter+'</span>'+(tag?'<span class="pill ok tag">'+tag+'</span>':'')+'<strong>'+p.name+'</strong><span class="muted small">'+d+'</span><ul>'+li.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></button>';}
+function checkBtn(label){
+  if(S.checking)return '<button class="btn primary" disabled><span class="spin"></span> Wird geprüft …</button>';
+  return '<button class="btn '+(S.checked?'':'primary')+'" data-act="check">'+label+'</button>';
+}
+function checkResult(msg){return S.checked?'<div class="hint ok result"><span>✓</span><div><strong>'+msg+'</strong></div></div>':'';}
+function w2(){
+  var h='';
+  if(S.provider==='m365'){
+    h+='<h2>Mit Microsoft 365 verbinden</h2><p class="muted">Einmalig in Microsoft Entra eine App anlegen. Die Website meldet sich damit an, ohne Passwort eines Mitarbeiters.</p>';
+    h+='<details style="margin:14px 0" open><summary>Anleitung in Microsoft Entra (4 Schritte)</summary><ol class="todo" style="margin-top:8px">'+
+      '<li><div><h3>App registrieren</h3><p class="muted small">Entra › App-Registrierungen › Neue Registrierung. Name:</p><div class="copy"><span class="code">Website kanzlei-muster.ch</span><button class="btn ghost small" data-copy="Website kanzlei-muster.ch">Kopieren</button></div></div></li>'+
+      '<li><div><h3>Berechtigung hinzufügen</h3><p class="muted small">API-Berechtigungen › Microsoft Graph › Anwendungsberechtigungen › <strong>Mail.Send</strong>, dann «Administratorzustimmung erteilen».</p></div></li>'+
+      '<li><div><h3>Geheimen Schlüssel erstellen</h3><p class="muted small">Zertifikate & Geheimnisse › Neuer geheimer Clientschlüssel. Den <strong>Wert</strong> kopieren, nicht die ID. Laufzeit 24 Monate wählen.</p></div></li>'+
+      '<li><div><h3>Auf ein Postfach beschränken (empfohlen)</h3><p class="muted small">Sonst darf die App aus jedem Postfach der Firma senden. Befehl für Exchange Online PowerShell:</p><div class="copy"><span class="code">New-ApplicationAccessPolicy -AppId &lt;Anwendungs-ID&gt; -PolicyScopeGroupId noreply@kanzlei-muster.ch -AccessRight RestrictAccess</span><button class="btn ghost small" data-copy="New-ApplicationAccessPolicy">Kopieren</button></div></div></li></ol>'+
+      '<a class="btn" href="https://entra.microsoft.com/" target="_blank" rel="noopener">Microsoft Entra öffnen ↗</a></details>';
+    h+='<div class="fields"><label class="f">Verzeichnis-ID (Mandant)<input type="text" value="5f3c2a1e-8b7d-4c2a-9e1f-2d4b6a8c0e13"><span class="h">Steht auf der Übersichtsseite der App.</span></label><label class="f">Anwendungs-ID<input type="text" value="a91b7c22-3d4e-4f50-8a6b-7c8d9e0f1a2b"></label><label class="f">Geheimer Schlüssel (Wert)<input type="password" value="xxxxxxxxxxxxxxxx"></label><label class="f">Schlüssel gültig bis<input type="date" value="2027-01-02"><span class="h">Wir erinnern Sie 30 Tage vorher.</span></label><label class="f">Postfach, aus dem gesendet wird<input type="email" value="noreply@kanzlei-muster.ch"></label></div>';
+    h+='<div class="row" style="margin-top:16px">'+checkBtn('Verbindung prüfen')+'</div>'+checkResult('Verbunden. Die App darf aus noreply@kanzlei-muster.ch senden.');
+  }else if(S.provider==='google'){
+    h+='<h2>Mit Google verbinden</h2><p class="muted">Einmalig in der Google Cloud Console einen Zugang anlegen, danach mit dem Google-Konto anmelden.</p>';
+    h+='<details style="margin:14px 0" open><summary>Anleitung in Google Cloud (3 Schritte)</summary><ol class="todo" style="margin-top:8px">'+
+      '<li><div><h3>Gmail API aktivieren</h3><p class="muted small">APIs & Dienste › Bibliothek › Gmail API › Aktivieren.</p></div></li>'+
+      '<li><div><h3>OAuth-Client anlegen</h3><p class="muted small">Anmeldedaten › OAuth-Client-ID › Typ «Webanwendung». Als Weiterleitungs-URI eintragen:</p><div class="copy"><span class="code">https://kanzlei-muster.ch/wp-admin/admin-post.php?action=mlab_smtp_google_callback</span><button class="btn ghost small" data-copy="uri">Kopieren</button></div></div></li>'+
+      '<li><div><h3>App veröffentlichen</h3><p class="muted small">OAuth-Zustimmungsbildschirm › «In Produktion». <strong>Wichtig:</strong> Im Testmodus läuft der Zugriff nach 7 Tagen ab.</p></div></li></ol>'+
+      '<a class="btn" href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud öffnen ↗</a></details>';
+    h+='<div class="fields"><label class="f">Client-ID<input type="text" value="48213…apps.googleusercontent.com"></label><label class="f">Client-Secret<input type="password" value="xxxxxxxxxxxx"></label></div>';
+    h+='<div class="row" style="margin-top:16px">'+(S.checked?'<span class="pill ok">Verbunden als info@kanzlei-muster.ch</span><button class="btn ghost" data-act="uncheck">Anderes Konto</button>':S.checking?checkBtn(''):'<button class="btn primary" data-act="check">Mit Google anmelden</button>')+'</div>';
+  }else{
+    var host=HOSTS[S.smtpHost];
+    h+='<h2>Mit Ihrem Mailserver verbinden</h2><p class="muted" style="margin-bottom:14px">Die Angaben finden Sie im Kundencenter Ihres Hosters, meist unter «E-Mail-Programm einrichten».</p>';
+    h+='<div class="fields"><label class="f">Hoster<select id="hostSel">'+Object.keys(HOSTS).map(function(k){return '<option value="'+k+'"'+(k===S.smtpHost?' selected':'')+'>'+HOSTS[k][1]+'</option>';}).join('')+'</select><span class="h">Füllt Server und Verbindung automatisch aus.</span></label>';
+    h+='<label class="f">Server<input type="text" value="'+host[0]+'" placeholder="mail.ihre-domain.ch"></label>';
+    h+='<div class="f" style="display:grid;gap:4px;font-weight:600">Verbindung<div class="seg2" role="group"><button data-sec="587" aria-pressed="'+(S.smtpSec==='587')+'">587 · STARTTLS (empfohlen)</button><button data-sec="465" aria-pressed="'+(S.smtpSec==='465')+'">465 · SSL</button><button data-sec="x" aria-pressed="'+(S.smtpSec==='x')+'">Andere</button></div></div>';
+    h+='<label class="f">Benutzername<input type="text" value="website@kanzlei-muster.ch"><span class="h">Meist die vollständige Mailadresse.</span></label><label class="f">Passwort<input type="password" value="xxxxxxxxxx"></label></div>';
+    h+='<div class="row" style="margin-top:16px">'+checkBtn('Verbindung prüfen')+'</div>'+checkResult('Anmeldung am Server erfolgreich. Verschlüsselung aktiv.');
+  }
+  return h+'<div class="foot"><button class="btn ghost" data-act="back">Zurück</button><button class="btn primary" data-act="next"'+(S.checked?'':' disabled title="Zuerst die Verbindung prüfen"')+'>Weiter</button></div>';
+}
+function w3(){
+  var p=PROV[S.provider], fixed=S.provider!=='smtp';
+  var h='<h2>Absender</h2><p class="muted" style="margin-bottom:14px">So erscheinen Mails der Website im Posteingang der Empfänger.</p>';
+  h+='<div class="fields"><label class="f">Absender-Name<input type="text" value="Kanzlei Muster AG"><span class="h">Übernommen aus dem Namen der Website.</span></label>';
+  h+='<label class="f">Absender-Adresse<input type="email" value="'+p.sender+'"'+(fixed?' readonly':'')+'><span class="h">'+(fixed?'Das verbundene Postfach. '+p.name+' erlaubt nur dieses oder einen freigegebenen Alias.':'Sollte zur Domain des Servers passen, sonst landen Mails im Spam.')+'</span></label>';
+  h+='<label class="f">Antworten gehen an <span class="h">optional, z. B. wenn das Absender-Postfach niemand liest</span><input type="email" placeholder="info@kanzlei-muster.ch"></label></div>';
+  h+='<div style="margin-top:16px;padding:14px;background:var(--surface-2);border-radius:var(--r)"><p class="small muted" style="margin-bottom:6px">Vorschau</p><strong>Kanzlei Muster AG</strong> <span class="muted">&lt;'+p.sender+'&gt;</span><div class="muted small">Neue Kontaktanfrage: Erbrecht</div></div>';
+  return h+'<div class="foot"><button class="btn ghost" data-act="back">Zurück</button><button class="btn primary" data-act="next">Weiter</button></div>';
+}
+function w4(){
+  var h='<h2>Testmail senden</h2><p class="muted" style="margin-bottom:14px">Erst wenn diese Mail ankommt, ist alles richtig eingerichtet.</p>';
+  h+='<div class="row"><label class="f" style="flex:1;min-width:220px">An<input type="email" value="chris@momentumlab.ch"></label></div>';
+  if(S.test==='sending')h+='<div class="row" style="margin-top:14px"><button class="btn primary" disabled><span class="spin"></span> Wird gesendet …</button></div>';
+  else if(S.test==='ok')h+='<div class="hint ok result"><span>✓</span><div><strong>Testmail versendet.</strong><p>Bitte prüfen Sie den Posteingang von chris@momentumlab.ch. Nicht da? Schauen Sie auch im Spam-Ordner.</p></div></div>';
+  else if(S.test==='fail')h+='<div class="hint bad result"><span>✕</span><div><strong>Die Testmail wurde abgelehnt.</strong><p style="margin-top:4px">Das Postfach noreply@kanzlei-muster.ch darf nicht senden. Prüfen Sie in Microsoft Entra, ob die Administratorzustimmung für «Mail.Send» erteilt ist.</p><details style="margin-top:8px"><summary>Technische Meldung</summary><pre class="log">Der Anbieter hat mit Fehler 403 geantwortet: Access is denied. Check credentials and try again.</pre></details><div class="row" style="margin-top:10px"><button class="btn" data-act="back">Zurück zu Verbinden</button></div></div></div>';
+  if(S.test!=='sending'&&S.test!=='ok')h+='<div class="row" style="margin-top:14px"><button class="btn primary" data-act="sendTest">Testmail senden</button><button class="btn ghost small" data-act="sendFail">Fehler simulieren</button></div>';
+  return h+'<div class="foot"><button class="btn ghost" data-act="back">Zurück</button><button class="btn primary" data-act="finish"'+(S.test==='ok'?'':' disabled')+'>Einrichtung abschliessen</button></div>';
+}
+
+/* ---------- Ereignisse ---------- */
+var ACT={
+  startWizard:function(){S.wizard=true;S.step=1;S.checked=false;S.test=null;},
+  exitWizard:function(){S.wizard=false;},
+  next:function(){S.step++;if(S.step===2)S.checked=false;S.test=null;},
+  back:function(){S.step--;S.test=null;},
+  check:function(){S.checking=true;render();setTimeout(function(){S.checking=false;S.checked=true;render();},1100);return true;},
+  uncheck:function(){S.checked=false;},
+  sendTest:function(){S.test='sending';render();setTimeout(function(){S.test='ok';render();},1200);return true;},
+  sendFail:function(){S.test='sending';render();setTimeout(function(){S.test='fail';render();},1000);return true;},
+  finish:function(){S.wizard=false;S.state='ok';S.tab='overview';S.test=null;toast('Einrichtung abgeschlossen. Mails werden jetzt zugestellt.');},
+  reconnect:function(){S.wizard=true;S.provider='google';S.step=2;S.checked=false;S.test=null;},
+  openTest:function(){S.test='overview';},
+  closeTest:function(){S.test=null;},
+  sendQuick:function(){S.test=null;toast('Testmail an chris@momentumlab.ch versendet.');},
+  renew:function(){S.wizard=true;S.provider='m365';S.step=2;S.checked=false;},
+  dmarc:function(){toast('Öffnet eine Anleitung mit dem passenden DNS-Eintrag zum Kopieren.');},
+  resend:function(){toast('Mail wird erneut gesendet.');},
+  clear:function(){S.confirmClear=true;},
+  clearNo:function(){S.confirmClear=false;},
+  clearYes:function(){S.confirmClear=false;toast('Protokoll geleert.');},
+  save:function(){toast('Gespeichert.');}
+};
+document.addEventListener('click',function(ev){
+  var el=ev.target.closest('[data-act],[data-tab],[data-state],[data-prov],[data-filter],[data-row],[data-sec],[data-copy]');
+  if(!el)return;
+  var d=el.dataset;
+  if(el.tagName==='A')ev.preventDefault();
+  if(d.state){S.state=d.state;S.wizard=false;S.tab='overview';S.test=null;S.sel=0;if(d.state==='bad')S.provider='google';else if(d.state==='ok')S.provider='m365';}
+  else if(d.tab){S.tab=d.tab;S.test=null;S.sel=0;}
+  else if(d.prov){S.provider=d.prov;S.checked=false;}
+  else if(d.filter){S.filter=d.filter;S.sel=0;}
+  else if(d.row){S.sel=+d.row;}
+  else if(d.sec){S.smtpSec=d.sec;}
+  else if(d.copy){var txt=el.previousElementSibling?el.previousElementSibling.textContent:'';
+    try{navigator.clipboard.writeText(txt).then(function(){toast('Kopiert.');},function(){toast('Bitte Text markieren und kopieren.');});}catch(e){toast('Bitte Text markieren und kopieren.');}return;}
+  else if(d.act&&ACT[d.act]){if(ACT[d.act]()===true)return;}
+  render();
+});
+document.addEventListener('change',function(ev){
+  var id=ev.target.id;
+  if(id==='fb'){S.fallback=ev.target.checked;render();}
+  else if(id==='nt'){S.notify=ev.target.checked;render();}
+  else if(id==='hostSel'){S.smtpHost=ev.target.value;S.checked=false;render();}
+});
+document.addEventListener('input',function(ev){
+  if(ev.target.id==='q'){S.q=ev.target.value;S.sel=0;var pos=ev.target.selectionStart;render();var q=document.getElementById('q');q.focus();q.setSelectionRange(pos,pos);}
+});
+render();
+})();
+</script>
