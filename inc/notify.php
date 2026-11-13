@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
 const MLAB_SMTP_CRON_HOOK = 'mlab_smtp_daily';
 
 add_action( 'mlab_smtp_failure', 'mlab_smtp_notify_failure', 10, 2 );
+add_action( 'shutdown', 'mlab_smtp_notify_flush' );
 add_action( MLAB_SMTP_CRON_HOOK, 'mlab_smtp_daily' );
 add_action( 'admin_init', 'mlab_smtp_schedule' );
 add_action( 'admin_notices', 'mlab_smtp_admin_notice' );
@@ -47,41 +48,83 @@ function mlab_smtp_notify_recipient(): string {
 }
 
 /**
- * Sends a notification. Never goes through a failing route: with an active fallback only that is used,
- * otherwise the plugin is bypassed (PHP mail()). Results of these mails are neither logged nor counted.
+ * Sends a notification. Never goes through a failing route: with an active fallback only that is used and,
+ * when it fails too, PHP mail() (bypass) gets a try; without a fallback the plugin is bypassed right away.
+ * Results of these mails are neither logged nor counted.
  *
- * @param string $subject   Subject.
- * @param string $message   Plain text body.
+ * @param string $subject       Subject.
+ * @param string $message       Plain text body.
  * @param bool   $avoid_primary True when the primary route is failing.
  * @return bool True when sent.
  */
 function mlab_smtp_send_notification( string $subject, string $message, bool $avoid_primary ): bool {
-	$fallback = mlab_smtp_fallback_ready();
+	$modes = array( '' );
 	if ( $avoid_primary ) {
-		mlab_smtp_flag( $fallback ? 'fallback_only' : 'bypass', true );
+		$modes = mlab_smtp_fallback_ready() ? array( 'fallback_only', 'bypass' ) : array( 'bypass' );
 	}
-	$sent = wp_mail( mlab_smtp_notify_recipient(), $subject, $message );
-	mlab_smtp_flag( 'fallback_only', false );
-	mlab_smtp_bypass( false );
-	return $sent;
+	foreach ( $modes as $mode ) {
+		if ( '' !== $mode ) {
+			mlab_smtp_flag( $mode, true );
+		}
+		$sent = wp_mail( mlab_smtp_notify_recipient(), $subject, $message );
+		mlab_smtp_flag( 'fallback_only', false );
+		mlab_smtp_bypass( false );
+		if ( $sent ) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
- * Reacts to a failure of the primary route: at most one mail per hour in instant mode.
+ * Notification waiting to be sent at the end of the request.
+ *
+ * @param array|null $set Array with error and fallback to queue one, empty array to clear, null to only read.
+ * @return array{error?:string, fallback?:bool} Queued notification, empty when none.
+ */
+function mlab_smtp_notify_queue( ?array $set = null ): array {
+	static $queue = array();
+	if ( null !== $set ) {
+		$queue = $set;
+	}
+	return $queue;
+}
+
+/**
+ * Reacts to a failure of the primary route: queues at most one mail per hour in instant mode. It never sends
+ * here, because this runs inside the wp_mail() hooks of the mail that just failed.
  *
  * @param string $error    Error message.
  * @param bool   $fallback True when the fallback delivered the message anyway.
  */
 function mlab_smtp_notify_failure( $error, $fallback ): void {
-	if ( ! mlab_smtp_get( 'notify_enabled' ) || 'instant' !== mlab_smtp_get( 'notify_mode' ) || get_transient( 'mlab_smtp_notify_throttle' ) ) {
+	if ( ! mlab_smtp_get( 'notify_enabled' ) || 'instant' !== mlab_smtp_get( 'notify_mode' ) || get_transient( 'mlab_smtp_notify_throttle' ) || mlab_smtp_notify_queue() ) {
 		return;
 	}
-	set_transient( 'mlab_smtp_notify_throttle', 1, HOUR_IN_SECONDS );
-	mlab_smtp_send_notification(
-		mlab_smtp_notify_subject( (bool) $fallback ),
-		mlab_smtp_notify_body( (string) $error, (bool) $fallback ),
+	mlab_smtp_notify_queue(
+		array(
+			'error'    => (string) $error,
+			'fallback' => (bool) $fallback,
+		)
+	);
+}
+
+/**
+ * Sends the queued failure notification at the end of the request (shutdown). The one-hour throttle starts only
+ * after a successful send; when every attempt failed, a short 10 minute pause avoids hammering a dead route.
+ */
+function mlab_smtp_notify_flush(): void {
+	$queued = mlab_smtp_notify_queue();
+	mlab_smtp_notify_queue( array() );
+	if ( ! $queued || get_transient( 'mlab_smtp_notify_throttle' ) ) {
+		return;
+	}
+	$sent = mlab_smtp_send_notification(
+		mlab_smtp_notify_subject( $queued['fallback'] ),
+		mlab_smtp_notify_body( $queued['error'], $queued['fallback'] ),
 		true
 	);
+	set_transient( 'mlab_smtp_notify_throttle', 1, $sent ? HOUR_IN_SECONDS : 10 * MINUTE_IN_SECONDS );
 }
 
 /**
