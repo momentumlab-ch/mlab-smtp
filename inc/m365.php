@@ -7,12 +7,16 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// Graph accepts at most 4 MB per request; base64 adds a third on top of the MIME text.
+const MLAB_SMTP_M365_LIMIT = 4 * MB_IN_BYTES;
+
 /**
  * Access token for Microsoft Graph (client credentials).
  *
+ * @param bool $fresh True to bypass the cache (connection check, retry after 401).
  * @return string|WP_Error
  */
-function mlab_smtp_m365_token() {
+function mlab_smtp_m365_token( bool $fresh = false ) {
 	$tenant = rawurlencode( (string) mlab_smtp_get( 'm365_tenant' ) );
 	return mlab_smtp_cached_token(
 		'mlab_smtp_m365_token',
@@ -22,7 +26,8 @@ function mlab_smtp_m365_token() {
 			'client_id'     => (string) mlab_smtp_get( 'm365_client_id' ),
 			'client_secret' => (string) mlab_smtp_get( 'm365_client_secret' ),
 			'scope'         => 'https://graph.microsoft.com/.default',
-		)
+		),
+		$fresh
 	);
 }
 
@@ -34,22 +39,12 @@ function mlab_smtp_m365_token() {
  * @return true|WP_Error
  */
 function mlab_smtp_send_m365( string $mime, string $from ) {
-	$token = mlab_smtp_m365_token();
-	if ( is_wp_error( $token ) ) {
-		return $token;
+	// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Graph requires the MIME message base64 encoded.
+	$body  = base64_encode( $mime );
+	$error = mlab_smtp_size_error( $body, MLAB_SMTP_M365_LIMIT );
+	if ( $error ) {
+		return $error;
 	}
-	$response = wp_remote_post(
-		'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $from ) . '/sendMail',
-		array(
-			'timeout' => MLAB_SMTP_TIMEOUT,
-			'headers' => array(
-				'Authorization' => 'Bearer ' . $token,
-				'Content-Type'  => 'text/plain',
-			),
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Graph requires the MIME message base64 encoded.
-			'body'    => base64_encode( $mime ),
-		)
-	);
-	$result = mlab_smtp_decode_response( $response );
+	$result = mlab_smtp_api_post( 'm365', 'https://graph.microsoft.com/v1.0/users/' . rawurlencode( $from ) . '/sendMail', $body, 'text/plain' );
 	return is_wp_error( $result ) ? $result : true;
 }
