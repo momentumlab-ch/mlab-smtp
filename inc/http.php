@@ -94,15 +94,43 @@ function mlab_smtp_cached_token( string $key, string $url, array $body, bool $fr
 	}
 	$ttl = max( 60, (int) ( $data['expires_in'] ?? 3600 ) - 120 );
 	set_transient( $key, mlab_smtp_encrypt( $data['access_token'] ), $ttl );
+	mlab_smtp_remember_token_key( $key );
 	return $data['access_token'];
 }
 
 /**
- * Drops the cached access tokens of both providers.
+ * Name of the token transient. It contains a short hash of the credentials, so a changed constant in
+ * wp-config.php or a new secret never meets a token of the old connection.
+ *
+ * @param string   $provider m365 or google.
+ * @param string[] $parts    Credential values the token depends on.
+ */
+function mlab_smtp_token_key( string $provider, array $parts ): string {
+	return 'mlab_smtp_' . $provider . '_token_' . substr( hash_hmac( 'sha256', implode( "\n", $parts ), wp_salt( 'auth' ) ), 0, 12 );
+}
+
+/**
+ * Remembers a token transient name, so it can be deleted later even though its name depends on the credentials
+ * (and a persistent object cache keeps transients out of the options table).
+ *
+ * @param string $key Transient name.
+ */
+function mlab_smtp_remember_token_key( string $key ): void {
+	$keys = (array) get_option( 'mlab_smtp_token_keys', array() );
+	if ( ! in_array( $key, $keys, true ) ) {
+		$keys[] = $key;
+		update_option( 'mlab_smtp_token_keys', array_slice( $keys, -10 ), false );
+	}
+}
+
+/**
+ * Drops all cached access tokens, whatever credentials they were made for.
  */
 function mlab_smtp_clear_tokens(): void {
-	delete_transient( 'mlab_smtp_m365_token' );
-	delete_transient( 'mlab_smtp_google_token' );
+	foreach ( (array) get_option( 'mlab_smtp_token_keys', array() ) as $key ) {
+		delete_transient( (string) $key );
+	}
+	delete_option( 'mlab_smtp_token_keys' );
 }
 
 /**

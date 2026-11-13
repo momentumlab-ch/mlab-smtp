@@ -7,6 +7,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// Gmail accepts messages up to 35 MB through the upload endpoint.
+const MLAB_SMTP_GOOGLE_LIMIT = 35 * MB_IN_BYTES;
 const MLAB_SMTP_GOOGLE_SCOPE = 'https://www.googleapis.com/auth/gmail.send openid email';
 
 add_action( 'admin_post_mlab_smtp_google_connect', 'mlab_smtp_google_connect' );
@@ -25,6 +27,13 @@ function mlab_smtp_google_redirect_uri(): string {
  */
 function mlab_smtp_google_connect_url(): string {
 	return wp_nonce_url( admin_url( 'admin-post.php?action=mlab_smtp_google_connect' ), 'mlab_smtp_google_connect' );
+}
+
+/**
+ * Same URL for a redirect header: wp_nonce_url() HTML-encodes the ampersand, which breaks a Location header.
+ */
+function mlab_smtp_google_connect_redirect_url(): string {
+	return add_query_arg( '_wpnonce', wp_create_nonce( 'mlab_smtp_google_connect' ), admin_url( 'admin-post.php?action=mlab_smtp_google_connect' ) );
 }
 
 /**
@@ -146,12 +155,15 @@ function mlab_smtp_google_callback(): void {
 	if ( is_wp_error( $result ) ) {
 		mlab_smtp_google_return( 'error', $result->get_error_message() );
 	}
-	mlab_smtp_store(
-		array(
-			'google_refresh_token' => $result['refresh_token'],
-			'google_account'       => $result['account'],
-		)
+	// The provider stays untouched: the wizard only switches to Google when the setup is finished.
+	$changes = array(
+		'google_refresh_token' => $result['refresh_token'],
+		'google_account'       => $result['account'],
 	);
+	if ( '' !== $result['account'] ) {
+		$changes['from_email'] = $result['account'];
+	}
+	mlab_smtp_store( $changes );
 	mlab_smtp_google_return( 'success', __( 'Mit Google verbunden.', 'mlab-smtp' ) );
 }
 
@@ -230,8 +242,9 @@ function mlab_smtp_google_token( bool $fresh = false ) {
 	if ( '' === $refresh ) {
 		return new WP_Error( 'mlab_smtp_google_unlinked', __( 'Google ist noch nicht verbunden. Bitte unter «Einstellungen» die Verbindung mit Google herstellen.', 'mlab-smtp' ) );
 	}
+	$key = mlab_smtp_token_key( 'google', array( (string) mlab_smtp_get( 'google_client_id' ), (string) mlab_smtp_get( 'google_client_secret' ), $refresh ) );
 	return mlab_smtp_cached_token(
-		'mlab_smtp_google_token',
+		$key,
 		'https://oauth2.googleapis.com/token',
 		array(
 			'grant_type'    => 'refresh_token',
@@ -244,14 +257,17 @@ function mlab_smtp_google_token( bool $fresh = false ) {
 }
 
 /**
- * Sends a finished MIME message through the connected Google account.
+ * Sends a finished MIME message through the connected Google account. Uses the upload endpoint of the
+ * Gmail API, which takes the raw message (no base64 inflation) and allows up to 35 MB.
  *
  * @param string $mime Complete MIME message.
  * @return true|WP_Error
  */
 function mlab_smtp_send_google( string $mime ) {
-	// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Gmail requires the MIME message base64url encoded.
-	$raw    = rtrim( strtr( base64_encode( $mime ), '+/', '-_' ), '=' );
-	$result = mlab_smtp_api_post( 'google', 'https://gmail.googleapis.com/gmail/v1/users/me/messages/send', (string) wp_json_encode( array( 'raw' => $raw ) ), 'application/json' );
+	$error = mlab_smtp_size_error( $mime, MLAB_SMTP_GOOGLE_LIMIT );
+	if ( $error ) {
+		return $error;
+	}
+	$result = mlab_smtp_api_post( 'google', 'https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media', $mime, 'message/rfc822' );
 	return is_wp_error( $result ) ? $result : true;
 }

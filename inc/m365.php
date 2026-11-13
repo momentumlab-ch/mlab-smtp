@@ -18,8 +18,9 @@ const MLAB_SMTP_M365_LIMIT = 4 * MB_IN_BYTES;
  */
 function mlab_smtp_m365_token( bool $fresh = false ) {
 	$tenant = rawurlencode( (string) mlab_smtp_get( 'm365_tenant' ) );
+	$key    = mlab_smtp_token_key( 'm365', array( (string) mlab_smtp_get( 'm365_tenant' ), (string) mlab_smtp_get( 'm365_client_id' ), (string) mlab_smtp_get( 'm365_client_secret' ) ) );
 	return mlab_smtp_cached_token(
-		'mlab_smtp_m365_token',
+		$key,
 		'https://login.microsoftonline.com/' . $tenant . '/oauth2/v2.0/token',
 		array(
 			'grant_type'    => 'client_credentials',
