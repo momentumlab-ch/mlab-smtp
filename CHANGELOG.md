@@ -18,6 +18,7 @@ Neue Oberfläche unter *Einstellungen › E-Mail-Versand* und viele Fehlerbehebu
 - Behoben: Mails über 4 MB bei Microsoft 365 scheitern nicht mehr still, sie gehen über den Ersatzweg.
 - Behoben: Nicht mehr lesbare Zugangsdaten (nach Wechsel der WordPress-Salts) werden erkannt und angezeigt.
 - Behoben: Doppelt maskierte Zeichen in Fehlermeldungen, gekürzte Passwörter mit Leerzeichen, ungültige Absender-Adresse ohne Meldung.
+- Behoben: Der Update-Prüfer brach mit einem Fehler ab (fehlende Bibliothek Parsedown im Release-Paket).
 - Sicherer: Google-Anmeldung mit Einmal-Token und PKCE. Beim Löschen werden die Daten aller Seiten einer Multisite entfernt.
 
 ## 1.0.2
