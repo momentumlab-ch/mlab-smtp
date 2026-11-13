@@ -61,12 +61,21 @@ function mlab_smtp_render_status_card( array $status ): void {
 		'bad'  => '✕',
 	);
 	echo '<div class="mlab-card mlab-status is-' . esc_attr( $status['state'] ) . '"><div class="mlab-dot" aria-hidden="true">' . esc_html( $icon[ $status['state'] ] ?? '!' ) . '</div>';
-	echo '<div><h2>' . esc_html( $status['title'] ) . '</h2><p>' . esc_html( $status['text'] ) . '</p></div>';
+	echo '<div><h2>' . esc_html( $status['title'] ) . '</h2><p>' . esc_html( '' !== $status['text'] ? $status['text'] : mlab_smtp_route_summary() ) . '</p></div>';
 	if ( 'ok' !== $status['state'] ) {
 		$url = mlab_smtp_wizard_url( 2, (string) mlab_smtp_get( 'provider' ) );
 		echo '<div class="mlab-act"><a class="button button-primary" href="' . esc_url( $url ) . '">' . esc_html__( 'Verbindung prüfen', 'mlab-smtp' ) . '</a></div>';
 	}
 	echo '</div>';
+}
+
+/**
+ * One line naming the active connection and sender, e.g. "Über Microsoft 365 als noreply@example.ch".
+ */
+function mlab_smtp_route_summary(): string {
+	$name = mlab_smtp_ui_providers()[ (string) mlab_smtp_get( 'provider' ) ]['name'] ?? '';
+	/* translators: 1: provider name, 2: sender address */
+	return sprintf( __( 'Über %1$s als %2$s', 'mlab-smtp' ), $name, (string) mlab_smtp_get( 'from_email' ) );
 }
 
 /**

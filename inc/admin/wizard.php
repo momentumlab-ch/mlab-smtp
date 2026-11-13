@@ -102,7 +102,7 @@ function mlab_smtp_render_step_provider( string $provider ): void {
 	mlab_smtp_wizard_form_open( 1, $provider );
 	echo '<fieldset class="mlab-providers"><legend class="screen-reader-text">' . esc_html__( 'Mailanbieter', 'mlab-smtp' ) . '</legend>';
 	foreach ( mlab_smtp_provider_cards() as $key => $card ) {
-		mlab_smtp_render_provider_card( $key, $card, $provider, ( $detected['provider'] ?? '' ) === $key );
+		mlab_smtp_render_provider_card( $key, $card, $provider, '' !== ( $detected['mx'] ?? '' ) && $detected['provider'] === $key );
 	}
 	echo '</fieldset><div class="mlab-foot"><span></span><button type="submit" class="button button-primary">' . esc_html__( 'Weiter', 'mlab-smtp' ) . '</button></div>';
 	mlab_smtp_ui_form_close();
@@ -355,8 +355,9 @@ function mlab_smtp_render_preset_select(): void {
  */
 function mlab_smtp_render_step_sender( string $provider ): void {
 	$email = (string) mlab_smtp_get( 'from_email' );
-	if ( '' === $email && 'google' === $provider ) {
-		$email = (string) mlab_smtp_get( 'google_account' );
+	if ( '' === $email ) {
+		$email = (string) mlab_smtp_get( 'google' === $provider ? 'google_account' : 'smtp_user' );
+		$email = is_email( $email ) ? $email : '';
 	}
 	$name = (string) mlab_smtp_get( 'from_name' );
 	$name = '' !== $name ? $name : wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
