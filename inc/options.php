@@ -330,3 +330,14 @@ function mlab_smtp_maybe_migrate(): void {
 	mlab_smtp_schedule();
 	update_option( 'mlab_smtp_db_version', MLAB_SMTP_DB_VERSION, false );
 }
+
+/**
+ * Returns the value when it is one of the allowed ones, otherwise the fallback.
+ *
+ * @param mixed    $value    Submitted value.
+ * @param string[] $allowed  Allowed values.
+ * @param string   $fallback Fallback value.
+ */
+function mlab_smtp_pick( $value, array $allowed, string $fallback ): string {
+	return in_array( $value, $allowed, true ) ? (string) $value : $fallback;
+}

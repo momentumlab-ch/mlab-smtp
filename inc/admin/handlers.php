@@ -31,7 +31,7 @@ function mlab_smtp_key_groups(): array {
 }
 
 /**
- * Saves one group of settings and forgets earlier connection checks when the main connection changed.
+ * Saves one group of settings. A changed connection invalidates an earlier check through its fingerprint.
  *
  * @param string $group Group name from mlab_smtp_key_groups().
  * @param array  $input Raw, unslashed form data.
@@ -41,9 +41,6 @@ function mlab_smtp_save_group( string $group, array $input ): array {
 	$groups = mlab_smtp_key_groups();
 	if ( ! isset( $groups[ $group ] ) ) {
 		return array( __( 'Unbekannte Eingabe.', 'mlab-smtp' ) );
-	}
-	if ( in_array( $group, array( 'smtp', 'm365', 'google' ), true ) ) {
-		mlab_smtp_wizard_flag( 'verified', false );
 	}
 	return mlab_smtp_save_fields( $input, $groups[ $group ] );
 }
@@ -59,18 +56,30 @@ function mlab_smtp_post_input(): array {
 }
 
 /**
+ * Fingerprint of the stored main connection. A check counts only as long as the connection is unchanged.
+ */
+function mlab_smtp_connection_fingerprint(): string {
+	$provider = (string) mlab_smtp_get( 'provider' );
+	$keys     = mlab_smtp_key_groups()[ $provider ] ?? array();
+	$values   = array_map( 'mlab_smtp_get', $keys );
+	return hash_hmac( 'sha256', $provider . wp_json_encode( $values ), wp_salt( 'auth' ) );
+}
+
+/**
  * One-hour flag per user that remembers a successful check or test mail of the wizard.
+ * The check flag is bound to the connection fingerprint, so editing the connection resets it.
  *
  * @param string    $name verified or tested.
  * @param bool|null $set  true or false to change the flag, null to read it.
  */
 function mlab_smtp_wizard_flag( string $name, ?bool $set = null ): bool {
-	$key = 'mlab_smtp_' . $name . '_' . get_current_user_id();
+	$key   = 'mlab_smtp_' . $name . '_' . get_current_user_id();
+	$value = 'verified' === $name ? mlab_smtp_connection_fingerprint() : '1';
 	if ( null === $set ) {
-		return (bool) get_transient( $key );
+		return get_transient( $key ) === $value;
 	}
 	if ( $set ) {
-		set_transient( $key, 1, HOUR_IN_SECONDS );
+		set_transient( $key, $value, HOUR_IN_SECONDS );
 	} else {
 		delete_transient( $key );
 	}
