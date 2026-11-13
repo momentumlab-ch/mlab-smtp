@@ -121,6 +121,17 @@
 		};
 	}
 
+	/**
+	 * Provider the wizard works on (hidden field of its forms), undefined outside the wizard.
+	 *
+	 * @param {Element} form Form of the button.
+	 * @return {string|undefined} Provider key.
+	 */
+	function providerOf( form ) {
+		var field = form && form.querySelector( 'input[type="hidden"][name="provider"]' );
+		return field ? field.value : undefined;
+	}
+
 	function resultAreaFor( element ) {
 		var scope = element.closest( '[data-mlab-fields], form' ) || root;
 		return scope.querySelector( '[data-mlab-result]' );
@@ -146,7 +157,7 @@
 			if ( ! saved.ok ) {
 				return saved;
 			}
-			return api( 'check', { route: button.dataset.route } );
+			return api( 'check', { route: button.dataset.route, provider: providerOf( form ) } );
 		} ).then( function ( result ) {
 			done();
 			showResult( area, !! result.ok, result.message, result.detail );
@@ -189,7 +200,7 @@
 			return;
 		}
 		var done = setBusy( button, area, t.sending );
-		api( 'test', { to: to.value } ).then( function ( result ) {
+		api( 'test', { to: to.value, provider: providerOf( form ) } ).then( function ( result ) {
 			done();
 			showResult( area, !! result.ok, result.message, result.detail );
 			form.querySelectorAll( '[data-mlab-finish]' ).forEach( function ( finish ) {

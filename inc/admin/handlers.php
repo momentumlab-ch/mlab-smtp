@@ -14,6 +14,8 @@ add_action( 'admin_post_mlab_smtp_clear_log_confirmed', 'mlab_smtp_handle_clear_
 
 /**
  * Setting keys the UI may save, grouped by form section. Every save names its group explicitly.
+ * The provider is not in any group: the wizard keeps its choice as a draft and only switches the live
+ * provider when the setup is finished.
  *
  * @return array<string, string[]>
  */
@@ -21,9 +23,9 @@ function mlab_smtp_key_groups(): array {
 	$sender   = array( 'from_name', 'from_email', 'reply_to' );
 	$fallback = array( 'fallback_enabled', 'fb_smtp_host', 'fb_smtp_port', 'fb_smtp_secure', 'fb_smtp_auth', 'fb_smtp_user', 'fb_smtp_pass' );
 	return array(
-		'smtp'     => array( 'provider', 'smtp_host', 'smtp_port', 'smtp_secure', 'smtp_auth', 'smtp_user', 'smtp_pass' ),
-		'm365'     => array( 'provider', 'm365_tenant', 'm365_client_id', 'm365_client_secret', 'm365_secret_expires', 'from_email' ),
-		'google'   => array( 'provider', 'google_client_id', 'google_client_secret' ),
+		'smtp'     => array( 'smtp_host', 'smtp_port', 'smtp_secure', 'smtp_auth', 'smtp_user', 'smtp_pass' ),
+		'm365'     => array( 'm365_tenant', 'm365_client_id', 'm365_client_secret', 'm365_secret_expires', 'from_email' ),
+		'google'   => array( 'google_client_id', 'google_client_secret' ),
 		'sender'   => $sender,
 		'fallback' => $fallback,
 		'settings' => array_merge( $sender, $fallback, array( 'force_from', 'notify_enabled', 'notify_email', 'notify_mode', 'log_enabled', 'log_retention' ) ),
@@ -56,7 +58,8 @@ function mlab_smtp_post_input(): array {
 }
 
 /**
- * Fingerprint of the stored main connection. A check counts only as long as the connection is unchanged.
+ * Fingerprint of the main connection of the provider the wizard works on (the draft provider while the
+ * override is set). A check counts only as long as the connection is unchanged.
  */
 function mlab_smtp_connection_fingerprint(): string {
 	$provider = (string) mlab_smtp_get( 'provider' );
@@ -66,15 +69,18 @@ function mlab_smtp_connection_fingerprint(): string {
 }
 
 /**
- * One-hour flag per user that remembers a successful check or test mail of the wizard.
- * The check flag is bound to the connection fingerprint, so editing the connection resets it.
+ * One-hour flag per user that remembers a successful check or test mail of the wizard. Both are bound to the
+ * connection fingerprint, the test mail also to the sender address, so editing either resets the flag.
  *
  * @param string    $name verified or tested.
  * @param bool|null $set  true or false to change the flag, null to read it.
  */
 function mlab_smtp_wizard_flag( string $name, ?bool $set = null ): bool {
 	$key   = 'mlab_smtp_' . $name . '_' . get_current_user_id();
-	$value = 'verified' === $name ? mlab_smtp_connection_fingerprint() : '1';
+	$value = mlab_smtp_connection_fingerprint();
+	if ( 'tested' === $name ) {
+		$value = hash( 'sha256', $value . (string) mlab_smtp_get( 'from_email' ) );
+	}
 	if ( null === $set ) {
 		return get_transient( $key ) === $value;
 	}
@@ -84,6 +90,26 @@ function mlab_smtp_wizard_flag( string $name, ?bool $set = null ): bool {
 		delete_transient( $key );
 	}
 	return $set;
+}
+
+/**
+ * Provider the current user chose in the wizard, kept until the setup is finished. The live provider stays
+ * untouched meanwhile.
+ *
+ * @param string|null $set Provider key to remember, empty string to forget, null to only read.
+ * @return string Draft provider, empty when none.
+ */
+function mlab_smtp_draft_provider( ?string $set = null ): string {
+	$key = 'mlab_smtp_draft_' . get_current_user_id();
+	if ( null !== $set ) {
+		if ( in_array( $set, mlab_smtp_choices()['provider'], true ) ) {
+			set_transient( $key, $set, 6 * HOUR_IN_SECONDS );
+		} else {
+			delete_transient( $key );
+		}
+	}
+	$draft = get_transient( $key );
+	return in_array( $draft, mlab_smtp_choices()['provider'], true ) ? $draft : '';
 }
 
 /**
@@ -111,7 +137,10 @@ function mlab_smtp_handle_wizard(): void {
 	$step     = max( 1, min( 4, (int) ( $input['step'] ?? 1 ) ) );
 	$provider = mlab_smtp_pick( $input['provider'] ?? '', array( 'smtp', 'm365', 'google' ), 'smtp' );
 	$action   = (string) ( $input['do'] ?? 'next' );
-	$steps    = array(
+	// Checks and test mails of this request run with the draft provider; the live one stays untouched.
+	mlab_smtp_provider_override( $provider );
+	mlab_smtp_draft_provider( $provider );
+	$steps = array(
 		1 => 'mlab_smtp_wizard_step_provider',
 		2 => 'mlab_smtp_wizard_step_connect',
 		3 => 'mlab_smtp_wizard_step_sender',
@@ -140,12 +169,11 @@ function mlab_smtp_wizard_step_provider( array $input, string $provider ): void 
  * @param string $action   do value: check, google or next.
  */
 function mlab_smtp_wizard_step_connect( array $input, string $provider, string $action ): void {
-	$input['provider'] = $provider;
-	$errors            = mlab_smtp_save_group( $provider, $input );
+	$errors = mlab_smtp_save_group( $provider, $input );
 	if ( $errors ) {
 		mlab_smtp_flash( 'error', implode( ' ', $errors ) );
 	} elseif ( 'google' === $action ) {
-		wp_safe_redirect( mlab_smtp_google_connect_url() );
+		wp_safe_redirect( mlab_smtp_google_connect_redirect_url() );
 		exit;
 	} elseif ( 'check' === $action ) {
 		mlab_smtp_flash_check( 'primary' );
@@ -197,8 +225,15 @@ function mlab_smtp_wizard_step_sender( array $input, string $provider ): void {
  */
 function mlab_smtp_wizard_step_test( array $input, string $provider, string $action ): void {
 	if ( 'finish' === $action && mlab_smtp_wizard_flag( 'tested' ) ) {
-		mlab_smtp_update( 'setup_done', 1 );
+		mlab_smtp_store(
+			array(
+				'provider'   => $provider,
+				'setup_done' => 1,
+			)
+		);
 		mlab_smtp_wizard_flag( 'tested', false );
+		mlab_smtp_wizard_flag( 'verified', false );
+		mlab_smtp_draft_provider( '' );
 		mlab_smtp_flash( 'success', __( 'Einrichtung abgeschlossen. Mails werden jetzt zugestellt.', 'mlab-smtp' ) );
 		mlab_smtp_back();
 	}

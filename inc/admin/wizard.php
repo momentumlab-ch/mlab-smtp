@@ -8,12 +8,13 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Provider the wizard works on: URL parameter, otherwise the stored one, otherwise the detected one.
+ * Provider the wizard works on: URL parameter, otherwise the draft of this user, otherwise the stored one
+ * (only when the setup is finished), otherwise the detected one.
  */
 function mlab_smtp_wizard_provider(): string {
 	$allowed = array( 'smtp', 'm365', 'google' );
 	$stored  = mlab_smtp_get( 'setup_done' ) ? (string) mlab_smtp_get( 'provider' ) : '';
-	foreach ( array( mlab_smtp_query( 'provider' ), $stored ) as $candidate ) {
+	foreach ( array( mlab_smtp_query( 'provider' ), mlab_smtp_draft_provider(), $stored ) as $candidate ) {
 		if ( in_array( $candidate, $allowed, true ) ) {
 			return $candidate;
 		}
@@ -27,7 +28,10 @@ function mlab_smtp_wizard_provider(): string {
 function mlab_smtp_render_wizard(): void {
 	$step     = max( 1, min( 4, (int) mlab_smtp_query( 'step', '1' ) ) );
 	$provider = mlab_smtp_wizard_provider();
-	$steps    = array(
+	// The whole page works on the draft provider; the live one only changes when the setup is finished.
+	mlab_smtp_draft_provider( $provider );
+	mlab_smtp_provider_override( $provider );
+	$steps = array(
 		1 => 'mlab_smtp_render_step_provider',
 		2 => 'mlab_smtp_render_step_connect',
 		3 => 'mlab_smtp_render_step_sender',
@@ -102,7 +106,8 @@ function mlab_smtp_render_step_provider( string $provider ): void {
 	mlab_smtp_wizard_form_open( 1, $provider );
 	echo '<fieldset class="mlab-providers"><legend class="screen-reader-text">' . esc_html__( 'Mailanbieter', 'mlab-smtp' ) . '</legend>';
 	foreach ( mlab_smtp_provider_cards() as $key => $card ) {
-		mlab_smtp_render_provider_card( $key, $card, $provider, '' !== ( $detected['mx'] ?? '' ) && $detected['provider'] === $key );
+		$is_detected = ! empty( $detected['mx'] ) && ( $detected['provider'] ?? '' ) === $key;
+		mlab_smtp_render_provider_card( $key, $card, $provider, $is_detected );
 	}
 	echo '</fieldset><div class="mlab-foot"><span></span><button type="submit" class="button button-primary">' . esc_html__( 'Weiter', 'mlab-smtp' ) . '</button></div>';
 	mlab_smtp_ui_form_close();
@@ -356,14 +361,18 @@ function mlab_smtp_render_preset_select(): void {
 function mlab_smtp_render_step_sender( string $provider ): void {
 	$email = (string) mlab_smtp_get( 'from_email' );
 	if ( '' === $email ) {
-		$email = (string) mlab_smtp_get( 'google' === $provider ? 'google_account' : 'smtp_user' );
-		$email = is_email( $email ) ? $email : '';
+		$source = array(
+			'google' => 'google_account',
+			'smtp'   => 'smtp_user',
+		)[ $provider ] ?? '';
+		$email  = '' !== $source ? (string) mlab_smtp_get( $source ) : '';
+		$email  = is_email( $email ) ? $email : '';
 	}
 	$name = (string) mlab_smtp_get( 'from_name' );
 	$name = '' !== $name ? $name : wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 	mlab_smtp_wizard_form_open( 3, $provider, '', array( 'data-mlab-sender' => '1' ) );
 	echo '<h2>' . esc_html__( 'Absender', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'So erscheinen Mails der Website im Posteingang der Empfänger.', 'mlab-smtp' ) . '</p><div class="mlab-fields is-open">';
-	mlab_smtp_render_sender_fields( $name, $email, 'smtp' !== $provider );
+	mlab_smtp_render_sender_fields( $name, $email, 'google' === $provider );
 	echo '</div><div class="mlab-preview"><p class="mlab-muted mlab-small">' . esc_html__( 'Vorschau', 'mlab-smtp' ) . '</p><strong data-mlab-preview="from_name">' . esc_html( $name ) . '</strong> <span class="mlab-muted">&lt;<span data-mlab-preview="from_email">' . esc_html( $email ) . '</span>&gt;</span></div>';
 	mlab_smtp_render_step_foot( mlab_smtp_wizard_url( 2, $provider ), __( 'Weiter', 'mlab-smtp' ) );
 	mlab_smtp_ui_form_close();
@@ -392,7 +401,7 @@ function mlab_smtp_render_sender_fields( string $name, string $email, bool $fixe
 			'type'     => 'email',
 			'value'    => $email,
 			'readonly' => $fixed,
-			'help'     => $fixed ? __( 'Das verbundene Postfach. Der Anbieter erlaubt nur dieses oder einen freigegebenen Alias.', 'mlab-smtp' ) : __( 'Sollte zur Domain des Servers passen, sonst landen Mails im Spam.', 'mlab-smtp' ),
+			'help'     => $fixed ? __( 'Das verbundene Google-Konto. Google erlaubt nur dieses oder einen freigegebenen Alias.', 'mlab-smtp' ) : __( 'Muss ein vorhandenes Postfach sein und sollte zur Domain passen, sonst landen Mails im Spam.', 'mlab-smtp' ),
 		)
 	);
 	mlab_smtp_ui_field(

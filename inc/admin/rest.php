@@ -36,19 +36,27 @@ function mlab_smtp_route_definitions(): array {
 		'/check' => array(
 			'callback' => 'mlab_smtp_rest_check',
 			'args'     => array(
-				'route' => array(
+				'route'    => array(
 					'type'    => 'string',
 					'default' => 'primary',
 					'enum'    => array( 'primary', 'fallback' ),
+				),
+				'provider' => array(
+					'type' => 'string',
+					'enum' => array( 'smtp', 'm365', 'google' ),
 				),
 			),
 		),
 		'/test'  => array(
 			'callback' => 'mlab_smtp_rest_test',
 			'args'     => array(
-				'to' => array(
+				'to'       => array(
 					'type'     => 'string',
 					'required' => true,
+				),
+				'provider' => array(
+					'type' => 'string',
+					'enum' => array( 'smtp', 'm365', 'google' ),
 				),
 			),
 		),
@@ -95,21 +103,33 @@ function mlab_smtp_rest_save( WP_REST_Request $request ): array {
 }
 
 /**
- * POST /check: checks the connection of one route without sending a mail.
+ * POST /check: checks the connection of one route without sending a mail. The wizard passes the draft provider.
  *
- * @param WP_REST_Request $request Request with route.
+ * @param WP_REST_Request $request Request with route and optional provider.
  */
 function mlab_smtp_rest_check( WP_REST_Request $request ): array {
-	return mlab_smtp_run_check( (string) $request['route'] );
+	$route = (string) $request['route'];
+	return mlab_smtp_with_provider(
+		(string) $request['provider'],
+		static function () use ( $route ): array {
+			return mlab_smtp_run_check( $route );
+		}
+	);
 }
 
 /**
- * POST /test: sends a test mail.
+ * POST /test: sends a test mail. The wizard passes the draft provider.
  *
- * @param WP_REST_Request $request Request with to.
+ * @param WP_REST_Request $request Request with to and optional provider.
  */
 function mlab_smtp_rest_test( WP_REST_Request $request ): array {
-	return mlab_smtp_run_test_request( (string) $request['to'] );
+	$to = (string) $request['to'];
+	return mlab_smtp_with_provider(
+		(string) $request['provider'],
+		static function () use ( $to ): array {
+			return mlab_smtp_run_test_request( $to );
+		}
+	);
 }
 
 /**
@@ -172,6 +192,15 @@ function mlab_smtp_run_test_request( string $to ): array {
 		);
 	}
 	$result = mlab_smtp_run_test( $to );
+	if ( $result['sent'] && 'fallback' === $result['via'] ) {
+		// Delivered, but not by the main route: the setup must not count as tested.
+		mlab_smtp_wizard_flag( 'tested', false );
+		return array(
+			'ok'      => false,
+			'message' => __( 'Die Testmail wurde nur über den Ersatzweg zugestellt. Der Hauptweg funktioniert nicht. Bitte beheben Sie zuerst den Fehler und senden Sie die Testmail erneut.', 'mlab-smtp' ),
+			'detail'  => $result['error'],
+		);
+	}
 	if ( $result['sent'] ) {
 		mlab_smtp_wizard_flag( 'tested', true );
 		return array(
