@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.3.0
+
+Neu: Versand über Resend, mit geführter Einrichtung und Fehleranzeige.
+
+- Neu: Resend als vierter Versandweg (REST-API). Der API-Key wird im Assistenten eingegeben und verschlüsselt gespeichert, es muss keine Datei bearbeitet werden.
+- Neu: Der Assistent prüft den Key. Ein Key mit «Sending access» (empfohlen) gilt als gültig, die Domain-Prüfung entfällt dann und die Testmail bestätigt sie.
+- Neu: Im Schritt «Absender» zeigt der Assistent den Stand der Absender-Domain bei Resend (verifiziert, ausstehend, fehlgeschlagen oder nicht angelegt). Fehlende DNS-Einträge stehen mit Kopierknopf da, «Nochmals prüfen» startet die Prüfung bei Resend. Ist die Domain noch nicht verifiziert, bleibt der Assistent hier stehen und nennt den Weg, statt eine Testmail scheitern zu lassen.
+- Neu: Als Absender wird eine Adresse der ersten verifizierten Domain vorgeschlagen.
+- Neu: Die Übersicht zeigt den Domain-Status von Resend. Der SPF-Eintrag der Hauptdomain wird bei Resend nicht geprüft, Resend legt ihn auf einer eigenen Subdomain ab.
+- Neu: Fehler von Resend erscheinen in Klartext mit Anleitung, im Assistenten, in der Übersicht und im Protokoll: ungültiger oder gesperrter Key, Domain nicht verifiziert, Testadresse resend.dev, Tages- und Monatslimit, zu viele Anfragen, Störung bei Resend, Resend nicht erreichbar, ungültige Angaben. Die technische Meldung bleibt aufklappbar.
+- Neu: Mails mit mehr als 50 Empfängern oder über 40 MB Anhängen scheitern vor dem Versand mit einer klaren Meldung und gehen über den Ersatzweg.
+- Sicherer: Ein Idempotenz-Schlüssel verhindert, dass eine wiederholte Anfrage dieselbe Mail doppelt versendet.
+- Beim Update ändert sich an bestehenden Einrichtungen nichts.
+
 ## 1.2.0
 
 Neue Oberfläche unter *Einstellungen › E-Mail-Versand* und viele Fehlerbehebungen.

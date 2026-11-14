@@ -41,6 +41,7 @@ function mlab_smtp_health_checks(): array {
 		mlab_smtp_health_credentials(),
 		mlab_smtp_health_secret_expiry(),
 		mlab_smtp_health_google(),
+		mlab_smtp_health_resend(),
 		mlab_smtp_health_spf(),
 		mlab_smtp_health_dmarc(),
 		mlab_smtp_health_notify(),
@@ -171,11 +172,38 @@ function mlab_smtp_health_txt( string $host ): ?array {
 }
 
 /**
+ * Check: sender domain at Resend. Resend keeps its SPF record on its own subdomain, so the check of the
+ * main domain's SPF record does not apply to it.
+ *
+ * @return array|null Row, null for other providers.
+ */
+function mlab_smtp_health_resend(): ?array {
+	if ( 'resend' !== mlab_smtp_get( 'provider' ) ) {
+		return null;
+	}
+	$title = __( 'Resend-Domain', 'mlab-smtp' );
+	$state = mlab_smtp_resend_domain_state( mlab_smtp_health_domain() );
+	$text  = mlab_smtp_resend_state_text( $state );
+	if ( '' === $text['message'] ) {
+		return null;
+	}
+	$level = 'info' === $text['level'] ? 'ok' : $text['level'];
+	$line  = $text['title'] . ': ' . $text['message'];
+	if ( 'ok' === $level ) {
+		return mlab_smtp_health_row( 'ok', $title, $line );
+	}
+	return mlab_smtp_health_row( $level, $title, $line, __( 'Domain prüfen', 'mlab-smtp' ), mlab_smtp_wizard_url( 3, 'resend' ) );
+}
+
+/**
  * Check: SPF record of the sender domain.
  *
- * @return array
+ * @return array|null Row, null for providers that do not need it on the main domain.
  */
-function mlab_smtp_health_spf(): array {
+function mlab_smtp_health_spf(): ?array {
+	if ( 'resend' === mlab_smtp_get( 'provider' ) ) {
+		return null;
+	}
 	$title  = __( 'SPF-Eintrag', 'mlab-smtp' );
 	$domain = mlab_smtp_health_domain();
 	$txt    = mlab_smtp_health_txt( $domain );

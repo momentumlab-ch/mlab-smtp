@@ -22,7 +22,7 @@ add_action( 'init', 'mlab_smtp_maybe_migrate' );
  * @return string[]
  */
 function mlab_smtp_secret_keys(): array {
-	return array( 'smtp_pass', 'fb_smtp_pass', 'm365_client_secret', 'google_client_secret', 'google_refresh_token' );
+	return array( 'smtp_pass', 'fb_smtp_pass', 'm365_client_secret', 'google_client_secret', 'google_refresh_token', 'resend_api_key' );
 }
 
 /**
@@ -41,7 +41,7 @@ function mlab_smtp_checkbox_keys(): array {
  */
 function mlab_smtp_choices(): array {
 	return array(
-		'provider'       => array( 'smtp', 'm365', 'google' ),
+		'provider'       => array( 'smtp', 'm365', 'google', 'resend' ),
 		'smtp_secure'    => array( 'tls', 'ssl', 'none' ),
 		'fb_smtp_secure' => array( 'tls', 'ssl', 'none' ),
 		'notify_mode'    => array( 'instant', 'daily' ),
@@ -76,6 +76,7 @@ function mlab_smtp_defaults(): array {
 		'google_client_secret' => '',
 		'google_refresh_token' => '',
 		'google_account'       => '',
+		'resend_api_key'       => '',
 		'fallback_enabled'     => 0,
 		'fb_smtp_host'         => '',
 		'fb_smtp_port'         => 587,
@@ -97,7 +98,7 @@ function mlab_smtp_defaults(): array {
  * @return string[]
  */
 function mlab_smtp_credential_keys(): array {
-	return array( 'm365_tenant', 'm365_client_id', 'm365_client_secret', 'google_client_id', 'google_client_secret', 'google_refresh_token' );
+	return array( 'm365_tenant', 'm365_client_id', 'm365_client_secret', 'google_client_id', 'google_client_secret', 'google_refresh_token', 'resend_api_key' );
 }
 
 /**
@@ -283,6 +284,9 @@ function mlab_smtp_host_change_denied( string $key, $value ): bool {
  */
 function mlab_smtp_sanitize_field( string $key, $raw, $fallback ) {
 	$raw = is_scalar( $raw ) ? (string) $raw : '';
+	if ( 'resend_api_key' === $key ) {
+		return mlab_smtp_sanitize_resend_key( $raw );
+	}
 	if ( in_array( $key, mlab_smtp_secret_keys(), true ) ) {
 		// Never trim: passwords may start or end with a space. Empty keeps the stored secret.
 		return '' === $raw ? null : $raw;
@@ -304,6 +308,24 @@ function mlab_smtp_sanitize_field( string $key, $raw, $fallback ) {
 		return mlab_smtp_sanitize_date_field( $raw );
 	}
 	return sanitize_text_field( $raw );
+}
+
+/**
+ * Validates a Resend API key. Pasted keys often carry a space or line break, so it is trimmed here. An empty
+ * field keeps the stored key.
+ *
+ * @param string $raw Submitted value.
+ * @return string|WP_Error|null Key, error, or null to keep the stored key.
+ */
+function mlab_smtp_sanitize_resend_key( string $raw ) {
+	$raw = trim( $raw );
+	if ( '' === $raw ) {
+		return null;
+	}
+	if ( preg_match( '/^re_[A-Za-z0-9_\-]{10,}$/', $raw ) ) {
+		return $raw;
+	}
+	return new WP_Error( 'mlab_smtp_resend_key', __( 'Das ist kein Resend-API-Key. Ein Key beginnt mit «re_». Bitte bei Resend unter «API Keys» einen Key erstellen und vollständig kopieren. Der bisherige Wert bleibt erhalten.', 'mlab-smtp' ) );
 }
 
 /**
@@ -352,7 +374,7 @@ function mlab_smtp_sanitize_date_field( string $raw ) {
 /**
  * Keys that must be filled in for a provider to work.
  *
- * @param string $provider smtp, m365 or google.
+ * @param string $provider smtp, m365, google or resend.
  * @return string[]
  */
 function mlab_smtp_required_keys( string $provider ): array {
@@ -360,6 +382,7 @@ function mlab_smtp_required_keys( string $provider ): array {
 		'smtp'   => array( 'smtp_host' ),
 		'm365'   => array( 'm365_tenant', 'm365_client_id', 'm365_client_secret' ),
 		'google' => array( 'google_client_id', 'google_client_secret', 'google_refresh_token' ),
+		'resend' => array( 'resend_api_key' ),
 	);
 	return $map[ $provider ] ?? array();
 }
@@ -368,7 +391,7 @@ function mlab_smtp_required_keys( string $provider ): array {
  * True when the provider has all its required fields, counting constants from wp-config.php.
  * A stored secret that can no longer be decrypted counts as present: the problem is reported separately.
  *
- * @param string $provider smtp, m365 or google.
+ * @param string $provider smtp, m365, google or resend.
  */
 function mlab_smtp_provider_ready( string $provider ): bool {
 	$keys = mlab_smtp_required_keys( $provider );

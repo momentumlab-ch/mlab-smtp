@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  * (only when the setup is finished), otherwise the detected one.
  */
 function mlab_smtp_wizard_provider(): string {
-	$allowed = array( 'smtp', 'm365', 'google' );
+	$allowed = mlab_smtp_choices()['provider'];
 	$stored  = mlab_smtp_get( 'setup_done' ) ? (string) mlab_smtp_get( 'provider' ) : '';
 	foreach ( array( mlab_smtp_query( 'provider' ), mlab_smtp_draft_provider(), $stored ) as $candidate ) {
 		if ( in_array( $candidate, $allowed, true ) ) {
@@ -128,6 +128,10 @@ function mlab_smtp_provider_cards(): array {
 			'text'    => __( 'Postfach bei Google (Gmail, Workspace).', 'mlab-smtp' ),
 			'bullets' => array( __( 'Anmelden mit Google-Konto', 'mlab-smtp' ), __( 'Einmalig Zugang in Google Cloud anlegen', 'mlab-smtp' ) ),
 		),
+		'resend' => array(
+			'text'    => __( 'Versanddienst für Website-Mails, ohne eigenes Postfach.', 'mlab-smtp' ),
+			'bullets' => array( __( 'Nur ein API-Key, keine Anmeldung', 'mlab-smtp' ), __( 'Prüft Ihre Domain und zeigt fehlende DNS-Einträge', 'mlab-smtp' ) ),
+		),
 		'smtp'   => array(
 			'text'    => __( 'Mailserver Ihres Hosters, z. B. Infomaniak, Hostpoint, cyon.', 'mlab-smtp' ),
 			'bullets' => array( __( 'Server, Benutzer und Passwort', 'mlab-smtp' ), __( 'Funktioniert mit fast jedem Anbieter', 'mlab-smtp' ) ),
@@ -176,6 +180,7 @@ function mlab_smtp_render_step_connect( string $provider ): void {
 	$renderers = array(
 		'm365'   => 'mlab_smtp_render_connect_m365',
 		'google' => 'mlab_smtp_render_connect_google',
+		'resend' => 'mlab_smtp_render_connect_resend',
 		'smtp'   => 'mlab_smtp_render_connect_smtp',
 	);
 	call_user_func( $renderers[ $provider ] );
@@ -368,14 +373,34 @@ function mlab_smtp_render_step_sender( string $provider ): void {
 		$email  = '' !== $source ? (string) mlab_smtp_get( $source ) : '';
 		$email  = is_email( $email ) ? $email : '';
 	}
+	if ( '' === $email && 'resend' === $provider ) {
+		$email = mlab_smtp_resend_suggest_sender();
+	}
 	$name = (string) mlab_smtp_get( 'from_name' );
 	$name = '' !== $name ? $name : wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 	mlab_smtp_wizard_form_open( 3, $provider, '', array( 'data-mlab-sender' => '1' ) );
-	echo '<h2>' . esc_html__( 'Absender', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'So erscheinen Mails der Website im Posteingang der Empfänger.', 'mlab-smtp' ) . '</p><div class="mlab-fields is-open">';
-	mlab_smtp_render_sender_fields( $name, $email, 'google' === $provider );
+	echo '<h2>' . esc_html__( 'Absender', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'So erscheinen Mails der Website im Posteingang der Empfänger.', 'mlab-smtp' ) . '</p>';
+	if ( 'resend' === $provider ) {
+		mlab_smtp_render_resend_domain_panel();
+	}
+	echo '<div class="mlab-fields is-open">';
+	mlab_smtp_render_sender_fields( $name, $email, 'google' === $provider, 'resend' === $provider ? __( 'Die Domain muss bei Resend verifiziert sein. Das Postfach muss nicht existieren, zum Beispiel noreply@ihre-domain.ch.', 'mlab-smtp' ) : '' );
 	echo '</div><div class="mlab-preview"><p class="mlab-muted mlab-small">' . esc_html__( 'Vorschau', 'mlab-smtp' ) . '</p><strong data-mlab-preview="from_name">' . esc_html( $name ) . '</strong> <span class="mlab-muted">&lt;<span data-mlab-preview="from_email">' . esc_html( $email ) . '</span>&gt;</span></div>';
 	mlab_smtp_render_step_foot( mlab_smtp_wizard_url( 2, $provider ), __( 'Weiter', 'mlab-smtp' ) );
 	mlab_smtp_ui_form_close();
+}
+
+/**
+ * Help text below the sender address.
+ *
+ * @param bool   $fixed Whether the address is fixed by the connected mailbox.
+ * @param string $help  Provider specific text, empty for the default.
+ */
+function mlab_smtp_sender_help( bool $fixed, string $help ): string {
+	if ( '' !== $help ) {
+		return $help;
+	}
+	return $fixed ? __( 'Das verbundene Google-Konto. Google erlaubt nur dieses oder einen freigegebenen Alias.', 'mlab-smtp' ) : __( 'Muss ein vorhandenes Postfach sein und sollte zur Domain passen, sonst landen Mails im Spam.', 'mlab-smtp' );
 }
 
 /**
@@ -384,8 +409,9 @@ function mlab_smtp_render_step_sender( string $provider ): void {
  * @param string $name  Prefilled name.
  * @param string $email Prefilled address.
  * @param bool   $fixed Whether the address is fixed by the connected mailbox.
+ * @param string $help  Help text of the address field, empty for the default.
  */
-function mlab_smtp_render_sender_fields( string $name, string $email, bool $fixed ): void {
+function mlab_smtp_render_sender_fields( string $name, string $email, bool $fixed, string $help = '' ): void {
 	mlab_smtp_ui_field(
 		'from_name',
 		__( 'Absender-Name', 'mlab-smtp' ),
@@ -401,7 +427,7 @@ function mlab_smtp_render_sender_fields( string $name, string $email, bool $fixe
 			'type'     => 'email',
 			'value'    => $email,
 			'readonly' => $fixed,
-			'help'     => $fixed ? __( 'Das verbundene Google-Konto. Google erlaubt nur dieses oder einen freigegebenen Alias.', 'mlab-smtp' ) : __( 'Muss ein vorhandenes Postfach sein und sollte zur Domain passen, sonst landen Mails im Spam.', 'mlab-smtp' ),
+			'help'     => mlab_smtp_sender_help( $fixed, $help ),
 		)
 	);
 	mlab_smtp_ui_field(

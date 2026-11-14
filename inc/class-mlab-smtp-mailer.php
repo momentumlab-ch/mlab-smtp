@@ -56,12 +56,12 @@ class Mlab_Smtp_Mailer extends \PHPMailer\PHPMailer\PHPMailer {
 	 * resend through the fallback could produce a duplicate. This is the case for an SMTP error after the DATA
 	 * command (data not accepted) and for rejected recipients (the others got the message).
 	 *
-	 * Known limitation: a timeout of an API call (Microsoft 365, Google) is indistinguishable from a request that
-	 * never arrived. The server may have accepted the message although we saw no answer. We still fall back in
+	 * Known limitation: a timeout of an API call (Microsoft 365, Google, Resend) is indistinguishable from a request
+	 * that never arrived. The server may have accepted the message although we saw no answer. We still fall back in
 	 * that case, because losing a mail is worse than the rare duplicate.
 	 *
 	 * @param \PHPMailer\PHPMailer\Exception $e        Error of the primary route.
-	 * @param string                         $provider smtp, m365 or google.
+	 * @param string                         $provider smtp, m365, google or resend.
 	 */
 	private function may_have_delivered( \PHPMailer\PHPMailer\Exception $e, string $provider ): bool {
 		if ( 'smtp' !== $provider ) {
@@ -74,7 +74,7 @@ class Mlab_Smtp_Mailer extends \PHPMailer\PHPMailer\PHPMailer {
 	/**
 	 * Sends through the primary route.
 	 *
-	 * @param string $provider smtp, m365 or google.
+	 * @param string $provider smtp, m365, google or resend.
 	 * @throws \PHPMailer\PHPMailer\Exception On any failure.
 	 */
 	private function send_primary( string $provider ): void {
@@ -87,7 +87,7 @@ class Mlab_Smtp_Mailer extends \PHPMailer\PHPMailer\PHPMailer {
 			}
 			return;
 		}
-		$result = mlab_smtp_dispatch( $this->getSentMIMEMessage(), $this->From );
+		$result = 'resend' === $provider ? mlab_smtp_send_resend( $this ) : mlab_smtp_dispatch( $this->getSentMIMEMessage(), $this->From );
 		if ( is_wp_error( $result ) ) {
 			throw new \PHPMailer\PHPMailer\Exception( $result->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain text for logs; escaped on output.
 		}

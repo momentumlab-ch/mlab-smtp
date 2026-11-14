@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Display data of the three providers.
+ * Display data of the providers.
  *
  * @return array<string, array{name:string, color:string, letter:string}>
  */
@@ -24,6 +24,11 @@ function mlab_smtp_ui_providers(): array {
 			'color'  => '#1e8e3e',
 			'letter' => 'G',
 		),
+		'resend' => array(
+			'name'   => __( 'Resend', 'mlab-smtp' ),
+			'color'  => '#111111',
+			'letter' => 'R',
+		),
 		'smtp'   => array(
 			'name'   => __( 'Eigener Mailserver', 'mlab-smtp' ),
 			'color'  => '#50575e',
@@ -35,7 +40,7 @@ function mlab_smtp_ui_providers(): array {
 /**
  * Prints the round provider logo.
  *
- * @param string $provider m365, google or smtp.
+ * @param string $provider m365, google, resend or smtp.
  */
 function mlab_smtp_ui_logo( string $provider ): void {
 	$meta = mlab_smtp_ui_providers()[ $provider ] ?? mlab_smtp_ui_providers()['smtp'];

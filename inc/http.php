@@ -31,11 +31,15 @@ function mlab_smtp_decode_response( $response ) {
 }
 
 /**
- * Pulls the error text out of a Google or Microsoft error body.
+ * Pulls the error text out of a Google, Microsoft or Resend error body.
  *
  * @param array $data Decoded error body.
  */
 function mlab_smtp_error_message( array $data ): string {
+	if ( isset( $data['name'], $data['message'] ) && is_string( $data['name'] ) && is_string( $data['message'] ) ) {
+		// Resend: keep the error name (for example validation_error), mlab_smtp_explain_error() relies on it.
+		return $data['name'] . ': ' . $data['message'];
+	}
 	$error = $data['error'] ?? '';
 	if ( is_array( $error ) ) {
 		return (string) ( $error['message'] ?? '' );
@@ -174,9 +178,15 @@ function mlab_smtp_api_post( string $provider, string $url, string $body, string
  * @return WP_Error|null Error when too large.
  */
 function mlab_smtp_size_error( string $body, int $limit ): ?WP_Error {
-	if ( strlen( $body ) <= $limit ) {
-		return null;
-	}
+	return strlen( $body ) <= $limit ? null : mlab_smtp_too_large_error( $limit );
+}
+
+/**
+ * Error for a message that is larger than the provider accepts.
+ *
+ * @param int $limit Largest accepted size in bytes.
+ */
+function mlab_smtp_too_large_error( int $limit ): WP_Error {
 	return new WP_Error(
 		'mlab_smtp_size',
 		sprintf(

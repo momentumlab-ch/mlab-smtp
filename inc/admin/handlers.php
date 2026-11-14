@@ -26,6 +26,7 @@ function mlab_smtp_key_groups(): array {
 		'smtp'     => array( 'smtp_host', 'smtp_port', 'smtp_secure', 'smtp_auth', 'smtp_user', 'smtp_pass' ),
 		'm365'     => array( 'm365_tenant', 'm365_client_id', 'm365_client_secret', 'm365_secret_expires', 'from_email' ),
 		'google'   => array( 'google_client_id', 'google_client_secret' ),
+		'resend'   => array( 'resend_api_key' ),
 		'sender'   => $sender,
 		'fallback' => $fallback,
 		'settings' => array_merge( $sender, $fallback, array( 'force_from', 'notify_enabled', 'notify_email', 'notify_mode', 'log_enabled', 'log_retention' ) ),
@@ -135,7 +136,7 @@ function mlab_smtp_handle_wizard(): void {
 	mlab_smtp_guard( 'mlab_smtp_wizard' );
 	$input    = mlab_smtp_post_input();
 	$step     = max( 1, min( 4, (int) ( $input['step'] ?? 1 ) ) );
-	$provider = mlab_smtp_pick( $input['provider'] ?? '', array( 'smtp', 'm365', 'google' ), 'smtp' );
+	$provider = mlab_smtp_pick( $input['provider'] ?? '', mlab_smtp_choices()['provider'], 'smtp' );
 	$action   = (string) ( $input['do'] ?? 'next' );
 	// Checks and test mails of this request run with the draft provider; the live one stays untouched.
 	mlab_smtp_provider_override( $provider );
@@ -209,6 +210,11 @@ function mlab_smtp_flash_check( string $route ): void {
  */
 function mlab_smtp_wizard_step_sender( array $input, string $provider ): void {
 	$errors = mlab_smtp_save_group( 'sender', $input );
+	if ( ! $errors && 'resend' === $provider ) {
+		// A domain that Resend does not accept yet makes the test mail fail: stop here with the way out.
+		$block  = mlab_smtp_resend_sender_block();
+		$errors = null === $block ? array() : array( $block );
+	}
 	if ( $errors ) {
 		mlab_smtp_flash( 'error', implode( ' ', $errors ) );
 	}

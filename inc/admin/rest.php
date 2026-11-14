@@ -25,7 +25,7 @@ function mlab_smtp_route_definitions(): array {
 				'group'  => array(
 					'type'     => 'string',
 					'required' => true,
-					'enum'     => array( 'smtp', 'm365', 'google', 'sender', 'fallback' ),
+					'enum'     => array_merge( mlab_smtp_choices()['provider'], array( 'sender', 'fallback' ) ),
 				),
 				'fields' => array(
 					'type'     => 'object',
@@ -43,7 +43,7 @@ function mlab_smtp_route_definitions(): array {
 				),
 				'provider' => array(
 					'type' => 'string',
-					'enum' => array( 'smtp', 'm365', 'google' ),
+					'enum' => mlab_smtp_choices()['provider'],
 				),
 			),
 		),
@@ -56,7 +56,7 @@ function mlab_smtp_route_definitions(): array {
 				),
 				'provider' => array(
 					'type' => 'string',
-					'enum' => array( 'smtp', 'm365', 'google' ),
+					'enum' => mlab_smtp_choices()['provider'],
 				),
 			),
 		),
@@ -167,6 +167,9 @@ function mlab_smtp_run_check( string $route ): array {
 function mlab_smtp_check_success_text( string $route ): string {
 	if ( 'fallback' === $route ) {
 		return __( 'Ersatzweg erreichbar. Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' );
+	}
+	if ( 'resend' === mlab_smtp_get( 'provider' ) ) {
+		return mlab_smtp_resend_success_text();
 	}
 	$texts = array(
 		'm365'   => __( 'Verbunden. Microsoft hat die Zugangsdaten akzeptiert.', 'mlab-smtp' ),
