@@ -138,25 +138,57 @@ function mlab_smtp_ui_time( int $timestamp ): string {
 /**
  * Status icon character for a level.
  *
- * @param string $level ok, warn or bad.
+ * @param string $level ok, warn, bad or info.
  */
 function mlab_smtp_ui_icon( string $level ): string {
 	$icons = array(
 		'ok'   => '✓',
 		'warn' => '!',
 		'bad'  => '✕',
+		'info' => 'i',
 	);
 	return $icons[ $level ] ?? '!';
 }
 
 /**
+ * Inline SVG icon (24 px grid, stroke follows the text colour). Static markup, safe to print.
+ *
+ * @param string $name send, refresh, arrow, external, gear, search, chevron or close.
+ */
+function mlab_smtp_ui_svg( string $name ): string {
+	$paths = array(
+		'send'     => '<path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/>',
+		'refresh'  => '<path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/>',
+		'arrow'    => '<path d="M5 12h14M13 6l6 6-6 6"/>',
+		'external' => '<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+		'gear'     => '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+		'search'   => '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+		'chevron'  => '<path d="m6 9 6 6 6-6"/>',
+		'close'    => '<path d="M18 6 6 18M6 6l12 12"/>',
+	);
+	return '<svg class="mlab-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . ( $paths[ $name ] ?? '' ) . '</svg>';
+}
+
+/**
  * Prints a small coloured label.
  *
- * @param string $level ok, warn, bad or neu.
+ * @param string $level ok, warn, bad, info or neu.
  * @param string $label Text.
  */
 function mlab_smtp_ui_pill( string $level, string $label ): void {
 	echo '<span class="mlab-pill is-' . esc_attr( $level ) . '">' . esc_html( $label ) . '</span>';
+}
+
+/**
+ * Level of a log entry: ok when delivered, warn when only the fallback delivered, bad when it failed.
+ *
+ * @param array $entry Log entry.
+ */
+function mlab_smtp_ui_entry_level( array $entry ): string {
+	if ( empty( $entry['ok'] ) ) {
+		return 'bad';
+	}
+	return empty( $entry['fallback'] ) ? 'ok' : 'warn';
 }
 
 /**
@@ -165,26 +197,30 @@ function mlab_smtp_ui_pill( string $level, string $label ): void {
  * @param array $entry Log entry.
  */
 function mlab_smtp_ui_entry_pill( array $entry ): void {
-	if ( ! empty( $entry['ok'] ) && empty( $entry['fallback'] ) ) {
-		mlab_smtp_ui_pill( 'ok', __( 'Zugestellt', 'mlab-smtp' ) );
-	} elseif ( ! empty( $entry['ok'] ) ) {
-		mlab_smtp_ui_pill( 'warn', __( 'Ersatzweg', 'mlab-smtp' ) );
-	} else {
-		mlab_smtp_ui_pill( 'bad', __( 'Fehlgeschlagen', 'mlab-smtp' ) );
-	}
+	$level  = mlab_smtp_ui_entry_level( $entry );
+	$labels = array(
+		'ok'   => __( 'Zugestellt', 'mlab-smtp' ),
+		'warn' => __( 'Ersatzweg', 'mlab-smtp' ),
+		'bad'  => __( 'Fehlgeschlagen', 'mlab-smtp' ),
+	);
+	mlab_smtp_ui_pill( $level, $labels[ $level ] );
 }
 
 /**
- * Prints a coloured hint box with an icon.
+ * Prints the shared hint: a coloured box with an icon, used for results, explanations and warnings.
  *
- * @param string $level ok, warn, bad or info.
- * @param string $title Bold first line.
- * @param string $text  Optional second line.
+ * @param string        $level ok, warn, bad or info.
+ * @param string        $title Bold first line, may be empty.
+ * @param string        $text  Optional second line.
+ * @param callable|null $more  Optional function that prints more content below the text.
  */
-function mlab_smtp_ui_hint( string $level, string $title, string $text = '' ): void {
-	echo '<div class="mlab-hint is-' . esc_attr( $level ) . '"><span class="mlab-ic is-' . esc_attr( $level ) . '" aria-hidden="true">' . esc_html( mlab_smtp_ui_icon( $level ) ) . '</span><div><strong>' . esc_html( $title ) . '</strong>';
+function mlab_smtp_ui_hint( string $level, string $title, string $text = '', ?callable $more = null ): void {
+	echo '<div class="mlab-hint is-' . esc_attr( $level ) . '"><span class="mlab-ic is-' . esc_attr( $level ) . '" aria-hidden="true">' . esc_html( mlab_smtp_ui_icon( $level ) ) . '</span><div class="mlab-hint-body">' . ( '' !== $title ? '<strong>' . esc_html( $title ) . '</strong>' : '' );
 	if ( '' !== $text ) {
 		echo '<p>' . esc_html( $text ) . '</p>';
+	}
+	if ( $more ) {
+		$more();
 	}
 	echo '</div></div>';
 }
@@ -211,7 +247,7 @@ function mlab_smtp_ui_result_area(): void {
  * @param string $text Text to show and copy.
  */
 function mlab_smtp_ui_copy( string $text ): void {
-	echo '<div class="mlab-copy"><code>' . esc_html( $text ) . '</code><button type="button" class="button-link" data-mlab-copy="' . esc_attr( $text ) . '">' . esc_html__( 'Kopieren', 'mlab-smtp' ) . '</button></div>';
+	echo '<div class="mlab-copy"><code>' . esc_html( $text ) . '</code><button type="button" class="button button-link" data-mlab-copy="' . esc_attr( $text ) . '">' . esc_html__( 'Kopieren', 'mlab-smtp' ) . '</button></div>';
 }
 
 /**
@@ -397,20 +433,20 @@ function mlab_smtp_ui_segmented( string $key, string $legend, array $options ): 
 }
 
 /**
- * Opens a row of the settings view: title and description left, content right.
+ * Opens a section card of the settings view: title and description left, fields right.
  *
- * @param string $title Row title.
+ * @param string $title Section title.
  * @param string $desc  Short description.
  */
 function mlab_smtp_ui_row_open( string $title, string $desc ): void {
-	echo '<div class="mlab-set"><div><h3>' . esc_html( $title ) . '</h3><p class="mlab-muted">' . esc_html( $desc ) . '</p></div><div>';
+	echo '<section class="mlab-card mlab-set"><div class="mlab-set-head"><h2>' . esc_html( $title ) . '</h2><p class="mlab-muted">' . esc_html( $desc ) . '</p></div><div class="mlab-set-body">';
 }
 
 /**
- * Closes a row opened with mlab_smtp_ui_row_open().
+ * Closes a section opened with mlab_smtp_ui_row_open().
  */
 function mlab_smtp_ui_row_close(): void {
-	echo '</div></div>';
+	echo '</div></section>';
 }
 
 /**
