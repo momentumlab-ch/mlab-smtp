@@ -695,6 +695,19 @@
 	width: 40px;
 }
 
+/* Brand marks: neutral tile, so the colours of the mark carry the brand. */
+.mlab-smtp .mlab-logo.is-brand {
+	background: var(--mlab-surface, #fff);
+	border: 1px solid var(--mlab-line, #dcdcde);
+	color: var(--mlab-muted, #50575e);
+}
+
+.mlab-smtp .mlab-logo.is-brand svg {
+	display: block;
+	height: 24px;
+	width: 24px;
+}
+
 /* Fields */
 .mlab-smtp .mlab-fields {
 	display: grid;
