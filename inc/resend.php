@@ -213,17 +213,13 @@ function mlab_smtp_resend_payload( $mailer ) {
 }
 
 /**
- * Sends the prepared message through the Resend API. An idempotency key (24 hours valid at Resend) keeps a repeated
+ * Sends the prepared message through the Resend API (the sender address is checked by the caller). An idempotency key (24 hours valid at Resend) keeps a repeated
  * request for the same message from producing a second mail.
  *
  * @param \PHPMailer\PHPMailer\PHPMailer $mailer Prepared message.
  * @return true|WP_Error
  */
 function mlab_smtp_send_resend( $mailer ) {
-	$error = mlab_smtp_sender_error();
-	if ( $error ) {
-		return $error;
-	}
 	$payload = mlab_smtp_resend_payload( $mailer );
 	if ( is_wp_error( $payload ) ) {
 		return $payload;

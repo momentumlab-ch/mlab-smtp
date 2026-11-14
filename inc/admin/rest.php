@@ -168,16 +168,9 @@ function mlab_smtp_check_success_text( string $route ): string {
 	if ( 'fallback' === $route ) {
 		return __( 'Ersatzweg erreichbar. Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' );
 	}
-	$provider = (string) mlab_smtp_get( 'provider' );
-	if ( 'resend' === $provider ) {
-		return mlab_smtp_resend_success_text();
-	}
-	$texts = array(
-		'm365'   => __( 'Verbunden. Microsoft hat die Zugangsdaten akzeptiert.', 'mlab-smtp' ),
-		'google' => __( 'Verbunden. Google hat den Zugriff bestätigt.', 'mlab-smtp' ),
-		'smtp'   => __( 'Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' ),
-	);
-	return $texts[ $provider ] ?? $texts['smtp'];
+	$providers = mlab_smtp_ui_providers();
+	$success   = ( $providers[ (string) mlab_smtp_get( 'provider' ) ] ?? $providers['smtp'] )['success'];
+	return $success instanceof Closure ? $success() : $success;
 }
 
 /**

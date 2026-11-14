@@ -81,13 +81,14 @@ class Mlab_Smtp_Mailer extends \PHPMailer\PHPMailer\PHPMailer {
 		if ( ! mlab_smtp_has_credentials() ) {
 			throw new \PHPMailer\PHPMailer\Exception( mlab_smtp_credentials_error() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain text for logs; escaped on output.
 		}
-		if ( 'smtp' === $provider ) {
+		if ( ! mlab_smtp_provider_def( $provider )['api'] ) {
 			if ( ! parent::postSend() ) {
 				throw new \PHPMailer\PHPMailer\Exception( $this->ErrorInfo ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain text for logs; escaped on output.
 			}
 			return;
 		}
-		$result = 'resend' === $provider ? mlab_smtp_send_resend( $this ) : mlab_smtp_dispatch( $this->getSentMIMEMessage(), $this->From );
+		// Every API route needs a sender address, then hands the prepared message to its own sender.
+		$result = mlab_smtp_sender_error() ?? call_user_func( mlab_smtp_provider_def( $provider )['send'], $this );
 		if ( is_wp_error( $result ) ) {
 			throw new \PHPMailer\PHPMailer\Exception( $result->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain text for logs; escaped on output.
 		}

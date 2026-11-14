@@ -8,32 +8,103 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Display data of the providers.
+ * Display data of the providers: name, logo, card of the wizard, connect step, success text and sender behaviour.
  *
- * @return array<string, array{name:string, color:string, letter:string}>
+ * It is the counterpart of mlab_smtp_provider_defs() for everything that is translated or drawn. Cached per request,
+ * the first call has to come after "init" (translations).
+ *
+ * The sender entry holds: source (setting that prefills the address), fixed (address is read-only), help (text below the address in
+ * the wizard, empty for the default), help_settings (text on the settings page), suggest (function that suggests an
+ * address) and panel (function that prints a status block above the sender fields).
+ *
+ * @return array<string, array<string, mixed>>
  */
 function mlab_smtp_ui_providers(): array {
-	return array(
-		'm365'   => array(
-			'name'   => __( 'Microsoft 365', 'mlab-smtp' ),
-			'color'  => '#0f6cbd',
-			'letter' => 'M',
+	static $providers = null;
+	if ( null === $providers ) {
+		$providers = array(
+			'm365'   => array(
+				'name'    => __( 'Microsoft 365', 'mlab-smtp' ),
+				'color'   => '#0f6cbd',
+				'letter'  => 'M',
+				'card'    => array(
+					'text'    => __( 'Postfach bei Microsoft (Outlook, Exchange Online).', 'mlab-smtp' ),
+					'bullets' => array( __( 'Kein Passwort auf der Website', 'mlab-smtp' ), __( 'Einmalig App in Microsoft anlegen', 'mlab-smtp' ) ),
+				),
+				'connect' => 'mlab_smtp_render_connect_m365',
+				'success' => __( 'Verbunden. Microsoft hat die Zugangsdaten akzeptiert.', 'mlab-smtp' ),
+				'sender'  => mlab_smtp_ui_sender( array() ),
+			),
+			'google' => array(
+				'name'    => __( 'Google Workspace', 'mlab-smtp' ),
+				'color'   => '#1e8e3e',
+				'letter'  => 'G',
+				'card'    => array(
+					'text'    => __( 'Postfach bei Google (Gmail, Workspace).', 'mlab-smtp' ),
+					'bullets' => array( __( 'Anmelden mit Google-Konto', 'mlab-smtp' ), __( 'Einmalig Zugang in Google Cloud anlegen', 'mlab-smtp' ) ),
+				),
+				'connect' => 'mlab_smtp_render_connect_google',
+				'success' => __( 'Verbunden. Google hat den Zugriff bestätigt.', 'mlab-smtp' ),
+				'sender'  => mlab_smtp_ui_sender(
+					array(
+						'source'        => 'google_account',
+						'fixed'         => true,
+						'help'          => __( 'Das verbundene Google-Konto. Google erlaubt nur dieses oder einen freigegebenen Alias.', 'mlab-smtp' ),
+						'help_settings' => __( 'Vorgegeben durch das verbundene Google-Konto.', 'mlab-smtp' ),
+					)
+				),
+			),
+			'resend' => array(
+				'name'    => __( 'Resend', 'mlab-smtp' ),
+				'color'   => '#111111',
+				'letter'  => 'R',
+				'card'    => array(
+					'text'    => __( 'Versanddienst für Website-Mails, ohne eigenes Postfach.', 'mlab-smtp' ),
+					'bullets' => array( __( 'Nur ein API-Key, keine Anmeldung', 'mlab-smtp' ), __( 'Prüft Ihre Domain und zeigt fehlende DNS-Einträge', 'mlab-smtp' ) ),
+				),
+				'connect' => 'mlab_smtp_render_connect_resend',
+				'success' => static fn(): string => mlab_smtp_resend_success_text(),
+				'sender'  => mlab_smtp_ui_sender(
+					array(
+						'help'    => __( 'Die Domain muss bei Resend verifiziert sein. Das Postfach muss nicht existieren, zum Beispiel noreply@ihre-domain.ch.', 'mlab-smtp' ),
+						'suggest' => 'mlab_smtp_resend_suggest_sender',
+						'panel'   => 'mlab_smtp_render_resend_domain_panel',
+					)
+				),
+			),
+			'smtp'   => array(
+				'name'    => __( 'Eigener Mailserver', 'mlab-smtp' ),
+				'color'   => '#50575e',
+				'letter'  => '@',
+				'card'    => array(
+					'text'    => __( 'Mailserver Ihres Hosters, z. B. Infomaniak, Hostpoint, cyon.', 'mlab-smtp' ),
+					'bullets' => array( __( 'Server, Benutzer und Passwort', 'mlab-smtp' ), __( 'Funktioniert mit fast jedem Anbieter', 'mlab-smtp' ) ),
+				),
+				'connect' => 'mlab_smtp_render_connect_smtp',
+				'success' => __( 'Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' ),
+				'sender'  => mlab_smtp_ui_sender( array( 'source' => 'smtp_user' ) ),
+			),
+		);
+	}
+	return $providers;
+}
+
+/**
+ * Sender behaviour of a provider with the defaults filled in.
+ *
+ * @param array $overrides Values that differ from the defaults, see mlab_smtp_ui_providers().
+ */
+function mlab_smtp_ui_sender( array $overrides ): array {
+	return array_merge(
+		array(
+			'source'        => '',
+			'fixed'         => false,
+			'help'          => '',
+			'help_settings' => '',
+			'suggest'       => null,
+			'panel'         => null,
 		),
-		'google' => array(
-			'name'   => __( 'Google Workspace', 'mlab-smtp' ),
-			'color'  => '#1e8e3e',
-			'letter' => 'G',
-		),
-		'resend' => array(
-			'name'   => __( 'Resend', 'mlab-smtp' ),
-			'color'  => '#111111',
-			'letter' => 'R',
-		),
-		'smtp'   => array(
-			'name'   => __( 'Eigener Mailserver', 'mlab-smtp' ),
-			'color'  => '#50575e',
-			'letter' => '@',
-		),
+		$overrides
 	);
 }
 

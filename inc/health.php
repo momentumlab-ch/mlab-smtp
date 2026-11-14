@@ -36,17 +36,15 @@ function mlab_smtp_health_checks(): array {
 	if ( ! mlab_smtp_is_configured() ) {
 		return array();
 	}
-	$checks = array(
-		mlab_smtp_health_connection(),
-		mlab_smtp_health_credentials(),
-		mlab_smtp_health_secret_expiry(),
-		mlab_smtp_health_google(),
-		mlab_smtp_health_resend(),
-		mlab_smtp_health_spf(),
-		mlab_smtp_health_dmarc(),
-		mlab_smtp_health_notify(),
-		mlab_smtp_health_fallback(),
-	);
+	$def    = mlab_smtp_provider_def( (string) mlab_smtp_get( 'provider' ) );
+	$checks = array( mlab_smtp_health_connection(), mlab_smtp_health_credentials() );
+	foreach ( (array) ( $def['health'] ?? array() ) as $check ) {
+		$checks[] = call_user_func( $check );
+	}
+	if ( false !== ( $def['spf'] ?? '' ) ) {
+		$checks[] = mlab_smtp_health_spf();
+	}
+	array_push( $checks, mlab_smtp_health_dmarc(), mlab_smtp_health_notify(), mlab_smtp_health_fallback() );
 	return array_values( array_filter( $checks ) );
 }
 
@@ -91,14 +89,11 @@ function mlab_smtp_health_credentials(): ?array {
 }
 
 /**
- * Check: expiry of the Microsoft 365 secret.
+ * Check: expiry of the Microsoft 365 secret (registry entry «health» of Microsoft 365).
  *
- * @return array|null Row, null for other providers.
+ * @return array
  */
-function mlab_smtp_health_secret_expiry(): ?array {
-	if ( 'm365' !== mlab_smtp_get( 'provider' ) ) {
-		return null;
-	}
+function mlab_smtp_health_secret_expiry(): array {
 	$title = __( 'Ablauf des Client-Secrets', 'mlab-smtp' );
 	$label = __( 'Datum eintragen', 'mlab-smtp' );
 	$days  = mlab_smtp_secret_days_left();
@@ -117,14 +112,11 @@ function mlab_smtp_health_secret_expiry(): ?array {
 }
 
 /**
- * Check: Google app in test mode (refresh token expires after 7 days).
+ * Check: Google app in test mode, the refresh token expires after 7 days (registry entry «health» of Google).
  *
- * @return array|null Row, null for other providers.
+ * @return array
  */
-function mlab_smtp_health_google(): ?array {
-	if ( 'google' !== mlab_smtp_get( 'provider' ) ) {
-		return null;
-	}
+function mlab_smtp_health_google(): array {
 	$title = __( 'Google-Zugriff', 'mlab-smtp' );
 	if ( false !== stripos( (string) mlab_smtp_state_get()['last_error'], 'invalid_grant' ) ) {
 		return mlab_smtp_health_row(
@@ -172,15 +164,12 @@ function mlab_smtp_health_txt( string $host ): ?array {
 }
 
 /**
- * Check: sender domain at Resend. Resend keeps its SPF record on its own subdomain, so the check of the
- * main domain's SPF record does not apply to it.
+ * Check: sender domain at Resend (registry entry «health» of Resend). Resend keeps its SPF record on its own
+ * subdomain, which is why its registry entry skips the SPF check of the main domain.
  *
- * @return array|null Row, null for other providers.
+ * @return array|null Row, null when there is nothing to say.
  */
 function mlab_smtp_health_resend(): ?array {
-	if ( 'resend' !== mlab_smtp_get( 'provider' ) ) {
-		return null;
-	}
 	$title = __( 'Resend-Domain', 'mlab-smtp' );
 	$state = mlab_smtp_resend_domain_state( mlab_smtp_resend_sender_domain() );
 	$text  = mlab_smtp_resend_state_text( $state );
@@ -198,12 +187,9 @@ function mlab_smtp_health_resend(): ?array {
 /**
  * Check: SPF record of the sender domain.
  *
- * @return array|null Row, null for providers that do not need it on the main domain.
+ * @return array
  */
-function mlab_smtp_health_spf(): ?array {
-	if ( 'resend' === mlab_smtp_get( 'provider' ) ) {
-		return null;
-	}
+function mlab_smtp_health_spf(): array {
 	$title  = __( 'SPF-Eintrag', 'mlab-smtp' );
 	$domain = mlab_smtp_health_domain();
 	$txt    = mlab_smtp_health_txt( $domain );
@@ -215,10 +201,7 @@ function mlab_smtp_health_spf(): ?array {
 		/* translators: %s: domain */
 		return mlab_smtp_health_row( 'bad', $title, sprintf( __( 'Für %s gibt es keinen SPF-Eintrag. Ohne ihn landen Mails eher im Spam. Ergänzen Sie ihn bei Ihrem Domain-Anbieter als TXT-Eintrag.', 'mlab-smtp' ), $domain ) );
 	}
-	$needle = array(
-		'm365'   => 'include:spf.protection.outlook.com',
-		'google' => 'include:_spf.google.com',
-	)[ (string) mlab_smtp_get( 'provider' ) ] ?? '';
+	$needle = (string) ( mlab_smtp_provider_def( (string) mlab_smtp_get( 'provider' ) )['spf'] ?? '' );
 	if ( '' !== $needle && false === stripos( $spf[0], $needle ) ) {
 		/* translators: %s: SPF include to add */
 		return mlab_smtp_health_row( 'warn', $title, sprintf( __( 'Der SPF-Eintrag erlaubt Ihren Anbieter noch nicht. Ergänzen Sie «%s» im bestehenden Eintrag.', 'mlab-smtp' ), $needle ) );

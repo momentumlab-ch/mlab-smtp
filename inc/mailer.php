@@ -91,7 +91,7 @@ function mlab_smtp_route_result( ?array $set = null ): array {
  * True when the selected provider sends through a web API instead of SMTP.
  */
 function mlab_smtp_is_api_provider(): bool {
-	return in_array( mlab_smtp_get( 'provider' ), array( 'm365', 'google', 'resend' ), true );
+	return ! empty( mlab_smtp_provider_def( (string) mlab_smtp_get( 'provider' ) )['api'] );
 }
 
 /**
@@ -234,23 +234,4 @@ function mlab_smtp_sender_error(): ?WP_Error {
 		return null;
 	}
 	return new WP_Error( 'mlab_smtp_no_sender', __( 'Es ist keine Absender-Adresse hinterlegt. Bitte unter «Einstellungen › Absender» die Adresse eintragen, aus der gesendet werden soll.', 'mlab-smtp' ) );
-}
-
-/**
- * Hands the finished message to Microsoft 365 or Google. Fails before sending when the sender is missing.
- * Resend takes the prepared PHPMailer message instead, see mlab_smtp_send_resend().
- *
- * @param string $mime Complete MIME message.
- * @param string $from Sender address of the message.
- * @return true|WP_Error
- */
-function mlab_smtp_dispatch( string $mime, string $from ) {
-	$error = mlab_smtp_sender_error();
-	if ( $error ) {
-		return $error;
-	}
-	if ( 'm365' === mlab_smtp_get( 'provider' ) ) {
-		return mlab_smtp_send_m365( $mime, $from );
-	}
-	return mlab_smtp_send_google( $mime );
 }

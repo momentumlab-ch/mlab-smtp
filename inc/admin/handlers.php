@@ -22,14 +22,17 @@ add_action( 'admin_post_mlab_smtp_clear_log_confirmed', 'mlab_smtp_handle_clear_
 function mlab_smtp_key_groups(): array {
 	$sender   = array( 'from_name', 'from_email', 'reply_to' );
 	$fallback = array( 'fallback_enabled', 'fb_smtp_host', 'fb_smtp_port', 'fb_smtp_secure', 'fb_smtp_auth', 'fb_smtp_user', 'fb_smtp_pass' );
-	return array(
-		'smtp'     => array( 'smtp_host', 'smtp_port', 'smtp_secure', 'smtp_auth', 'smtp_user', 'smtp_pass' ),
-		'm365'     => array( 'm365_tenant', 'm365_client_id', 'm365_client_secret', 'm365_secret_expires', 'from_email' ),
-		'google'   => array( 'google_client_id', 'google_client_secret' ),
-		'resend'   => array( 'resend_api_key' ),
-		'sender'   => $sender,
-		'fallback' => $fallback,
-		'settings' => array_merge( $sender, $fallback, array( 'force_from', 'notify_enabled', 'notify_email', 'notify_mode', 'log_enabled', 'log_retention' ) ),
+	$groups   = array();
+	foreach ( mlab_smtp_provider_defs() as $id => $def ) {
+		$groups[ $id ] = $def['group'];
+	}
+	return array_merge(
+		$groups,
+		array(
+			'sender'   => $sender,
+			'fallback' => $fallback,
+			'settings' => array_merge( $sender, $fallback, array( 'force_from', 'notify_enabled', 'notify_email', 'notify_mode', 'log_enabled', 'log_retention' ) ),
+		)
 	);
 }
 
@@ -209,10 +212,11 @@ function mlab_smtp_flash_check( string $route ): void {
  * @param string $provider Chosen provider.
  */
 function mlab_smtp_wizard_step_sender( array $input, string $provider ): void {
-	$errors = mlab_smtp_save_group( 'sender', $input );
-	if ( ! $errors && 'resend' === $provider ) {
-		// A domain that Resend does not accept yet makes the test mail fail: stop here with the way out.
-		$block  = mlab_smtp_resend_sender_block();
+	$errors  = mlab_smtp_save_group( 'sender', $input );
+	$blocker = mlab_smtp_provider_def( $provider )['sender_block'] ?? null;
+	if ( ! $errors && $blocker ) {
+		// A sender that the provider would reject makes the test mail fail: stop here with the way out.
+		$block  = call_user_func( $blocker );
 		$errors = null === $block ? array() : array( $block );
 	}
 	if ( $errors ) {

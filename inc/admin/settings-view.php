@@ -125,7 +125,8 @@ function mlab_smtp_render_set_notify(): void {
  * Sender row: name, address, reply-to, force.
  */
 function mlab_smtp_render_set_sender(): void {
-	$fixed = 'google' === mlab_smtp_get( 'provider' );
+	$meta  = mlab_smtp_ui_providers()[ (string) mlab_smtp_get( 'provider' ) ]['sender'] ?? mlab_smtp_ui_sender( array() );
+	$fixed = $meta['fixed'];
 	mlab_smtp_ui_row_open( __( 'Absender', 'mlab-smtp' ), __( 'Name und Adresse, die Empfänger sehen.', 'mlab-smtp' ) );
 	echo '<div class="mlab-fields is-open">';
 	mlab_smtp_ui_field( 'from_name', __( 'Absender-Name', 'mlab-smtp' ), array( 'placeholder' => get_bloginfo( 'name' ) ) );
@@ -135,7 +136,7 @@ function mlab_smtp_render_set_sender(): void {
 		array(
 			'type'     => 'email',
 			'readonly' => $fixed,
-			'help'     => $fixed ? __( 'Vorgegeben durch das verbundene Google-Konto.', 'mlab-smtp' ) : '',
+			'help'     => $meta['help_settings'],
 		)
 	);
 	mlab_smtp_ui_field(

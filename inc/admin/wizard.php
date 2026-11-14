@@ -105,49 +105,23 @@ function mlab_smtp_render_step_provider( string $provider ): void {
 	}
 	mlab_smtp_wizard_form_open( 1, $provider );
 	echo '<fieldset class="mlab-providers"><legend class="screen-reader-text">' . esc_html__( 'Mailanbieter', 'mlab-smtp' ) . '</legend>';
-	foreach ( mlab_smtp_provider_cards() as $key => $card ) {
+	foreach ( mlab_smtp_ui_providers() as $key => $meta ) {
 		$is_detected = ! empty( $detected['mx'] ) && ( $detected['provider'] ?? '' ) === $key;
-		mlab_smtp_render_provider_card( $key, $card, $provider, $is_detected );
+		mlab_smtp_render_provider_card( $key, $meta, $provider, $is_detected );
 	}
 	echo '</fieldset><div class="mlab-foot"><span></span><button type="submit" class="button button-primary">' . esc_html__( 'Weiter', 'mlab-smtp' ) . '</button></div>';
 	mlab_smtp_ui_form_close();
 }
 
 /**
- * Description and bullet points of the provider cards.
- *
- * @return array<string, array{text:string, bullets:string[]}>
- */
-function mlab_smtp_provider_cards(): array {
-	return array(
-		'm365'   => array(
-			'text'    => __( 'Postfach bei Microsoft (Outlook, Exchange Online).', 'mlab-smtp' ),
-			'bullets' => array( __( 'Kein Passwort auf der Website', 'mlab-smtp' ), __( 'Einmalig App in Microsoft anlegen', 'mlab-smtp' ) ),
-		),
-		'google' => array(
-			'text'    => __( 'Postfach bei Google (Gmail, Workspace).', 'mlab-smtp' ),
-			'bullets' => array( __( 'Anmelden mit Google-Konto', 'mlab-smtp' ), __( 'Einmalig Zugang in Google Cloud anlegen', 'mlab-smtp' ) ),
-		),
-		'resend' => array(
-			'text'    => __( 'Versanddienst für Website-Mails, ohne eigenes Postfach.', 'mlab-smtp' ),
-			'bullets' => array( __( 'Nur ein API-Key, keine Anmeldung', 'mlab-smtp' ), __( 'Prüft Ihre Domain und zeigt fehlende DNS-Einträge', 'mlab-smtp' ) ),
-		),
-		'smtp'   => array(
-			'text'    => __( 'Mailserver Ihres Hosters, z. B. Infomaniak, Hostpoint, cyon.', 'mlab-smtp' ),
-			'bullets' => array( __( 'Server, Benutzer und Passwort', 'mlab-smtp' ), __( 'Funktioniert mit fast jedem Anbieter', 'mlab-smtp' ) ),
-		),
-	);
-}
-
-/**
  * One selectable provider card (a radio button).
  *
  * @param string $key      Provider key.
- * @param array  $card     Card text and bullets.
+ * @param array  $meta     Display data of the provider (see mlab_smtp_ui_providers()).
  * @param string $selected Selected provider.
  * @param bool   $detected Whether the provider was detected from the domain.
  */
-function mlab_smtp_render_provider_card( string $key, array $card, string $selected, bool $detected ): void {
+function mlab_smtp_render_provider_card( string $key, array $meta, string $selected, bool $detected ): void {
 	echo '<label class="mlab-prov"><input type="radio" name="provider" value="' . esc_attr( $key ) . '"' . checked( $selected, $key, false ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- checked() returns a safe attribute.
 	mlab_smtp_ui_logo( $key );
 	if ( $detected ) {
@@ -155,8 +129,8 @@ function mlab_smtp_render_provider_card( string $key, array $card, string $selec
 		mlab_smtp_ui_pill( 'ok', __( 'Erkannt', 'mlab-smtp' ) );
 		echo '</span>';
 	}
-	echo '<strong>' . esc_html( mlab_smtp_ui_providers()[ $key ]['name'] ) . '</strong><span class="mlab-muted mlab-small">' . esc_html( $card['text'] ) . '</span><ul>';
-	foreach ( $card['bullets'] as $bullet ) {
+	echo '<strong>' . esc_html( $meta['name'] ) . '</strong><span class="mlab-muted mlab-small">' . esc_html( $meta['card']['text'] ) . '</span><ul>';
+	foreach ( $meta['card']['bullets'] as $bullet ) {
 		echo '<li>' . esc_html( $bullet ) . '</li>';
 	}
 	echo '</ul></label>';
@@ -177,13 +151,7 @@ function mlab_smtp_render_step_connect( string $provider ): void {
 			'data-group'       => $provider,
 		)
 	);
-	$renderers = array(
-		'm365'   => 'mlab_smtp_render_connect_m365',
-		'google' => 'mlab_smtp_render_connect_google',
-		'resend' => 'mlab_smtp_render_connect_resend',
-		'smtp'   => 'mlab_smtp_render_connect_smtp',
-	);
-	call_user_func( $renderers[ $provider ] );
+	call_user_func( mlab_smtp_ui_providers()[ $provider ]['connect'] );
 	mlab_smtp_render_step_foot( mlab_smtp_wizard_url( 1, $provider ), __( 'Weiter', 'mlab-smtp' ), mlab_smtp_wizard_flag( 'verified' ) ? '' : __( 'Zuerst die Verbindung prüfen', 'mlab-smtp' ) );
 	mlab_smtp_ui_form_close();
 }
@@ -364,43 +332,38 @@ function mlab_smtp_render_preset_select(): void {
  * @param string $provider Provider key.
  */
 function mlab_smtp_render_step_sender( string $provider ): void {
-	$email = (string) mlab_smtp_get( 'from_email' );
-	if ( '' === $email ) {
-		$source = array(
-			'google' => 'google_account',
-			'smtp'   => 'smtp_user',
-		)[ $provider ] ?? '';
-		$email  = '' !== $source ? (string) mlab_smtp_get( $source ) : '';
-		$email  = is_email( $email ) ? $email : '';
-	}
-	if ( '' === $email && 'resend' === $provider ) {
-		$email = mlab_smtp_resend_suggest_sender();
-	}
-	$name = (string) mlab_smtp_get( 'from_name' );
-	$name = '' !== $name ? $name : wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+	$sender = mlab_smtp_ui_providers()[ $provider ]['sender'];
+	$email  = mlab_smtp_sender_prefill( $provider );
+	$name   = (string) mlab_smtp_get( 'from_name' );
+	$name   = '' !== $name ? $name : wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 	mlab_smtp_wizard_form_open( 3, $provider, '', array( 'data-mlab-sender' => '1' ) );
 	echo '<h2>' . esc_html__( 'Absender', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'So erscheinen Mails der Website im Posteingang der Empfänger.', 'mlab-smtp' ) . '</p>';
-	if ( 'resend' === $provider ) {
-		mlab_smtp_render_resend_domain_panel();
+	if ( $sender['panel'] ) {
+		call_user_func( $sender['panel'] );
 	}
 	echo '<div class="mlab-fields is-open">';
-	mlab_smtp_render_sender_fields( $name, $email, 'google' === $provider, 'resend' === $provider ? __( 'Die Domain muss bei Resend verifiziert sein. Das Postfach muss nicht existieren, zum Beispiel noreply@ihre-domain.ch.', 'mlab-smtp' ) : '' );
+	mlab_smtp_render_sender_fields( $name, $email, $provider );
 	echo '</div><div class="mlab-preview"><p class="mlab-muted mlab-small">' . esc_html__( 'Vorschau', 'mlab-smtp' ) . '</p><strong data-mlab-preview="from_name">' . esc_html( $name ) . '</strong> <span class="mlab-muted">&lt;<span data-mlab-preview="from_email">' . esc_html( $email ) . '</span>&gt;</span></div>';
 	mlab_smtp_render_step_foot( mlab_smtp_wizard_url( 2, $provider ), __( 'Weiter', 'mlab-smtp' ) );
 	mlab_smtp_ui_form_close();
 }
 
 /**
- * Help text below the sender address.
+ * Sender address that step 3 starts with: the stored one, otherwise the account of the provider (setting named in
+ * the registry), otherwise the provider's suggestion.
  *
- * @param bool   $fixed Whether the address is fixed by the connected mailbox.
- * @param string $help  Provider specific text, empty for the default.
+ * @param string $provider Provider key.
  */
-function mlab_smtp_sender_help( bool $fixed, string $help ): string {
-	if ( '' !== $help ) {
-		return $help;
+function mlab_smtp_sender_prefill( string $provider ): string {
+	$email = (string) mlab_smtp_get( 'from_email' );
+	if ( '' !== $email ) {
+		return $email;
 	}
-	return $fixed ? __( 'Das verbundene Google-Konto. Google erlaubt nur dieses oder einen freigegebenen Alias.', 'mlab-smtp' ) : __( 'Muss ein vorhandenes Postfach sein und sollte zur Domain passen, sonst landen Mails im Spam.', 'mlab-smtp' );
+	$sender = mlab_smtp_ui_providers()[ $provider ]['sender'];
+	if ( '' !== $sender['source'] && is_email( (string) mlab_smtp_get( $sender['source'] ) ) ) {
+		return (string) mlab_smtp_get( $sender['source'] );
+	}
+	return $sender['suggest'] ? (string) call_user_func( $sender['suggest'] ) : '';
 }
 
 /**
@@ -408,10 +371,10 @@ function mlab_smtp_sender_help( bool $fixed, string $help ): string {
  *
  * @param string $name  Prefilled name.
  * @param string $email Prefilled address.
- * @param bool   $fixed Whether the address is fixed by the connected mailbox.
- * @param string $help  Help text of the address field, empty for the default.
+ * @param string $provider Provider key, decides whether the address is read-only and which help text is shown.
  */
-function mlab_smtp_render_sender_fields( string $name, string $email, bool $fixed, string $help = '' ): void {
+function mlab_smtp_render_sender_fields( string $name, string $email, string $provider ): void {
+	$sender = mlab_smtp_ui_providers()[ $provider ]['sender'];
 	mlab_smtp_ui_field(
 		'from_name',
 		__( 'Absender-Name', 'mlab-smtp' ),
@@ -426,8 +389,8 @@ function mlab_smtp_render_sender_fields( string $name, string $email, bool $fixe
 		array(
 			'type'     => 'email',
 			'value'    => $email,
-			'readonly' => $fixed,
-			'help'     => mlab_smtp_sender_help( $fixed, $help ),
+			'readonly' => $sender['fixed'],
+			'help'     => '' !== $sender['help'] ? $sender['help'] : __( 'Muss ein vorhandenes Postfach sein und sollte zur Domain passen, sonst landen Mails im Spam.', 'mlab-smtp' ),
 		)
 	);
 	mlab_smtp_ui_field(

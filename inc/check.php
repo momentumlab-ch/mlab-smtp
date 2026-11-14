@@ -22,13 +22,38 @@ function mlab_smtp_check_connection( string $route = 'primary' ) {
 	if ( 'primary' === $route && ! mlab_smtp_has_credentials() ) {
 		return new WP_Error( 'mlab_smtp_check', __( 'Die Verbindung ist noch nicht vollständig eingetragen. Bitte alle Pflichtfelder ausfüllen und speichern.', 'mlab-smtp' ) );
 	}
-	if ( 'smtp' === $provider ) {
-		return mlab_smtp_check_smtp( 'fallback' === $route ? 'fb_' : '' );
+	if ( 'fallback' === $route ) {
+		return mlab_smtp_check_smtp( 'fb_' );
 	}
-	if ( 'resend' === $provider ) {
-		return mlab_smtp_resend_check();
-	}
-	$token = 'm365' === $provider ? mlab_smtp_m365_token( true ) : mlab_smtp_google_token( true );
+	return call_user_func( mlab_smtp_provider_def( $provider )['check'] );
+}
+
+/**
+ * Registry entry «check» of the own mail server: connects and logs in.
+ *
+ * @return true|WP_Error
+ */
+function mlab_smtp_check_smtp_main() {
+	return mlab_smtp_check_smtp( '' );
+}
+
+/**
+ * Registry entry «check» of Microsoft 365: fetches a fresh token.
+ *
+ * @return true|WP_Error
+ */
+function mlab_smtp_check_m365() {
+	$token = mlab_smtp_m365_token( true );
+	return is_wp_error( $token ) ? $token : true;
+}
+
+/**
+ * Registry entry «check» of Google: fetches a fresh token.
+ *
+ * @return true|WP_Error
+ */
+function mlab_smtp_check_google() {
+	$token = mlab_smtp_google_token( true );
 	return is_wp_error( $token ) ? $token : true;
 }
 

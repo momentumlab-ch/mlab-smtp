@@ -22,7 +22,7 @@ add_action( 'init', 'mlab_smtp_maybe_migrate' );
  * @return string[]
  */
 function mlab_smtp_secret_keys(): array {
-	return array( 'smtp_pass', 'fb_smtp_pass', 'm365_client_secret', 'google_client_secret', 'google_refresh_token', 'resend_api_key' );
+	return array_merge( mlab_smtp_provider_keys( 'secrets' ), array( 'fb_smtp_pass' ) );
 }
 
 /**
@@ -41,7 +41,7 @@ function mlab_smtp_checkbox_keys(): array {
  */
 function mlab_smtp_choices(): array {
 	return array(
-		'provider'       => array( 'smtp', 'm365', 'google', 'resend' ),
+		'provider'       => array_keys( mlab_smtp_provider_defs() ),
 		'smtp_secure'    => array( 'tls', 'ssl', 'none' ),
 		'fb_smtp_secure' => array( 'tls', 'ssl', 'none' ),
 		'notify_mode'    => array( 'instant', 'daily' ),
@@ -98,7 +98,7 @@ function mlab_smtp_defaults(): array {
  * @return string[]
  */
 function mlab_smtp_credential_keys(): array {
-	return array( 'm365_tenant', 'm365_client_id', 'm365_client_secret', 'google_client_id', 'google_client_secret', 'google_refresh_token', 'resend_api_key' );
+	return mlab_smtp_provider_keys( 'credentials' );
 }
 
 /**
@@ -378,13 +378,7 @@ function mlab_smtp_sanitize_date_field( string $raw ) {
  * @return string[]
  */
 function mlab_smtp_required_keys( string $provider ): array {
-	$map = array(
-		'smtp'   => array( 'smtp_host' ),
-		'm365'   => array( 'm365_tenant', 'm365_client_id', 'm365_client_secret' ),
-		'google' => array( 'google_client_id', 'google_client_secret', 'google_refresh_token' ),
-		'resend' => array( 'resend_api_key' ),
-	);
-	return $map[ $provider ] ?? array();
+	return mlab_smtp_provider_def( $provider )['required'] ?? array();
 }
 
 /**

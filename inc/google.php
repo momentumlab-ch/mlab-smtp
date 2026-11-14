@@ -257,6 +257,16 @@ function mlab_smtp_google_token( bool $fresh = false ) {
 }
 
 /**
+ * Sends the prepared message through the connected Google account (registry entry «send»).
+ *
+ * @param \PHPMailer\PHPMailer\PHPMailer $mailer Prepared message.
+ * @return true|WP_Error
+ */
+function mlab_smtp_send_google_mail( $mailer ) {
+	return mlab_smtp_send_google( $mailer->getSentMIMEMessage() );
+}
+
+/**
  * Sends a finished MIME message through the connected Google account. Uses the upload endpoint of the
  * Gmail API, which takes the raw message (no base64 inflation) and allows up to 35 MB.
  *

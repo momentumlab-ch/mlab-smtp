@@ -152,7 +152,7 @@ function mlab_smtp_clear_tokens(): void {
  */
 function mlab_smtp_api_post( string $provider, string $url, string $body, string $content_type ) {
 	for ( $attempt = 0; $attempt < 2; $attempt++ ) {
-		$token = 'm365' === $provider ? mlab_smtp_m365_token( 0 < $attempt ) : mlab_smtp_google_token( 0 < $attempt );
+		$token = call_user_func( mlab_smtp_provider_def( $provider )['token'], 0 < $attempt );
 		if ( is_wp_error( $token ) ) {
 			return $token;
 		}
