@@ -945,3 +945,50 @@
 		width: 100%;
 	}
 }
+
+/* Notices of other plugins sit below the page, outside the plugin layout (see foreign-notices.php). */
+.mlab-foreign {
+	margin: 20px 20px 0 2px;
+	max-width: 980px;
+}
+
+.mlab-foreign > details {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+}
+
+.mlab-foreign summary {
+	color: #50575e;
+	cursor: pointer;
+	font-size: 13px;
+	padding: 10px 14px;
+}
+
+.mlab-foreign-count,
+.mlab-foreign-bad {
+	border-radius: 999px;
+	display: inline-block;
+	font-size: 12px;
+	font-weight: 600;
+	margin-left: 6px;
+	padding: 0 8px;
+}
+
+.mlab-foreign-count {
+	background: #f0f0f1;
+	color: #1d2327;
+}
+
+.mlab-foreign-bad {
+	background: #fbeaea;
+	color: #b32d2e;
+}
+
+.mlab-foreign-list {
+	padding: 0 14px 14px;
+}
+
+.mlab-foreign-list .notice {
+	margin: 8px 0 0;
+}

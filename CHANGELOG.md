@@ -12,6 +12,7 @@ Neu: Versand über Resend, mit geführter Einrichtung und Fehleranzeige.
 - Neu: Fehler von Resend erscheinen in Klartext mit Anleitung, im Assistenten, in der Übersicht und im Protokoll: ungültiger oder gesperrter Key, Domain nicht verifiziert, Testadresse resend.dev, Tages- und Monatslimit, zu viele Anfragen, Störung bei Resend, Resend nicht erreichbar, ungültige Angaben. Die technische Meldung bleibt aufklappbar.
 - Neu: Mails mit mehr als 50 Empfängern oder über 40 MB Anhängen scheitern vor dem Versand mit einer klaren Meldung und gehen über den Ersatzweg.
 - Sicherer: Ein Idempotenz-Schlüssel verhindert, dass eine wiederholte Anfrage dieselbe Mail doppelt versendet.
+- Neu: Mitteilungen anderer Plugins erscheinen nicht mehr mitten in der Oberfläche dieses Plugins. Auf der Plugin-Seite liegen sie eingeklappt unterhalb («Mitteilungen anderer Plugins», mit Anzahl und Fehler-Hinweis).
 - Intern: Alle Versandwege stehen in einer zentralen Registry (`inc/providers.php` für die Logik, `mlab_smtp_ui_providers()` für die Oberfläche). Ein neuer Anbieter braucht dort je einen Eintrag statt Änderungen an einem Dutzend Stellen. Das Verhalten von SMTP, Microsoft 365 und Google ist unverändert.
 - Beim Update ändert sich an bestehenden Einrichtungen nichts.
 
