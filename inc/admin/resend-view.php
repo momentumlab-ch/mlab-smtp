@@ -20,7 +20,7 @@ function mlab_smtp_render_connect_resend(): void {
 			mlab_smtp_render_guide_item( __( 'DNS-Einträge setzen', 'mlab-smtp' ), __( 'Resend zeigt SPF- und DKIM-Einträge. Tragen Sie diese bei Ihrem Domain-Anbieter ein. Im Schritt «Absender» zeigt Ihnen dieses Plugin, ob alles verifiziert ist.', 'mlab-smtp' ) );
 			mlab_smtp_render_guide_item( __( 'API-Key erstellen', 'mlab-smtp' ), __( 'Resend › API Keys › Create API Key. Wählen Sie «Sending access» und Ihre Domain. Kopieren Sie den Key (beginnt mit re_), er wird nur einmal angezeigt.', 'mlab-smtp' ) );
 		},
-		'https://resend.com/domains',
+		MLAB_SMTP_RESEND_DOMAINS,
 		__( 'Resend öffnen', 'mlab-smtp' )
 	);
 	echo '<div class="mlab-fields is-open">';
@@ -42,16 +42,16 @@ function mlab_smtp_render_connect_resend(): void {
  * Printed in step 3 above the sender fields.
  */
 function mlab_smtp_render_resend_domain_panel(): void {
-	$state   = mlab_smtp_resend_domain_state( mlab_smtp_resend_sender_domain(), true );
+	$state   = mlab_smtp_resend_domain_state( mlab_smtp_resend_sender_domain(), false, true );
 	$text    = mlab_smtp_resend_state_text( $state );
 	$message = $text['message'];
 	if ( '' === $message ) {
 		return;
 	}
-	if ( '' !== $state['error'] && 'error' === $state['state'] ) {
+	if ( 'error' === $state['state'] ) {
 		$message .= ' ' . mlab_smtp_explain_error( $state['error'] );
 	}
-	mlab_smtp_ui_hint( $text['level'], $text['title'], trim( $message ) );
+	mlab_smtp_ui_hint( $text['level'], $text['title'], $message );
 	if ( $state['records'] ) {
 		mlab_smtp_render_resend_records( $state['records'] );
 	}
@@ -59,7 +59,7 @@ function mlab_smtp_render_resend_domain_panel(): void {
 		mlab_smtp_ui_technical( $state['error'] );
 	}
 	if ( in_array( $state['state'], array( 'missing', 'pending', 'failed', 'partial' ), true ) ) {
-		echo '<div class="mlab-row"><a class="button" href="' . esc_url( mlab_smtp_resend_recheck_url() ) . '">' . esc_html__( 'Nochmals prüfen', 'mlab-smtp' ) . '</a><a class="button-link" href="https://resend.com/domains" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Domains bei Resend öffnen', 'mlab-smtp' ) . ' ↗</a></div>';
+		echo '<div class="mlab-row"><a class="button" href="' . esc_url( mlab_smtp_resend_recheck_url() ) . '">' . esc_html__( 'Nochmals prüfen', 'mlab-smtp' ) . '</a><a class="button-link" href="' . esc_url( MLAB_SMTP_RESEND_DOMAINS ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Domains bei Resend öffnen', 'mlab-smtp' ) . ' ↗</a></div>';
 	}
 }
 

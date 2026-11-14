@@ -168,7 +168,8 @@ function mlab_smtp_check_success_text( string $route ): string {
 	if ( 'fallback' === $route ) {
 		return __( 'Ersatzweg erreichbar. Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' );
 	}
-	if ( 'resend' === mlab_smtp_get( 'provider' ) ) {
+	$provider = (string) mlab_smtp_get( 'provider' );
+	if ( 'resend' === $provider ) {
 		return mlab_smtp_resend_success_text();
 	}
 	$texts = array(
@@ -176,7 +177,7 @@ function mlab_smtp_check_success_text( string $route ): string {
 		'google' => __( 'Verbunden. Google hat den Zugriff bestätigt.', 'mlab-smtp' ),
 		'smtp'   => __( 'Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' ),
 	);
-	return $texts[ mlab_smtp_get( 'provider' ) ] ?? $texts['smtp'];
+	return $texts[ $provider ] ?? $texts['smtp'];
 }
 
 /**

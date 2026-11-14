@@ -24,7 +24,11 @@ function mlab_smtp_decode_response( $response ) {
 		return new WP_Error(
 			'mlab_smtp_http',
 			/* translators: 1: HTTP status code, 2: error message of the provider */
-			sprintf( __( 'Der Anbieter hat mit Fehler %1$d geantwortet: %2$s', 'mlab-smtp' ), $code, mlab_smtp_error_message( $data ) )
+			sprintf( __( 'Der Anbieter hat mit Fehler %1$d geantwortet: %2$s', 'mlab-smtp' ), $code, mlab_smtp_error_message( $data ) ),
+			array(
+				'status' => $code,
+				'name'   => (string) ( $data['name'] ?? '' ),
+			)
 		);
 	}
 	return $data;

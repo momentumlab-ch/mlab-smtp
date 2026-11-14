@@ -12,6 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 const MLAB_SMTP_RESEND_API        = 'https://api.resend.com';
+const MLAB_SMTP_RESEND_DOMAINS    = 'https://resend.com/domains';
 const MLAB_SMTP_RESEND_LIMIT      = 40 * MB_IN_BYTES; // Attachments after Base64 encoding.
 const MLAB_SMTP_RESEND_RECIPIENTS = 50;               // Largest "to" list of one request.
 
@@ -65,18 +66,7 @@ function mlab_smtp_resend_request( string $method, string $path, ?array $body = 
 		}
 		$args['body'] = $json;
 	}
-	$response = wp_remote_request( MLAB_SMTP_RESEND_API . $path, $args );
-	$data     = mlab_smtp_decode_response( $response );
-	if ( is_wp_error( $data ) && ! is_wp_error( $response ) ) {
-		$decoded = json_decode( wp_remote_retrieve_body( $response ), true );
-		$data->add_data(
-			array(
-				'status' => (int) wp_remote_retrieve_response_code( $response ),
-				'name'   => is_array( $decoded ) ? (string) ( $decoded['name'] ?? '' ) : '',
-			)
-		);
-	}
-	return $data;
+	return mlab_smtp_decode_response( wp_remote_request( MLAB_SMTP_RESEND_API . $path, $args ) );
 }
 
 /**
@@ -100,11 +90,10 @@ function mlab_smtp_resend_address( string $email, string $name = '' ): string {
  * @return string[]
  */
 function mlab_smtp_resend_addresses( array $pairs ): array {
-	$out = array();
-	foreach ( $pairs as $item ) {
-		$out[] = mlab_smtp_resend_address( (string) ( $item[0] ?? '' ), (string) ( $item[1] ?? '' ) );
-	}
-	return $out;
+	return array_map(
+		static fn( $item ): string => mlab_smtp_resend_address( (string) ( $item[0] ?? '' ), (string) ( $item[1] ?? '' ) ),
+		array_values( $pairs )
+	);
 }
 
 /**
@@ -145,14 +134,14 @@ function mlab_smtp_resend_attachments( $mailer ) {
 	$size = 0;
 	foreach ( $mailer->getAttachments() as $attachment ) {
 		// Index: 0 path or content, 1 file name, 2 display name, 4 type, 5 content given as string, 6 disposition, 7 content id.
+		$size += (int) ceil( ( $attachment[5] ? strlen( (string) $attachment[0] ) : (int) filesize( (string) $attachment[0] ) ) / 3 ) * 4;
+		if ( $size > MLAB_SMTP_RESEND_LIMIT ) {
+			return mlab_smtp_too_large_error( MLAB_SMTP_RESEND_LIMIT );
+		}
 		$content = $attachment[5] ? (string) $attachment[0] : file_get_contents( (string) $attachment[0] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local attachment file.
 		if ( false === $content ) {
 			/* translators: %s: file name */
 			return new WP_Error( 'mlab_smtp_attachment', sprintf( __( 'Der Anhang «%s» konnte nicht gelesen werden.', 'mlab-smtp' ), (string) $attachment[1] ) );
-		}
-		$size += (int) ceil( strlen( $content ) / 3 ) * 4;
-		if ( $size > MLAB_SMTP_RESEND_LIMIT ) {
-			return mlab_smtp_too_large_error( MLAB_SMTP_RESEND_LIMIT );
 		}
 		$item = array(
 			'filename' => '' !== (string) $attachment[2] ? (string) $attachment[2] : (string) $attachment[1],
@@ -216,7 +205,7 @@ function mlab_smtp_resend_payload( $mailer ) {
 	$optional = array(
 		'cc'          => mlab_smtp_resend_addresses( $mailer->getCcAddresses() ),
 		'bcc'         => mlab_smtp_resend_addresses( $mailer->getBccAddresses() ),
-		'reply_to'    => mlab_smtp_resend_addresses( array_values( $mailer->getReplyToAddresses() ) ),
+		'reply_to'    => mlab_smtp_resend_addresses( $mailer->getReplyToAddresses() ),
 		'headers'     => mlab_smtp_resend_headers( $mailer ),
 		'attachments' => $attachments,
 	);
@@ -250,13 +239,13 @@ function mlab_smtp_send_resend( $mailer ) {
 }
 
 /**
- * Cache name for the domain list. It depends on the key, so a new key never meets the data of the old one,
- * and it is remembered so that clearing the tokens or uninstalling removes it.
+ * Cache name for the domain list. It depends on the key, so a new key never meets the data of the old one.
+ * It is remembered when written, so that clearing the tokens or uninstalling removes it.
  */
 function mlab_smtp_resend_cache_key(): string {
-	$key = mlab_smtp_token_key( 'resend', array( (string) mlab_smtp_get( 'resend_api_key' ) ) );
-	mlab_smtp_remember_token_key( $key );
-	return $key;
+	static $memo              = array();
+	$secret                   = (string) mlab_smtp_get( 'resend_api_key' );
+	return $memo[ $secret ] ??= mlab_smtp_token_key( 'resend', array( $secret ) );
 }
 
 /**
@@ -276,6 +265,7 @@ function mlab_smtp_resend_domains( bool $fresh = false ) {
 		return 'error' === $cached['scope'] ? new WP_Error( 'mlab_smtp_resend', (string) $cached['message'] ) : $cached;
 	}
 	$result = mlab_smtp_resend_fetch_domains();
+	mlab_smtp_remember_token_key( $cache );
 	if ( is_wp_error( $result ) ) {
 		// A short cache keeps a dead connection from blocking every page view of the overview.
 		set_transient(
@@ -387,27 +377,43 @@ function mlab_smtp_resend_verify( string $id ) {
 }
 
 /**
- * Domain of the sender address, otherwise of the suggested sender.
+ * True for a domain status that can send (fully or partly verified).
+ *
+ * @param string $status Status of a domain at Resend.
+ */
+function mlab_smtp_resend_is_verified( string $status ): bool {
+	return in_array( $status, array( 'verified', 'partially_verified' ), true );
+}
+
+/**
+ * First verified domain of the account, empty when there is none or the list is not available.
+ */
+function mlab_smtp_resend_first_verified_domain(): string {
+	$info = mlab_smtp_resend_domains();
+	if ( ! is_wp_error( $info ) ) {
+		foreach ( $info['domains'] as $domain ) {
+			if ( mlab_smtp_resend_is_verified( $domain['status'] ) ) {
+				return $domain['name'];
+			}
+		}
+	}
+	return '';
+}
+
+/**
+ * Domain of the sender address, otherwise the first verified domain (the suggested sender).
  */
 function mlab_smtp_resend_sender_domain(): string {
 	$domain = mlab_smtp_domain_of( (string) mlab_smtp_get( 'from_email' ) );
-	return '' !== $domain ? $domain : mlab_smtp_domain_of( mlab_smtp_resend_suggest_sender() );
+	return '' !== $domain ? $domain : mlab_smtp_resend_first_verified_domain();
 }
 
 /**
  * Suggested sender: noreply@ plus the first verified domain of the account. Empty when unknown.
  */
 function mlab_smtp_resend_suggest_sender(): string {
-	$info = mlab_smtp_resend_domains();
-	if ( is_wp_error( $info ) ) {
-		return '';
-	}
-	foreach ( $info['domains'] as $domain ) {
-		if ( in_array( $domain['status'], array( 'verified', 'partially_verified' ), true ) ) {
-			return 'noreply@' . $domain['name'];
-		}
-	}
-	return '';
+	$domain = mlab_smtp_resend_first_verified_domain();
+	return '' !== $domain ? 'noreply@' . $domain : '';
 }
 
 /**
@@ -417,10 +423,11 @@ function mlab_smtp_resend_suggest_sender(): string {
  * missing (not added at Resend), verified, partial (partly verified), pending (DNS not checked yet), failed.
  *
  * @param string $domain Domain of the sender address.
- * @param bool   $fresh  True to bypass the cache.
- * @return array{state:string, domain:string, status:string, id:string, records:array, error:string, verified:string[]}
+ * @param bool   $fresh        True to bypass the cache.
+ * @param bool   $with_records True to also fetch the open DNS records (one more request, only needed where they are shown).
+ * @return array{state:string, domain:string, id:string, records:array, error:string, verified:string[]}
  */
-function mlab_smtp_resend_domain_state( string $domain, bool $fresh = false ): array {
+function mlab_smtp_resend_domain_state( string $domain, bool $fresh = false, bool $with_records = false ): array {
 	$domain = strtolower( $domain );
 	$state  = mlab_smtp_resend_empty_state( $domain );
 	if ( '' === $domain ) {
@@ -443,20 +450,19 @@ function mlab_smtp_resend_domain_state( string $domain, bool $fresh = false ): a
 		return array_merge( $state, array( 'state' => 'sending' ) );
 	}
 	$state = mlab_smtp_resend_match_domain( $state, $info['domains'] );
-	return mlab_smtp_resend_attach_records( $state );
+	return $with_records ? mlab_smtp_resend_attach_records( $state ) : $state;
 }
 
 /**
  * Empty state of a domain.
  *
  * @param string $domain Domain, lower case.
- * @return array{state:string, domain:string, status:string, id:string, records:array, error:string, verified:string[]}
+ * @return array{state:string, domain:string, id:string, records:array, error:string, verified:string[]}
  */
 function mlab_smtp_resend_empty_state( string $domain ): array {
 	return array(
 		'state'    => 'none',
 		'domain'   => $domain,
-		'status'   => '',
 		'id'       => '',
 		'records'  => array(),
 		'error'    => '',
@@ -494,7 +500,7 @@ function mlab_smtp_resend_attach_records( array $state ): array {
 function mlab_smtp_resend_match_domain( array $state, array $domains ): array {
 	$state['state'] = 'missing';
 	foreach ( $domains as $row ) {
-		if ( in_array( $row['status'], array( 'verified', 'partially_verified' ), true ) ) {
+		if ( mlab_smtp_resend_is_verified( $row['status'] ) ) {
 			$state['verified'][] = $row['name'];
 		}
 		if ( $row['name'] === $state['domain'] ) {
@@ -508,7 +514,7 @@ function mlab_smtp_resend_match_domain( array $state, array $domains ): array {
  * Maps a domain row of the account to a state.
  *
  * @param array $row Domain with id, name and status.
- * @return array{state:string, status:string, id:string}
+ * @return array{state:string, id:string}
  */
 function mlab_smtp_resend_classify( array $row ): array {
 	$map   = array(
@@ -520,9 +526,8 @@ function mlab_smtp_resend_classify( array $row ): array {
 	);
 	$state = $map[ $row['status'] ] ?? 'pending';
 	return array(
-		'state'  => $state,
-		'status' => $row['status'],
-		'id'     => $row['id'],
+		'state' => $state,
+		'id'    => $row['id'],
 	);
 }
 

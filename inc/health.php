@@ -182,7 +182,7 @@ function mlab_smtp_health_resend(): ?array {
 		return null;
 	}
 	$title = __( 'Resend-Domain', 'mlab-smtp' );
-	$state = mlab_smtp_resend_domain_state( mlab_smtp_health_domain() );
+	$state = mlab_smtp_resend_domain_state( mlab_smtp_resend_sender_domain() );
 	$text  = mlab_smtp_resend_state_text( $state );
 	if ( '' === $text['message'] ) {
 		return null;
