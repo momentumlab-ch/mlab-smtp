@@ -4,6 +4,7 @@
 
 Neu: Versand über Resend, mit geführter Einrichtung und Fehleranzeige.
 
+- Neu: überarbeitete Oberfläche in allen Ansichten (Übersicht mit Statusbanner, Kennzahlen und Verlauf, Protokoll, Einstellungen mit Speicherleiste, Assistent mit Anbieterliste), einheitliche Bausteine und bedienbar auf dem Smartphone.
 - Neu: Resend als vierter Versandweg (REST-API). Der API-Key wird im Assistenten eingegeben und verschlüsselt gespeichert, es muss keine Datei bearbeitet werden.
 - Neu: Der Assistent prüft den Key. Ein Key mit «Sending access» (empfohlen) gilt als gültig, die Domain-Prüfung entfällt dann und die Testmail bestätigt sie.
 - Neu: Im Schritt «Absender» zeigt der Assistent den Stand der Absender-Domain bei Resend (verifiziert, ausstehend, fehlgeschlagen oder nicht angelegt). Fehlende DNS-Einträge stehen mit Kopierknopf da, «Nochmals prüfen» startet die Prüfung bei Resend. Ist die Domain noch nicht verifiziert, bleibt der Assistent hier stehen und nennt den Weg, statt eine Testmail scheitern zu lassen.

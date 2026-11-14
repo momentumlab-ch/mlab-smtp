@@ -37,12 +37,14 @@ function mlab_smtp_render_wizard(): void {
 		3 => 'mlab_smtp_render_step_sender',
 		4 => 'mlab_smtp_render_step_test',
 	);
-	echo '<div class="mlab-head"><h1>' . esc_html__( 'E-Mail-Versand einrichten', 'mlab-smtp' ) . '</h1><a class="button-link" href="' . esc_url( mlab_smtp_page_url() ) . '">' . esc_html__( 'Abbrechen', 'mlab-smtp' ) . '</a></div><hr class="wp-header-end">';
+	echo '<hr class="wp-header-end">';
 	mlab_smtp_render_flash();
+	echo '<div class="mlab-wizard"><div class="mlab-card mlab-wiz"><div class="mlab-wiz-top"><span class="mlab-caption">' . esc_html__( 'Einrichtung', 'mlab-smtp' ) . '</span>';
+	echo '<a class="mlab-close" href="' . esc_url( mlab_smtp_page_url() ) . '" aria-label="' . esc_attr__( 'Abbrechen', 'mlab-smtp' ) . '">' . mlab_smtp_ui_svg( 'close' ) . '</a></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
+	echo '<h1>' . esc_html__( 'E-Mail-Versand einrichten', 'mlab-smtp' ) . '</h1>';
 	mlab_smtp_render_stepper( $step );
-	echo '<div class="mlab-card">';
 	call_user_func( $steps[ $step ], $provider );
-	echo '</div>';
+	echo '</div></div>';
 }
 
 /**
@@ -52,11 +54,13 @@ function mlab_smtp_render_wizard(): void {
  */
 function mlab_smtp_render_stepper( int $step ): void {
 	$labels = array( __( 'Anbieter', 'mlab-smtp' ), __( 'Verbinden', 'mlab-smtp' ), __( 'Absender', 'mlab-smtp' ), __( 'Testen', 'mlab-smtp' ) );
+	/* translators: 1: current step, 2: number of steps */
+	echo '<p class="mlab-stepcount">' . esc_html( sprintf( __( 'Schritt %1$d von %2$d', 'mlab-smtp' ), $step, count( $labels ) ) ) . '</p>';
 	echo '<ol class="mlab-stepper">';
 	foreach ( $labels as $index => $label ) {
 		$number = $index + 1;
 		$class  = $number < $step ? 'is-done' : ( $number === $step ? 'is-now' : '' );
-		echo '<li class="' . esc_attr( $class ) . '"' . ( $number === $step ? ' aria-current="step"' : '' ) . '>' . esc_html( $label ) . '</li>';
+		echo '<li class="' . esc_attr( $class ) . '"' . ( $number === $step ? ' aria-current="step"' : '' ) . '><span class="mlab-step-label">' . esc_html( $label ) . '</span></li>';
 	}
 	echo '</ol>';
 }
@@ -86,7 +90,7 @@ function mlab_smtp_wizard_form_open( int $step, string $provider, string $classe
 function mlab_smtp_render_step_foot( string $back_url, string $next, string $disabled_hint = '', string $value = 'next', string $marker = 'data-mlab-next' ): void {
 	$disabled = '' !== $disabled_hint ? ' disabled title="' . esc_attr( $disabled_hint ) . '"' : '';
 	echo '<div class="mlab-foot"><a class="button button-link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Zurück', 'mlab-smtp' ) . '</a>';
-	echo '<button type="submit" name="do" value="' . esc_attr( $value ) . '" class="button button-primary" ' . esc_attr( $marker ) . $disabled . '>' . esc_html( $next ) . '</button></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
+	echo '<button type="submit" name="do" value="' . esc_attr( $value ) . '" class="button button-primary" ' . esc_attr( $marker ) . $disabled . '>' . esc_html( $next ) . ( 'next' === $value ? mlab_smtp_ui_svg( 'arrow' ) : '' ) . '</button></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above, static SVG.
 }
 
 /**
@@ -109,12 +113,12 @@ function mlab_smtp_render_step_provider( string $provider ): void {
 		$is_detected = ! empty( $detected['mx'] ) && ( $detected['provider'] ?? '' ) === $key;
 		mlab_smtp_render_provider_card( $key, $meta, $provider, $is_detected );
 	}
-	echo '</fieldset><div class="mlab-foot"><span></span><button type="submit" class="button button-primary">' . esc_html__( 'Weiter', 'mlab-smtp' ) . '</button></div>';
+	echo '</fieldset><div class="mlab-foot"><span></span><button type="submit" class="button button-primary">' . esc_html__( 'Weiter', 'mlab-smtp' ) . mlab_smtp_ui_svg( 'arrow' ) . '</button></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	mlab_smtp_ui_form_close();
 }
 
 /**
- * One selectable provider card (a radio button).
+ * One selectable provider row (a radio button).
  *
  * @param string $key      Provider key.
  * @param array  $meta     Display data of the provider (see mlab_smtp_ui_providers()).
@@ -124,16 +128,11 @@ function mlab_smtp_render_step_provider( string $provider ): void {
 function mlab_smtp_render_provider_card( string $key, array $meta, string $selected, bool $detected ): void {
 	echo '<label class="mlab-prov"><input type="radio" name="provider" value="' . esc_attr( $key ) . '"' . checked( $selected, $key, false ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- checked() returns a safe attribute.
 	mlab_smtp_ui_logo( $key );
+	echo '<span class="mlab-li-main"><strong>' . esc_html( $meta['name'] ) . '</strong><span class="mlab-muted">' . esc_html( $meta['card']['text'] ) . '</span></span>';
 	if ( $detected ) {
-		echo '<span class="mlab-tag">';
 		mlab_smtp_ui_pill( 'ok', __( 'Erkannt', 'mlab-smtp' ) );
-		echo '</span>';
 	}
-	echo '<strong>' . esc_html( $meta['name'] ) . '</strong><span class="mlab-muted mlab-small">' . esc_html( $meta['card']['text'] ) . '</span><ul>';
-	foreach ( $meta['card']['bullets'] as $bullet ) {
-		echo '<li>' . esc_html( $bullet ) . '</li>';
-	}
-	echo '</ul></label>';
+	echo '</label>';
 }
 
 /**
@@ -163,7 +162,7 @@ function mlab_smtp_render_step_connect( string $provider ): void {
  */
 function mlab_smtp_render_check_button( string $label ): void {
 	$done = mlab_smtp_wizard_flag( 'verified' );
-	echo '<div class="mlab-row"><button type="submit" name="do" value="check" class="button' . ( $done ? '' : ' button-primary' ) . '" data-mlab-check data-route="primary">' . esc_html( $label ) . '</button></div>';
+	echo '<div class="mlab-row"><button type="submit" name="do" value="check" class="button' . ( $done ? '' : ' button-primary' ) . '" data-mlab-check data-route="primary">' . mlab_smtp_ui_svg( 'refresh' ) . esc_html( $label ) . '</button></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	mlab_smtp_ui_result_area();
 }
 
@@ -178,7 +177,7 @@ function mlab_smtp_render_check_button( string $label ): void {
 function mlab_smtp_render_guide( string $summary, callable $steps, string $link, string $button ): void {
 	echo '<details class="mlab-guide" open><summary>' . esc_html( $summary ) . '</summary><ol class="mlab-todo">';
 	$steps();
-	echo '</ol><a class="button" href="' . esc_url( $link ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $button ) . ' ↗</a></details>';
+	echo '</ol><a class="button" href="' . esc_url( $link ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $button ) . mlab_smtp_ui_svg( 'external' ) . '</a></details>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 }
 
 /**
@@ -190,12 +189,12 @@ function mlab_smtp_render_guide( string $summary, callable $steps, string $link,
  * @param string $after Optional plain text after the copy snippet.
  */
 function mlab_smtp_render_guide_item( string $title, string $text, string $copy = '', string $after = '' ): void {
-	echo '<li><div><h3>' . esc_html( $title ) . '</h3><p class="mlab-muted mlab-small">' . esc_html( $text ) . '</p>';
+	echo '<li><div><h3>' . esc_html( $title ) . '</h3><p class="mlab-muted">' . esc_html( $text ) . '</p>';
 	if ( '' !== $copy ) {
 		mlab_smtp_ui_copy( $copy );
 	}
 	if ( '' !== $after ) {
-		echo '<p class="mlab-muted mlab-small">' . esc_html( $after ) . '</p>';
+		echo '<p class="mlab-muted">' . esc_html( $after ) . '</p>';
 	}
 	echo '</div></li>';
 }
@@ -343,7 +342,7 @@ function mlab_smtp_render_step_sender( string $provider ): void {
 	}
 	echo '<div class="mlab-fields is-open">';
 	mlab_smtp_render_sender_fields( $name, $email, $provider );
-	echo '</div><div class="mlab-preview"><p class="mlab-muted mlab-small">' . esc_html__( 'Vorschau', 'mlab-smtp' ) . '</p><strong data-mlab-preview="from_name">' . esc_html( $name ) . '</strong> <span class="mlab-muted">&lt;<span data-mlab-preview="from_email">' . esc_html( $email ) . '</span>&gt;</span></div>';
+	echo '</div><div class="mlab-preview"><p class="mlab-muted">' . esc_html__( 'Vorschau', 'mlab-smtp' ) . '</p><strong data-mlab-preview="from_name">' . esc_html( $name ) . '</strong> <span class="mlab-muted">&lt;<span data-mlab-preview="from_email">' . esc_html( $email ) . '</span>&gt;</span></div>';
 	mlab_smtp_render_step_foot( mlab_smtp_wizard_url( 2, $provider ), __( 'Weiter', 'mlab-smtp' ) );
 	mlab_smtp_ui_form_close();
 }

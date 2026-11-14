@@ -59,7 +59,7 @@ function mlab_smtp_render_resend_domain_panel(): void {
 		mlab_smtp_ui_technical( $state['error'] );
 	}
 	if ( in_array( $state['state'], array( 'missing', 'pending', 'failed', 'partial' ), true ) ) {
-		echo '<div class="mlab-row"><a class="button" href="' . esc_url( mlab_smtp_resend_recheck_url() ) . '">' . esc_html__( 'Nochmals prüfen', 'mlab-smtp' ) . '</a><a class="button-link" href="' . esc_url( MLAB_SMTP_RESEND_DOMAINS ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Domains bei Resend öffnen', 'mlab-smtp' ) . ' ↗</a></div>';
+		echo '<div class="mlab-row"><a class="button" href="' . esc_url( mlab_smtp_resend_recheck_url() ) . '">' . esc_html__( 'Nochmals prüfen', 'mlab-smtp' ) . '</a><a class="button button-link" href="' . esc_url( MLAB_SMTP_RESEND_DOMAINS ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Domains bei Resend öffnen', 'mlab-smtp' ) . mlab_smtp_ui_svg( 'external' ) . '</a></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	}
 }
 
