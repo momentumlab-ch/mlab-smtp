@@ -1,6 +1,6 @@
 <?php
 /**
- * Settings view: connection, fallback, notification, sender, log, constants from wp-config.php.
+ * Settings view: section cards for connection, fallback, notification, sender, log, constants from wp-config.php.
  *
  * @package mlab-smtp
  */
@@ -11,8 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Settings tab.
  */
 function mlab_smtp_render_settings(): void {
-	echo '<div class="mlab-card">';
-	mlab_smtp_ui_form_open( 'mlab_smtp_save_settings', 'mlab-settings' );
+	mlab_smtp_ui_form_open( 'mlab_smtp_save_settings', 'mlab-settings mlab-stack' );
 	mlab_smtp_render_set_connection();
 	mlab_smtp_render_set_fallback();
 	mlab_smtp_render_set_notify();
@@ -21,7 +20,6 @@ function mlab_smtp_render_settings(): void {
 	mlab_smtp_render_set_locked();
 	echo '<div class="mlab-savebar"><button type="submit" class="button button-primary">' . esc_html__( 'Änderungen speichern', 'mlab-smtp' ) . '</button></div>';
 	mlab_smtp_ui_form_close();
-	echo '</div>';
 }
 
 /**
@@ -33,11 +31,11 @@ function mlab_smtp_render_set_connection(): void {
 	mlab_smtp_ui_row_open( __( 'Verbindung', 'mlab-smtp' ), __( 'Über welchen Dienst die Website Mails versendet.', 'mlab-smtp' ) );
 	if ( ! $meta ) {
 		echo '<p class="mlab-muted">' . esc_html__( 'Noch nicht eingerichtet.', 'mlab-smtp' ) . '</p>';
-		echo '<a class="button button-primary" href="' . esc_url( mlab_smtp_page_url( array( 'view' => 'wizard' ) ) ) . '">' . esc_html__( 'Einrichtung starten', 'mlab-smtp' ) . '</a>';
+		echo '<a class="button" href="' . esc_url( mlab_smtp_page_url( array( 'view' => 'wizard' ) ) ) . '">' . esc_html__( 'Einrichtung starten', 'mlab-smtp' ) . '</a>';
 	} else {
 		echo '<div class="mlab-conn">';
 		mlab_smtp_ui_logo( $provider );
-		echo '<div class="mlab-grow"><strong>' . esc_html( $meta['name'] ) . '</strong><div class="mlab-muted mlab-small">' . esc_html( (string) mlab_smtp_get( 'from_email' ) ) . '</div></div>';
+		echo '<div class="mlab-li-main"><strong>' . esc_html( $meta['name'] ) . '</strong><span class="mlab-muted">' . esc_html( (string) mlab_smtp_get( 'from_email' ) ) . '</span></div>';
 		echo '<a class="button" href="' . esc_url( mlab_smtp_wizard_url( 2, $provider ) ) . '">' . esc_html__( 'Ändern', 'mlab-smtp' ) . '</a></div>';
 	}
 	mlab_smtp_ui_row_close();
@@ -51,7 +49,7 @@ function mlab_smtp_render_set_fallback(): void {
 	echo '<div data-mlab-fields data-group="fallback">';
 	mlab_smtp_ui_switch( 'fallback_enabled', __( 'Ersatzweg verwenden', 'mlab-smtp' ), 'mlab-fallback' );
 	echo '<div class="mlab-fields" id="mlab-fallback">';
-	echo '<p class="mlab-muted mlab-small">' . esc_html__( 'Der Ersatzweg ist immer ein eigener Mailserver (SMTP).', 'mlab-smtp' ) . '</p>';
+	echo '<p class="mlab-muted">' . esc_html__( 'Der Ersatzweg ist immer ein eigener Mailserver (SMTP).', 'mlab-smtp' ) . '</p>';
 	mlab_smtp_ui_field( 'fb_smtp_host', __( 'Server', 'mlab-smtp' ), array( 'placeholder' => 'mail.ihre-domain.ch' ) );
 	mlab_smtp_ui_field(
 		'fb_smtp_port',
@@ -125,7 +123,8 @@ function mlab_smtp_render_set_notify(): void {
  * Sender row: name, address, reply-to, force.
  */
 function mlab_smtp_render_set_sender(): void {
-	$fixed = 'google' === mlab_smtp_get( 'provider' );
+	$meta  = mlab_smtp_ui_providers()[ (string) mlab_smtp_get( 'provider' ) ]['sender'] ?? mlab_smtp_ui_sender( array() );
+	$fixed = $meta['fixed'];
 	mlab_smtp_ui_row_open( __( 'Absender', 'mlab-smtp' ), __( 'Name und Adresse, die Empfänger sehen.', 'mlab-smtp' ) );
 	echo '<div class="mlab-fields is-open">';
 	mlab_smtp_ui_field( 'from_name', __( 'Absender-Name', 'mlab-smtp' ), array( 'placeholder' => get_bloginfo( 'name' ) ) );
@@ -135,7 +134,7 @@ function mlab_smtp_render_set_sender(): void {
 		array(
 			'type'     => 'email',
 			'readonly' => $fixed,
-			'help'     => $fixed ? __( 'Vorgegeben durch das verbundene Google-Konto.', 'mlab-smtp' ) : '',
+			'help'     => $meta['help_settings'],
 		)
 	);
 	mlab_smtp_ui_field(

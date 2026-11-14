@@ -25,7 +25,7 @@ function mlab_smtp_route_definitions(): array {
 				'group'  => array(
 					'type'     => 'string',
 					'required' => true,
-					'enum'     => array( 'smtp', 'm365', 'google', 'sender', 'fallback' ),
+					'enum'     => array_merge( mlab_smtp_choices()['provider'], array( 'sender', 'fallback' ) ),
 				),
 				'fields' => array(
 					'type'     => 'object',
@@ -43,7 +43,7 @@ function mlab_smtp_route_definitions(): array {
 				),
 				'provider' => array(
 					'type' => 'string',
-					'enum' => array( 'smtp', 'm365', 'google' ),
+					'enum' => mlab_smtp_choices()['provider'],
 				),
 			),
 		),
@@ -56,7 +56,7 @@ function mlab_smtp_route_definitions(): array {
 				),
 				'provider' => array(
 					'type' => 'string',
-					'enum' => array( 'smtp', 'm365', 'google' ),
+					'enum' => mlab_smtp_choices()['provider'],
 				),
 			),
 		),
@@ -168,12 +168,9 @@ function mlab_smtp_check_success_text( string $route ): string {
 	if ( 'fallback' === $route ) {
 		return __( 'Ersatzweg erreichbar. Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' );
 	}
-	$texts = array(
-		'm365'   => __( 'Verbunden. Microsoft hat die Zugangsdaten akzeptiert.', 'mlab-smtp' ),
-		'google' => __( 'Verbunden. Google hat den Zugriff bestätigt.', 'mlab-smtp' ),
-		'smtp'   => __( 'Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' ),
-	);
-	return $texts[ mlab_smtp_get( 'provider' ) ] ?? $texts['smtp'];
+	$providers = mlab_smtp_ui_providers();
+	$success   = ( $providers[ (string) mlab_smtp_get( 'provider' ) ] ?? $providers['smtp'] )['success'];
+	return $success instanceof Closure ? $success() : $success;
 }
 
 /**

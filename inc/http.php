@@ -24,18 +24,26 @@ function mlab_smtp_decode_response( $response ) {
 		return new WP_Error(
 			'mlab_smtp_http',
 			/* translators: 1: HTTP status code, 2: error message of the provider */
-			sprintf( __( 'Der Anbieter hat mit Fehler %1$d geantwortet: %2$s', 'mlab-smtp' ), $code, mlab_smtp_error_message( $data ) )
+			sprintf( __( 'Der Anbieter hat mit Fehler %1$d geantwortet: %2$s', 'mlab-smtp' ), $code, mlab_smtp_error_message( $data ) ),
+			array(
+				'status' => $code,
+				'name'   => (string) ( $data['name'] ?? '' ),
+			)
 		);
 	}
 	return $data;
 }
 
 /**
- * Pulls the error text out of a Google or Microsoft error body.
+ * Pulls the error text out of a Google, Microsoft or Resend error body.
  *
  * @param array $data Decoded error body.
  */
 function mlab_smtp_error_message( array $data ): string {
+	if ( isset( $data['name'], $data['message'] ) && is_string( $data['name'] ) && is_string( $data['message'] ) ) {
+		// Resend: keep the error name (for example validation_error), mlab_smtp_explain_error() relies on it.
+		return $data['name'] . ': ' . $data['message'];
+	}
 	$error = $data['error'] ?? '';
 	if ( is_array( $error ) ) {
 		return (string) ( $error['message'] ?? '' );
@@ -144,7 +152,7 @@ function mlab_smtp_clear_tokens(): void {
  */
 function mlab_smtp_api_post( string $provider, string $url, string $body, string $content_type ) {
 	for ( $attempt = 0; $attempt < 2; $attempt++ ) {
-		$token = 'm365' === $provider ? mlab_smtp_m365_token( 0 < $attempt ) : mlab_smtp_google_token( 0 < $attempt );
+		$token = call_user_func( mlab_smtp_provider_def( $provider )['token'], 0 < $attempt );
 		if ( is_wp_error( $token ) ) {
 			return $token;
 		}
@@ -174,9 +182,15 @@ function mlab_smtp_api_post( string $provider, string $url, string $body, string
  * @return WP_Error|null Error when too large.
  */
 function mlab_smtp_size_error( string $body, int $limit ): ?WP_Error {
-	if ( strlen( $body ) <= $limit ) {
-		return null;
-	}
+	return strlen( $body ) <= $limit ? null : mlab_smtp_too_large_error( $limit );
+}
+
+/**
+ * Error for a message that is larger than the provider accepts.
+ *
+ * @param int $limit Largest accepted size in bytes.
+ */
+function mlab_smtp_too_large_error( int $limit ): WP_Error {
 	return new WP_Error(
 		'mlab_smtp_size',
 		sprintf(

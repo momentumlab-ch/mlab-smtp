@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-foreach ( array( 'components', 'handlers', 'rest', 'overview', 'wizard', 'log-view', 'settings-view' ) as $mlab_smtp_admin_file ) {
+foreach ( array( 'components', 'handlers', 'rest', 'overview', 'wizard', 'resend-view', 'log-view', 'settings-view', 'foreign-notices' ) as $mlab_smtp_admin_file ) {
 	require_once MLAB_SMTP_DIR . 'inc/admin/' . $mlab_smtp_admin_file . '.php';
 }
 unset( $mlab_smtp_admin_file );
@@ -179,9 +179,12 @@ function mlab_smtp_render_header( string $view ): void {
 		'log'      => __( 'Protokoll', 'mlab-smtp' ),
 		'settings' => __( 'Einstellungen', 'mlab-smtp' ),
 	);
-	echo '<h1>' . esc_html__( 'E-Mail-Versand', 'mlab-smtp' ) . '</h1><hr class="wp-header-end">';
+	echo '<div class="mlab-head"><div><h1>' . esc_html__( 'E-Mail-Versand', 'mlab-smtp' ) . '</h1><p class="mlab-lead">' . esc_html__( 'Sorgt dafür, dass Mails dieser Website zuverlässig ankommen und nicht im Spam landen.', 'mlab-smtp' ) . '</p></div>';
+	if ( 'overview' === $view ) {
+		mlab_smtp_render_head_action();
+	}
+	echo '</div><hr class="wp-header-end">';
 	mlab_smtp_render_flash();
-	echo '<p class="mlab-lead">' . esc_html__( 'Sorgt dafür, dass Mails dieser Website zuverlässig ankommen und nicht im Spam landen.', 'mlab-smtp' ) . '</p>';
 	echo '<nav class="nav-tab-wrapper mlab-tabs" aria-label="' . esc_attr__( 'Bereiche', 'mlab-smtp' ) . '">';
 	foreach ( $tabs as $slug => $label ) {
 		$count = ( 'log' === $slug && 'bad' === $status['state'] && $status['failures'] > 0 ) ? (int) $status['failures'] : 0;
@@ -220,4 +223,5 @@ function mlab_smtp_render_page(): void {
 		);
 	}
 	echo '</div>';
+	mlab_smtp_render_foreign_notices();
 }

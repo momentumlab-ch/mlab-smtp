@@ -1,6 +1,6 @@
 <?php
 /**
- * Log view: filter chips, search, entry list, detail panel, clearing with in-page confirmation.
+ * Log view: filter segments, search, entry list, detail panel, clearing with in-page confirmation.
  *
  * @package mlab-smtp
  */
@@ -23,8 +23,8 @@ function mlab_smtp_render_log(): void {
 	);
 	$current = mlab_smtp_log_current( $entries );
 	mlab_smtp_render_log_toolbar( $status, $search );
-	echo '<div class="mlab-two is-split">';
-	mlab_smtp_render_log_table( $entries, $current, $status, $search );
+	echo '<div class="mlab-two">';
+	mlab_smtp_render_log_list( $entries, $current, $status, $search );
 	mlab_smtp_render_log_detail( $current );
 	echo '</div>';
 	mlab_smtp_render_log_footer();
@@ -53,7 +53,7 @@ function mlab_smtp_log_current( array $entries ): ?array {
 }
 
 /**
- * Filter chips and search field.
+ * Filter segments and search field.
  *
  * @param string $status Active filter.
  * @param string $search Search text.
@@ -64,7 +64,7 @@ function mlab_smtp_render_log_toolbar( string $status, string $search ): void {
 		'ok'  => __( 'Zugestellt', 'mlab-smtp' ),
 		'bad' => __( 'Fehlgeschlagen', 'mlab-smtp' ),
 	);
-	echo '<div class="mlab-toolbar"><div class="mlab-chips" role="group" aria-label="' . esc_attr__( 'Filter', 'mlab-smtp' ) . '">';
+	echo '<div class="mlab-toolbar"><div class="mlab-segmented" role="group" aria-label="' . esc_attr__( 'Filter', 'mlab-smtp' ) . '">';
 	foreach ( $chips as $value => $label ) {
 		$url = mlab_smtp_page_url(
 			array(
@@ -73,25 +73,25 @@ function mlab_smtp_render_log_toolbar( string $status, string $search ): void {
 				's'      => $search,
 			)
 		);
-		echo '<a class="mlab-chip" href="' . esc_url( $url ) . '" ' . ( $value === $status ? ' aria-current="true"' : '' ) . '>' . esc_html( $label ) . '</a>';
+		echo '<a class="mlab-seg-item" href="' . esc_url( $url ) . '"' . ( $value === $status ? ' aria-current="true"' : '' ) . '>' . esc_html( $label ) . '</a>';
 	}
 	echo '</div><form method="get" class="mlab-search" role="search"><input type="hidden" name="page" value="mlab-smtp"><input type="hidden" name="view" value="log"><input type="hidden" name="status" value="' . esc_attr( $status ) . '">';
-	echo '<label class="screen-reader-text" for="mlab-log-search">' . esc_html__( 'Empfänger oder Betreff suchen', 'mlab-smtp' ) . '</label>';
+	echo '<label class="screen-reader-text" for="mlab-log-search">' . esc_html__( 'Empfänger oder Betreff suchen', 'mlab-smtp' ) . '</label>' . mlab_smtp_ui_svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	echo '<input type="search" id="mlab-log-search" name="s" value="' . esc_attr( $search ) . '" placeholder="' . esc_attr__( 'Empfänger oder Betreff suchen', 'mlab-smtp' ) . '"></form></div>';
 }
 
 /**
- * List of entries. Each row links to its detail panel.
+ * List of entries as rows. Each row links to its detail panel.
  *
  * @param array      $entries Entries.
  * @param array|null $current Selected entry.
  * @param string     $status  Active filter.
  * @param string     $search  Search text.
  */
-function mlab_smtp_render_log_table( array $entries, ?array $current, string $status, string $search ): void {
-	echo '<div class="mlab-tablewrap"><table class="mlab-table"><thead><tr><th scope="col">' . esc_html__( 'Zeit', 'mlab-smtp' ) . '</th><th scope="col">' . esc_html__( 'Empfänger · Betreff', 'mlab-smtp' ) . '</th><th scope="col">' . esc_html__( 'Ergebnis', 'mlab-smtp' ) . '</th></tr></thead><tbody>';
+function mlab_smtp_render_log_list( array $entries, ?array $current, string $status, string $search ): void {
+	echo '<div class="mlab-card mlab-logbox"><ul class="mlab-list">';
 	if ( ! $entries ) {
-		echo '<tr><td colspan="3" class="mlab-muted">' . esc_html__( 'Keine Einträge für diesen Filter.', 'mlab-smtp' ) . '</td></tr>';
+		echo '<li class="mlab-li"><span class="mlab-muted">' . esc_html__( 'Keine Einträge für diesen Filter.', 'mlab-smtp' ) . '</span></li>';
 	}
 	foreach ( $entries as $entry ) {
 		$url = mlab_smtp_page_url(
@@ -103,12 +103,11 @@ function mlab_smtp_render_log_table( array $entries, ?array $current, string $st
 			)
 		);
 		$sel = $current && $current['id'] === $entry['id'];
-		echo '<tr' . ( $sel ? ' class="is-selected"' : '' ) . '><td class="mlab-time">' . esc_html( mlab_smtp_ui_time( (int) $entry['time'] ) ) . '</td>';
-		echo '<td><a href="' . esc_url( $url ) . '"' . ( $sel ? ' aria-current="true"' : '' ) . '>' . esc_html( $entry['subject'] ) . '</a><div class="mlab-muted mlab-small">' . esc_html( $entry['to'] ) . '</div></td><td>';
-		mlab_smtp_ui_entry_pill( $entry );
-		echo '</td></tr>';
+		echo '<li><a class="mlab-li' . ( $sel ? ' is-selected' : '' ) . '" href="' . esc_url( $url ) . '"' . ( $sel ? ' aria-current="true"' : '' ) . '>';
+		mlab_smtp_render_entry_summary( $entry );
+		echo '</a></li>';
 	}
-	echo '</tbody></table></div>';
+	echo '</ul></div>';
 }
 
 /**
@@ -145,39 +144,48 @@ function mlab_smtp_render_log_detail( ?array $entry ): void {
 	if ( '' !== (string) $entry['error'] ) {
 		mlab_smtp_render_log_explanation( $entry );
 	} else {
-		echo '<p class="mlab-muted mlab-small">' . esc_html__( 'Der Inhalt der Mail wird aus Datenschutzgründen nicht gespeichert.', 'mlab-smtp' ) . '</p>';
+		echo '<p class="mlab-muted">' . esc_html__( 'Der Inhalt der Mail wird aus Datenschutzgründen nicht gespeichert.', 'mlab-smtp' ) . '</p>';
 	}
 	echo '</aside>';
 }
 
 /**
- * Explanation block for an entry that had an error.
+ * Explanation block for an entry that had an error: the shared hint, like the error of the overview.
  *
  * @param array $entry Log entry with an error.
  */
 function mlab_smtp_render_log_explanation( array $entry ): void {
 	$texts = mlab_smtp_ui_error_texts( (string) $entry['error'] );
-	$level = ! empty( $entry['ok'] ) ? 'warn' : 'bad';
-	echo '<div class="mlab-hint is-' . esc_attr( $level ) . '"><div><strong>' . esc_html__( 'Was ist passiert?', 'mlab-smtp' ) . '</strong><p>' . esc_html( $texts['message'] ) . '</p>';
-	if ( ! empty( $entry['fallback'] ) ) {
-		echo '<p>' . esc_html__( 'Die Mail wurde über den Ersatzweg zugestellt.', 'mlab-smtp' ) . '</p>';
-	}
-	mlab_smtp_ui_technical( $texts['detail'] );
-	echo '</div></div>';
+	$level = mlab_smtp_ui_entry_level( $entry );
+	$fix   = mlab_smtp_wizard_url( 2, (string) mlab_smtp_get( 'provider' ) );
+	mlab_smtp_ui_hint(
+		'ok' === $level ? 'warn' : $level,
+		__( 'Was ist passiert?', 'mlab-smtp' ),
+		$texts['message'],
+		static function () use ( $entry, $texts, $fix ): void {
+			if ( ! empty( $entry['fallback'] ) ) {
+				echo '<p>' . esc_html__( 'Die Mail wurde über den Ersatzweg zugestellt.', 'mlab-smtp' ) . '</p>';
+			}
+			if ( empty( $entry['ok'] ) ) {
+				echo '<p><a href="' . esc_url( $fix ) . '">' . esc_html__( 'Fehler beheben', 'mlab-smtp' ) . '</a></p>';
+			}
+			mlab_smtp_ui_technical( $texts['detail'] );
+		}
+	);
 }
 
 /**
  * Retention note and the clear button with its in-page confirmation.
  */
 function mlab_smtp_render_log_footer(): void {
-	echo '<div class="mlab-foot"><p class="mlab-muted mlab-small">';
+	echo '<div class="mlab-foot"><p class="mlab-muted">';
 	/* translators: %d: number of days */
 	echo esc_html( sprintf( __( 'Einträge werden nach %d Tagen automatisch gelöscht. Inhalte werden nie gespeichert.', 'mlab-smtp' ), (int) mlab_smtp_get( 'log_retention' ) ) );
 	echo '</p>';
 	if ( 'clear' === mlab_smtp_query( 'confirm' ) ) {
 		mlab_smtp_ui_form_open( 'mlab_smtp_clear_log_confirmed', 'mlab-confirm' );
 		echo '<span role="alert">' . esc_html__( 'Alle Einträge löschen?', 'mlab-smtp' ) . '</span> <button type="submit" class="button mlab-danger">' . esc_html__( 'Ja, löschen', 'mlab-smtp' ) . '</button> ';
-		echo '<a class="button-link" href="' . esc_url( mlab_smtp_page_url( array( 'view' => 'log' ) ) ) . '">' . esc_html__( 'Abbrechen', 'mlab-smtp' ) . '</a>';
+		echo '<a class="button button-link" href="' . esc_url( mlab_smtp_page_url( array( 'view' => 'log' ) ) ) . '">' . esc_html__( 'Abbrechen', 'mlab-smtp' ) . '</a>';
 		mlab_smtp_ui_form_close();
 	} else {
 		echo '<a class="button" href="' . esc_url(

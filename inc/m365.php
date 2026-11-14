@@ -33,6 +33,16 @@ function mlab_smtp_m365_token( bool $fresh = false ) {
 }
 
 /**
+ * Sends the prepared message from the sender address (registry entry «send»).
+ *
+ * @param \PHPMailer\PHPMailer\PHPMailer $mailer Prepared message.
+ * @return true|WP_Error
+ */
+function mlab_smtp_send_m365_mail( $mailer ) {
+	return mlab_smtp_send_m365( $mailer->getSentMIMEMessage(), $mailer->From ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- PHPMailer API.
+}
+
+/**
  * Sends a finished MIME message from the given mailbox.
  *
  * @param string $mime Complete MIME message.

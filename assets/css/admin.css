@@ -1,39 +1,129 @@
-/* MomentumLab SMTP admin. Everything is scoped under .mlab-smtp and follows the WordPress admin colour scheme. */
-.mlab-smtp {
+/*
+ * MomentumLab SMTP admin.
+ * Everything is scoped under .mlab-smtp (and .mlab-foreign) and follows the WordPress admin colour scheme.
+ * Principles: clarity, deference, consistency. 8pt spacing grid, type scale 13 / 15 / 17 / 22 / 28.
+ */
+.mlab-smtp,
+.mlab-foreign {
+	/* Colour */
 	--mlab-accent: var(--wp-admin-theme-color, #2271b1);
+	--mlab-accent-strong: var(--wp-admin-theme-color-darker-10, #135e96);
 	--mlab-accent-soft: color-mix(in srgb, var(--mlab-accent) 10%, #fff);
 	--mlab-surface: #fff;
-	--mlab-surface-2: #f6f7f7;
-	--mlab-line: #dcdcde;
-	--mlab-line-strong: #c3c4c7;
-	--mlab-fg: #1d2327;
-	--mlab-muted: #50575e;
-	--mlab-ok: #00744a;
-	--mlab-ok-soft: #e6f4ee;
-	--mlab-warn: #8a5a00;
-	--mlab-warn-soft: #fcf3e1;
-	--mlab-bad: #b32d2e;
-	--mlab-bad-soft: #fbeaea;
-	--mlab-radius: 6px;
-	max-width: 980px;
+	--mlab-surface-2: #f5f5f7;
+	--mlab-surface-3: #e8e8ed;
+	--mlab-line: #e3e3e8;
+	--mlab-line-strong: #c7c7cc;
+	--mlab-fg: #1d1d1f;
+	--mlab-fg-2: #3a3a3c;
+	--mlab-muted: #5c5c61;
+	--mlab-ok: #1a7f37;
+	--mlab-ok-text: #116329;
+	--mlab-warn: #a85a00;
+	--mlab-warn-text: #7a4300;
+	--mlab-bad: #c9312b;
+	--mlab-bad-text: #a3231d;
+	/* Type */
+	--mlab-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--mlab-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	--mlab-t-small: 13px;
+	--mlab-t-body: 15px;
+	--mlab-t-title: 17px;
+	--mlab-t-large: 22px;
+	--mlab-t-display: 28px;
+	/* Space (8pt grid), shape, depth, size */
+	--mlab-s-half: 4px;
+	--mlab-s-1: 8px;
+	--mlab-s-2: 16px;
+	--mlab-s-3: 24px;
+	--mlab-s-4: 32px;
+	--mlab-s-5: 40px;
+	--mlab-radius: 12px;
+	--mlab-radius-sm: 8px;
+	--mlab-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.02);
+	--mlab-shadow-raised: 0 2px 8px rgb(0 0 0 / 0.08);
+	--mlab-tap: 44px;
+	--mlab-max: 1120px;
+	--mlab-ease: 0.15s ease;
+}
+
+.mlab-smtp {
+	color: var(--mlab-fg);
+	font-family: var(--mlab-font);
+	font-size: var(--mlab-t-body);
+	line-height: 1.5;
+	max-width: var(--mlab-max);
+}
+
+.mlab-smtp *,
+.mlab-smtp *::before,
+.mlab-smtp *::after {
+	box-sizing: border-box;
 }
 
 .mlab-smtp [hidden] {
 	display: none !important;
 }
 
+/* Status levels: one set of tokens for icons, pills, hints and sparklines. */
+.mlab-smtp .is-ok {
+	--lv: var(--mlab-ok);
+	--lv-text: var(--mlab-ok-text);
+	--lv-soft: color-mix(in srgb, var(--mlab-ok) 9%, #fff);
+}
+
+.mlab-smtp .is-warn {
+	--lv: var(--mlab-warn);
+	--lv-text: var(--mlab-warn-text);
+	--lv-soft: color-mix(in srgb, var(--mlab-warn) 10%, #fff);
+}
+
+.mlab-smtp .is-bad {
+	--lv: var(--mlab-bad);
+	--lv-text: var(--mlab-bad-text);
+	--lv-soft: color-mix(in srgb, var(--mlab-bad) 8%, #fff);
+}
+
+.mlab-smtp .is-info {
+	--lv: var(--mlab-accent);
+	--lv-text: var(--mlab-accent-strong);
+	--lv-soft: var(--mlab-accent-soft);
+}
+
+.mlab-smtp .is-neu {
+	--lv: #6e6e73;
+	--lv-text: var(--mlab-muted);
+	--lv-soft: var(--mlab-surface-2);
+}
+
+/* Text */
+.mlab-smtp h1 {
+	color: var(--mlab-fg);
+	font-size: var(--mlab-t-display);
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.2;
+	margin: 0;
+	padding: 0;
+}
+
 .mlab-smtp h2 {
-	font-size: 16px;
-	margin: 0 0 4px;
+	color: var(--mlab-fg);
+	font-size: var(--mlab-t-title);
+	font-weight: 600;
+	line-height: 1.3;
+	margin: 0;
 	padding: 0;
 }
 
 .mlab-smtp h3 {
-	font-size: 14px;
-	margin: 0 0 2px;
+	font-size: var(--mlab-t-body);
+	font-weight: 600;
+	margin: 0;
 }
 
 .mlab-smtp p {
+	font-size: var(--mlab-t-body);
 	margin: 0;
 }
 
@@ -41,361 +131,597 @@
 	color: var(--mlab-muted);
 }
 
-.mlab-smtp .mlab-small {
-	font-size: 12.5px;
+.mlab-smtp a {
+	color: var(--mlab-accent-strong);
+	text-underline-offset: 2px;
+}
+
+.mlab-smtp :focus-visible {
+	outline: 2px solid var(--mlab-accent);
+	outline-offset: 2px;
+}
+
+/* Layout */
+.mlab-smtp .mlab-stack {
+	display: grid;
+	gap: var(--mlab-s-3);
+}
+
+.mlab-smtp .mlab-two {
+	align-items: start;
+	display: grid;
+	gap: var(--mlab-s-3);
+	grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+}
+
+.mlab-smtp .mlab-head {
+	align-items: flex-end;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mlab-s-2);
+	justify-content: space-between;
+	margin: var(--mlab-s-3) 0 var(--mlab-s-3);
 }
 
 .mlab-smtp .mlab-lead {
 	color: var(--mlab-muted);
-	margin-bottom: 4px;
-}
-
-.mlab-smtp .mlab-head {
-	align-items: center;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px 16px;
-	justify-content: space-between;
-}
-
-/* Tabs */
-.mlab-smtp .mlab-tabs {
-	margin: 14px 0 20px;
-	overflow-x: auto;
-	white-space: nowrap;
-}
-
-.mlab-smtp .mlab-count {
-	background: var(--mlab-bad);
-	border-radius: 9px;
-	color: #fff;
-	font-size: 11px;
-	margin-left: 6px;
-	padding: 0 6px;
-}
-
-/* Cards and layout */
-.mlab-smtp .mlab-card {
-	background: var(--mlab-surface);
-	border: 1px solid var(--mlab-line);
-	border-radius: var(--mlab-radius);
-	box-sizing: border-box;
-	padding: 20px;
-}
-
-.mlab-smtp .mlab-stack {
-	display: grid;
-	gap: 16px;
+	margin-top: var(--mlab-s-1);
 }
 
 .mlab-smtp .mlab-row {
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 10px;
-	margin-top: 16px;
-}
-
-.mlab-smtp .mlab-two {
-	display: grid;
-	gap: 16px;
-	grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-}
-
-.mlab-smtp .mlab-two.is-split {
-	grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+	gap: var(--mlab-s-1) var(--mlab-s-2);
+	margin-top: var(--mlab-s-2);
 }
 
 .mlab-smtp .mlab-foot {
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 10px;
+	gap: var(--mlab-s-2);
 	justify-content: space-between;
-	margin-top: 20px;
+	margin-top: var(--mlab-s-4);
 }
 
-/* Status card */
-.mlab-smtp .mlab-status {
-	align-items: center;
-	box-shadow: inset 4px 0 0 var(--mlab-ok);
-	display: grid;
-	gap: 16px;
-	grid-template-columns: auto minmax(0, 1fr) auto;
+.mlab-smtp .mlab-wiz .mlab-foot {
+	border-top: 1px solid var(--mlab-line);
+	padding-top: var(--mlab-s-3);
 }
 
-.mlab-smtp .mlab-status.is-warn,
-.mlab-smtp .mlab-status.is-none {
-	box-shadow: inset 4px 0 0 var(--mlab-warn);
-}
-
-.mlab-smtp .mlab-status.is-bad {
-	background: var(--mlab-bad-soft);
-	box-shadow: inset 4px 0 0 var(--mlab-bad);
-}
-
-.mlab-smtp .mlab-status h2 {
-	font-size: 18px;
-}
-
-.mlab-smtp .mlab-dot {
-	background: var(--mlab-ok-soft);
-	border-radius: 50%;
-	color: var(--mlab-ok);
-	display: grid;
-	font-size: 18px;
-	font-weight: 700;
-	height: 40px;
-	place-items: center;
-	width: 40px;
-}
-
-.mlab-smtp .is-warn > .mlab-dot,
-.mlab-smtp .is-none > .mlab-dot {
-	background: var(--mlab-warn-soft);
-	color: var(--mlab-warn);
-}
-
-.mlab-smtp .is-bad > .mlab-dot {
+/* Card */
+.mlab-smtp .mlab-card {
 	background: var(--mlab-surface);
-	color: var(--mlab-bad);
-}
-
-/* Quick test */
-.mlab-smtp .mlab-quick > summary {
-	cursor: pointer;
-	list-style: none;
-}
-
-.mlab-smtp .mlab-quick > summary::-webkit-details-marker {
-	display: none;
-}
-
-.mlab-smtp .mlab-quick-form {
-	margin-top: 14px;
-}
-
-/* Key figures */
-.mlab-smtp .mlab-kpis {
-	background: var(--mlab-line);
 	border: 1px solid var(--mlab-line);
 	border-radius: var(--mlab-radius);
-	display: grid;
-	gap: 1px;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	margin: 0;
-	overflow: hidden;
+	box-shadow: var(--mlab-shadow);
+	padding: var(--mlab-s-3);
 }
 
-.mlab-smtp .mlab-kpi {
+.mlab-smtp .mlab-card-head {
+	align-items: baseline;
+	display: flex;
+	gap: var(--mlab-s-2);
+	justify-content: space-between;
+	margin-bottom: var(--mlab-s-1);
+}
+
+/* Buttons: primary (filled), secondary (.button), quiet (.button-link) */
+.mlab-smtp .button {
+	align-items: center;
 	background: var(--mlab-surface);
-	display: flex;
-	flex-direction: column-reverse;
-	padding: 14px 16px;
-}
-
-.mlab-smtp .mlab-kpi dt {
-	color: var(--mlab-muted);
-	font-size: 12px;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
-}
-
-.mlab-smtp .mlab-kpi dd {
-	font-size: 22px;
-	font-variant-numeric: tabular-nums;
-	font-weight: 600;
-	margin: 0;
-}
-
-.mlab-smtp .mlab-kpi dd.is-bad {
-	color: var(--mlab-bad);
-}
-
-/* Health and recent lists */
-.mlab-smtp .mlab-checks {
-	display: grid;
-	list-style: none;
-	margin: 10px 0 0;
-	padding: 0;
-}
-
-.mlab-smtp .mlab-checks li {
-	align-items: start;
-	border-top: 1px solid var(--mlab-line);
-	display: grid;
-	gap: 10px;
-	grid-template-columns: 22px minmax(0, 1fr) auto;
-	margin: 0;
-	padding: 10px 0;
-}
-
-.mlab-smtp .mlab-checks li:first-child {
-	border-top: 0;
-}
-
-.mlab-smtp .mlab-recent li {
-	grid-template-columns: minmax(0, 1fr) auto;
-}
-
-.mlab-smtp .mlab-ellipsis > a {
-	display: block;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.mlab-smtp .mlab-ic {
-	border-radius: 50%;
-	display: grid;
-	flex: none;
-	font-size: 12px;
-	font-weight: 700;
-	height: 20px;
-	place-items: center;
-	width: 20px;
-}
-
-.mlab-smtp .mlab-ic.is-ok {
-	background: var(--mlab-ok-soft);
-	color: var(--mlab-ok);
-}
-
-.mlab-smtp .mlab-ic.is-warn {
-	background: var(--mlab-warn-soft);
-	color: var(--mlab-warn);
-}
-
-.mlab-smtp .mlab-ic.is-bad {
-	background: var(--mlab-bad-soft);
-	color: var(--mlab-bad);
-}
-
-.mlab-smtp .mlab-mini {
-	align-items: flex-end;
-	display: flex;
-	gap: 3px;
-	height: 40px;
-	margin-top: 8px;
-}
-
-.mlab-smtp .mlab-mini span {
-	background: var(--mlab-accent);
-	border-radius: 2px 2px 0 0;
-	flex: 1;
-	min-height: 2px;
-	opacity: 0.75;
-}
-
-.mlab-smtp .mlab-mini span.is-failed {
-	background: var(--mlab-bad);
-	opacity: 1;
-}
-
-/* Pills and hints */
-.mlab-smtp .mlab-pill {
+	border: 1px solid var(--mlab-line-strong);
 	border-radius: 10px;
-	display: inline-block;
-	font-size: 12px;
+	box-shadow: var(--mlab-shadow);
+	color: var(--mlab-fg);
+	cursor: pointer;
+	display: inline-flex;
+	font-family: inherit;
+	font-size: var(--mlab-t-body);
 	font-weight: 600;
-	padding: 1px 8px;
+	gap: var(--mlab-s-1);
+	justify-content: center;
+	line-height: 1.2;
+	min-height: 40px;
+	padding: 0 var(--mlab-s-2);
+	text-decoration: none;
+	text-shadow: none;
+	transition: background-color var(--mlab-ease), border-color var(--mlab-ease);
+}
+
+.mlab-smtp .button:hover {
+	background: var(--mlab-surface-2);
+	border-color: var(--mlab-line-strong);
+	color: var(--mlab-fg);
+}
+
+.mlab-smtp .button.button-primary {
+	background: var(--mlab-accent);
+	border-color: var(--mlab-accent);
+	color: #fff;
+}
+
+.mlab-smtp .button.button-primary:hover {
+	background: var(--mlab-accent-strong);
+	border-color: var(--mlab-accent-strong);
+	color: #fff;
+}
+
+.mlab-smtp .button.button-link {
+	background: transparent;
+	border-color: transparent;
+	box-shadow: none;
+	color: var(--mlab-accent-strong);
+	padding: 0 var(--mlab-s-1);
+}
+
+.mlab-smtp .button.button-link:hover {
+	background: var(--mlab-accent-soft);
+	border-color: transparent;
+	color: var(--mlab-accent-strong);
+}
+
+.mlab-smtp .button:disabled,
+.mlab-smtp .button[disabled] {
+	cursor: not-allowed;
+	opacity: 0.45;
+}
+
+.mlab-smtp .button.mlab-danger {
+	border-color: var(--mlab-bad);
+	color: var(--mlab-bad-text);
+}
+
+.mlab-smtp .mlab-svg {
+	flex: none;
+	height: 18px;
+	width: 18px;
+}
+
+/* Segmented control: page tabs, log filter, radio groups */
+.mlab-smtp .mlab-tabs,
+.mlab-smtp .mlab-segmented,
+.mlab-smtp .mlab-seg-group {
+	background: var(--mlab-surface-3);
+	border: 0;
+	border-radius: 12px;
+	display: inline-flex;
+	gap: 2px;
+	margin: 0 0 var(--mlab-s-3);
+	max-width: 100%;
+	overflow-x: auto;
+	padding: 3px;
+}
+
+.mlab-smtp .mlab-segmented,
+.mlab-smtp .mlab-seg-group {
+	margin: 0;
+}
+
+.mlab-smtp .nav-tab,
+.mlab-smtp .mlab-seg-item,
+.mlab-smtp .mlab-seg-group span {
+	align-items: center;
+	background: transparent;
+	border: 0;
+	border-radius: 9px;
+	color: var(--mlab-fg-2);
+	display: inline-flex;
+	float: none;
+	font-size: var(--mlab-t-body);
+	font-weight: 600;
+	justify-content: center;
+	line-height: 1.2;
+	margin: 0;
+	min-height: 38px;
+	padding: 0 var(--mlab-s-2);
+	text-decoration: none;
+	transition: background-color var(--mlab-ease);
 	white-space: nowrap;
 }
 
-.mlab-smtp .mlab-pill.is-ok {
-	background: var(--mlab-ok-soft);
-	color: var(--mlab-ok);
+.mlab-smtp .nav-tab:hover,
+.mlab-smtp .mlab-seg-item:hover {
+	background: rgb(255 255 255 / 0.5);
+	color: var(--mlab-fg);
 }
 
-.mlab-smtp .mlab-pill.is-warn {
-	background: var(--mlab-warn-soft);
-	color: var(--mlab-warn);
+.mlab-smtp .nav-tab.nav-tab-active,
+.mlab-smtp .mlab-seg-item[aria-current],
+.mlab-smtp .mlab-seg-group input:checked + span {
+	background: var(--mlab-surface);
+	box-shadow: var(--mlab-shadow-raised);
+	color: var(--mlab-fg);
 }
 
-.mlab-smtp .mlab-pill.is-bad {
-	background: var(--mlab-bad-soft);
-	color: var(--mlab-bad);
+.mlab-smtp .mlab-seg-group label {
+	cursor: pointer;
+	display: block;
 }
 
-.mlab-smtp .mlab-pill.is-neu {
-	background: var(--mlab-surface-2);
-	color: var(--mlab-muted);
+.mlab-smtp .mlab-seg-group input {
+	opacity: 0;
+	position: absolute;
+}
+
+.mlab-smtp .mlab-seg-group input:focus-visible + span {
+	outline: 2px solid var(--mlab-accent);
+	outline-offset: 1px;
+}
+
+.mlab-smtp .mlab-count {
+	background: var(--mlab-bad);
+	border-radius: 999px;
+	color: #fff;
+	font-size: var(--mlab-t-small);
+	margin-left: var(--mlab-s-1);
+	padding: 0 7px;
+}
+
+/* Status icon, pill and the shared hint (banner = large hint) */
+.mlab-smtp .mlab-ic {
+	align-items: center;
+	background: var(--lv);
+	border-radius: 50%;
+	color: #fff;
+	display: inline-flex;
+	flex: none;
+	font-size: var(--mlab-t-small);
+	font-style: normal;
+	font-weight: 700;
+	height: 24px;
+	justify-content: center;
+	line-height: 1;
+	width: 24px;
+}
+
+.mlab-smtp .mlab-ic.is-neu {
+	background: var(--mlab-surface-3);
+	color: var(--mlab-fg-2);
+}
+
+.mlab-smtp .mlab-pill {
+	align-items: center;
+	background: var(--lv-soft);
+	border-radius: 999px;
+	color: var(--lv-text);
+	display: inline-flex;
+	font-size: var(--mlab-t-small);
+	font-weight: 600;
+	gap: 6px;
+	line-height: 1.4;
+	padding: 2px 10px;
+	white-space: nowrap;
+}
+
+.mlab-smtp .mlab-pill::before {
+	background: var(--lv);
+	border-radius: 50%;
+	content: "";
+	height: 8px;
+	width: 8px;
 }
 
 .mlab-smtp .mlab-hint {
-	background: var(--mlab-accent-soft);
+	align-items: flex-start;
+	background: var(--lv-soft, var(--mlab-accent-soft));
+	border: 1px solid color-mix(in srgb, var(--lv, var(--mlab-accent)) 25%, #fff);
 	border-radius: var(--mlab-radius);
+	color: var(--mlab-fg);
 	display: flex;
-	gap: 10px;
-	margin: 14px 0;
-	padding: 12px 14px;
+	gap: 12px;
+	margin: var(--mlab-s-2) 0;
+	padding: 12px var(--mlab-s-2);
 }
 
-.mlab-smtp .mlab-hint.is-ok {
-	background: var(--mlab-ok-soft);
-}
-
-.mlab-smtp .mlab-hint.is-warn {
-	background: var(--mlab-warn-soft);
-}
-
-.mlab-smtp .mlab-hint.is-bad {
-	background: var(--mlab-bad-soft);
-}
-
-.mlab-smtp .mlab-hint .mlab-ic.is-info {
-	background: var(--mlab-accent-soft);
-	color: var(--mlab-accent);
+.mlab-smtp .mlab-hint > div {
+	flex: 1;
+	min-width: 0;
 }
 
 .mlab-smtp .mlab-hint p {
-	margin-top: 4px;
+	color: var(--mlab-fg-2);
+}
+
+.mlab-smtp .mlab-hint strong + p {
+	margin-top: var(--mlab-s-half);
+}
+
+.mlab-smtp .mlab-hint .mlab-technical,
+.mlab-smtp .mlab-hint p + p,
+.mlab-smtp .mlab-hint a:not(.button) {
+	margin-top: var(--mlab-s-1);
+}
+
+.mlab-smtp .mlab-hint a:not(.button) {
+	display: inline-block;
+	font-weight: 600;
+}
+
+.mlab-smtp .mlab-hint.is-banner {
+	align-items: center;
+	gap: var(--mlab-s-2);
+	margin: 0;
+	padding: var(--mlab-s-2) var(--mlab-s-3);
+}
+
+.mlab-smtp .is-banner .mlab-ic {
+	font-size: var(--mlab-t-body);
+	height: 32px;
+	width: 32px;
+}
+
+.mlab-smtp .is-banner > div {
+	align-items: baseline;
+	column-gap: var(--mlab-s-2);
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.mlab-smtp .is-banner strong {
+	font-size: var(--mlab-t-title);
+}
+
+.mlab-smtp .is-banner p {
+	margin: 0;
 }
 
 .mlab-smtp .mlab-result:empty {
 	display: none;
 }
 
-.mlab-smtp .mlab-result .mlab-hint {
-	margin-top: 14px;
-}
-
-.mlab-smtp .mlab-technical {
-	margin-top: 8px;
-}
-
 .mlab-smtp .mlab-technical summary {
-	color: var(--mlab-accent);
+	color: var(--mlab-accent-strong);
 	cursor: pointer;
+	font-size: var(--mlab-t-small);
+	min-height: 24px;
 }
 
 .mlab-smtp .mlab-pre {
-	background: var(--mlab-surface-2);
+	background: var(--mlab-surface);
 	border: 1px solid var(--mlab-line);
-	border-radius: 4px;
-	font-size: 12px;
-	margin: 8px 0 0;
+	border-radius: var(--mlab-radius-sm);
+	font-family: var(--mlab-mono);
+	font-size: var(--mlab-t-small);
+	margin: var(--mlab-s-1) 0 0;
 	max-height: 180px;
 	overflow: auto;
-	padding: 10px;
+	padding: 12px;
 	white-space: pre-wrap;
 	word-break: break-word;
+}
+
+/* Overview: quick test, steps, key figures */
+.mlab-smtp .mlab-quick {
+	display: none;
+}
+
+.mlab-smtp .mlab-quick:target {
+	display: block;
+}
+
+.mlab-smtp:has(.mlab-quick:target) .mlab-head-act {
+	display: none;
+}
+
+.mlab-smtp .mlab-steps {
+	align-items: center;
+	display: flex;
+	list-style: none;
+	margin: 0;
+	padding: var(--mlab-s-2) var(--mlab-s-3);
+}
+
+.mlab-smtp .mlab-steps li {
+	align-items: center;
+	display: flex;
+	flex: 1;
+	font-weight: 600;
+	gap: 12px;
+	margin: 0;
+}
+
+.mlab-smtp .mlab-steps li:last-child {
+	flex: none;
+}
+
+.mlab-smtp .mlab-steps li:not(:last-child)::after {
+	background: var(--mlab-line);
+	content: "";
+	flex: 1;
+	height: 1px;
+	margin: 0 var(--mlab-s-2);
+}
+
+.mlab-smtp .mlab-kpis {
+	display: grid;
+	gap: var(--mlab-s-2);
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	margin: 0;
+}
+
+.mlab-smtp .mlab-kpi {
+	align-items: end;
+	display: grid;
+	gap: var(--mlab-s-half) var(--mlab-s-2);
+	grid-template-columns: minmax(0, 1fr) minmax(64px, 40%);
+	padding: var(--mlab-s-2) var(--mlab-s-3);
+}
+
+.mlab-smtp .mlab-kpi dt {
+	color: var(--mlab-muted);
+	font-size: var(--mlab-t-body);
+	grid-column: 1 / -1;
+}
+
+.mlab-smtp .mlab-kpi dd {
+	font-size: var(--mlab-t-display);
+	font-variant-numeric: tabular-nums;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.2;
+	margin: 0;
+}
+
+.mlab-smtp .mlab-kpi dd.is-bad {
+	color: var(--mlab-bad-text);
+}
+
+.mlab-smtp .mlab-spark {
+	color: var(--lv);
+	display: block;
+	height: 40px;
+	width: 100%;
+}
+
+/* List rows: latest mails, health checks, log */
+.mlab-smtp .mlab-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.mlab-smtp .mlab-list > li {
+	border-top: 1px solid var(--mlab-line);
+	margin: 0;
+}
+
+.mlab-smtp .mlab-list > li:first-child {
+	border-top: 0;
+}
+
+.mlab-smtp .mlab-li {
+	align-items: center;
+	color: var(--mlab-fg);
+	display: grid;
+	gap: var(--mlab-s-2);
+	grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+	min-height: 64px;
+	padding: 12px 0;
+	text-decoration: none;
+}
+
+.mlab-smtp a.mlab-li,
+.mlab-smtp summary.mlab-li {
+	border-radius: var(--mlab-radius-sm);
+	cursor: pointer;
+	margin: 0 calc(-1 * var(--mlab-s-1));
+	padding-left: var(--mlab-s-1);
+	padding-right: var(--mlab-s-1);
+}
+
+.mlab-smtp a.mlab-li:hover,
+.mlab-smtp summary.mlab-li:hover {
+	background: var(--mlab-surface-2);
+}
+
+.mlab-smtp .mlab-li.is-selected {
+	background: var(--mlab-accent-soft);
+}
+
+.mlab-smtp summary.mlab-li {
+	list-style: none;
+}
+
+.mlab-smtp summary.mlab-li::-webkit-details-marker {
+	display: none;
+}
+
+.mlab-smtp summary .mlab-svg {
+	color: var(--mlab-muted);
+	transition: transform var(--mlab-ease);
+}
+
+.mlab-smtp details[open] > summary .mlab-svg {
+	transform: rotate(180deg);
+}
+
+.mlab-smtp .mlab-list details > .mlab-hint {
+	margin: 0 0 var(--mlab-s-2);
+}
+
+.mlab-smtp .mlab-li-main {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.mlab-smtp .mlab-li-main > * {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mlab-smtp .mlab-li-main > .mlab-muted {
+	font-size: var(--mlab-t-small);
+}
+
+.mlab-smtp .mlab-time {
+	color: var(--mlab-muted);
+	font-size: var(--mlab-t-small);
+	font-variant-numeric: tabular-nums;
+	min-width: 44px;
+	text-align: right;
+	white-space: nowrap;
+}
+
+.mlab-smtp .mlab-active {
+	display: grid;
+	gap: var(--mlab-s-2);
+	justify-items: start;
+}
+
+.mlab-smtp .mlab-active .button {
+	justify-self: stretch;
+}
+
+.mlab-smtp .mlab-conn {
+	align-items: center;
+	display: flex;
+	gap: 12px;
+	min-width: 0;
+}
+
+.mlab-smtp .mlab-logo {
+	border-radius: 10px;
+	color: #fff;
+	display: inline-grid;
+	flex: none;
+	font-size: var(--mlab-t-title);
+	font-weight: 700;
+	height: 40px;
+	place-items: center;
+	width: 40px;
+}
+
+/* Brand marks: neutral tile, so the colours of the mark carry the brand. */
+.mlab-smtp .mlab-logo.is-brand {
+	background: var(--mlab-surface, #fff);
+	border: 1px solid var(--mlab-line, #dcdcde);
+	color: var(--mlab-muted, #50575e);
+}
+
+.mlab-smtp .mlab-logo.is-brand svg {
+	display: block;
+	height: 24px;
+	width: 24px;
 }
 
 /* Fields */
 .mlab-smtp .mlab-fields {
 	display: grid;
-	gap: 14px;
-	margin-top: 14px;
+	gap: var(--mlab-s-2);
+	margin-top: var(--mlab-s-2);
 }
 
 .mlab-smtp .mlab-fields.is-open {
-	margin-top: 0;
+	margin-top: var(--mlab-s-3);
 }
 
 .mlab-smtp .mlab-field {
 	display: grid;
-	gap: 4px;
+	gap: 6px;
 }
 
 .mlab-smtp .mlab-field > label,
@@ -409,11 +735,32 @@
 .mlab-smtp .mlab-field input[type="password"],
 .mlab-smtp .mlab-field input[type="number"],
 .mlab-smtp .mlab-field input[type="date"],
-.mlab-smtp .mlab-field input[type="search"],
-.mlab-smtp .mlab-field select {
-	max-width: 420px;
-	min-height: 36px;
+.mlab-smtp .mlab-field select,
+.mlab-smtp .mlab-search input {
+	background-color: var(--mlab-surface);
+	border: 1px solid var(--mlab-line-strong);
+	border-radius: 10px;
+	box-shadow: none;
+	color: var(--mlab-fg);
+	font-family: inherit;
+	font-size: var(--mlab-t-body);
+	line-height: 1.3;
+	max-width: 480px;
+	min-height: 40px;
+	padding: 0 12px;
 	width: 100%;
+}
+
+.mlab-smtp .mlab-field select {
+	padding-right: 32px;
+}
+
+.mlab-smtp .mlab-field input:focus,
+.mlab-smtp .mlab-field select:focus,
+.mlab-smtp .mlab-search input:focus {
+	border-color: var(--mlab-accent);
+	box-shadow: 0 0 0 3px var(--mlab-accent-soft);
+	outline: 2px solid transparent;
 }
 
 .mlab-smtp .mlab-field input[readonly] {
@@ -422,15 +769,15 @@
 
 .mlab-smtp .mlab-field .description {
 	color: var(--mlab-muted);
-	font-size: 12.5px;
+	font-size: var(--mlab-t-small);
 }
 
 .mlab-smtp .mlab-lock {
 	align-items: center;
 	color: var(--mlab-muted);
 	display: inline-flex;
-	font-size: 12.5px;
-	gap: 4px;
+	font-size: var(--mlab-t-small);
+	gap: var(--mlab-s-half);
 }
 
 .mlab-smtp .mlab-lock .dashicons,
@@ -450,23 +797,25 @@
 	align-items: center;
 	cursor: pointer;
 	display: inline-flex;
-	font-weight: 500;
-	gap: 10px;
+	font-weight: 600;
+	gap: 12px;
+	min-height: var(--mlab-tap);
 }
 
 .mlab-smtp .mlab-switch input {
 	appearance: none;
 	background: var(--mlab-line-strong);
 	border: 0;
-	border-radius: 10px;
+	border-radius: 999px;
 	box-shadow: none;
 	cursor: pointer;
 	flex: none;
-	height: 20px;
+	height: 26px;
 	margin: 0;
-	min-width: 36px;
+	min-width: 44px;
 	position: relative;
-	width: 36px;
+	transition: background-color var(--mlab-ease);
+	width: 44px;
 }
 
 .mlab-smtp .mlab-switch input::before {
@@ -476,13 +825,14 @@
 .mlab-smtp .mlab-switch input::after {
 	background: #fff;
 	border-radius: 50%;
+	box-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
 	content: "";
-	height: 16px;
+	height: 22px;
 	left: 2px;
 	position: absolute;
 	top: 2px;
-	transition: left 0.15s;
-	width: 16px;
+	transition: left var(--mlab-ease);
+	width: 22px;
 }
 
 .mlab-smtp .mlab-switch input:checked {
@@ -490,7 +840,7 @@
 }
 
 .mlab-smtp .mlab-switch input:checked::after {
-	left: 18px;
+	left: 20px;
 }
 
 .mlab-smtp .mlab-switch input:disabled {
@@ -504,86 +854,44 @@
 	padding: 0;
 }
 
-.mlab-smtp .mlab-seg-group {
-	border: 1px solid var(--mlab-line-strong);
-	border-radius: 4px;
-	display: inline-flex;
-	flex-wrap: wrap;
-	overflow: hidden;
+.mlab-smtp .mlab-seg .mlab-seg-group {
+	margin-top: 6px;
 }
 
-.mlab-smtp .mlab-seg-group label {
-	border-right: 1px solid var(--mlab-line-strong);
-	cursor: pointer;
-	display: block;
-}
-
-.mlab-smtp .mlab-seg-group label:last-child {
-	border-right: 0;
-}
-
-.mlab-smtp .mlab-seg-group input {
-	opacity: 0;
-	position: absolute;
-}
-
-.mlab-smtp .mlab-seg-group span {
-	background: var(--mlab-surface);
-	display: block;
-	padding: 7px 12px;
-}
-
-.mlab-smtp .mlab-seg-group input:checked + span {
-	background: var(--mlab-accent);
-	color: #fff;
-}
-
-.mlab-smtp .mlab-seg-group input:focus-visible + span {
-	outline: 2px solid var(--mlab-accent);
-	outline-offset: -4px;
-}
-
-/* Settings rows */
+/* Settings: section cards, sticky save bar */
 .mlab-smtp .mlab-set {
-	border-top: 1px solid var(--mlab-line);
 	display: grid;
-	gap: 20px;
-	grid-template-columns: 220px minmax(0, 1fr);
-	padding: 20px 0;
+	gap: var(--mlab-s-4);
+	grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
 }
 
-.mlab-smtp .mlab-set:first-child {
-	border-top: 0;
-	padding-top: 0;
+.mlab-smtp .mlab-set-head p {
+	font-size: var(--mlab-t-small);
+	margin-top: var(--mlab-s-half);
 }
 
-.mlab-smtp .mlab-conn {
-	align-items: center;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 12px;
-}
-
-.mlab-smtp .mlab-grow {
-	flex: 1;
-	min-width: 160px;
-}
-
-.mlab-smtp .mlab-logo {
-	border-radius: 6px;
-	color: #fff;
-	display: inline-grid;
-	flex: none;
-	font-weight: 700;
-	height: 34px;
-	place-items: center;
-	width: 34px;
+.mlab-smtp .mlab-set-body .mlab-fields:first-child,
+.mlab-smtp .mlab-set-body .mlab-fields.is-open:first-child {
+	margin-top: 0;
 }
 
 .mlab-smtp .mlab-savebar {
-	border-top: 1px solid var(--mlab-line);
-	margin-top: 4px;
-	padding-top: 16px;
+	background: rgb(255 255 255 / 0.92);
+	border: 1px solid var(--mlab-line);
+	border-radius: var(--mlab-radius);
+	bottom: var(--mlab-s-2);
+	box-shadow: var(--mlab-shadow-raised);
+	display: flex;
+	justify-content: flex-end;
+	padding: 12px var(--mlab-s-2);
+	position: sticky;
+	z-index: 5;
+}
+
+@supports (backdrop-filter: blur(1px)) {
+	.mlab-smtp .mlab-savebar {
+		backdrop-filter: blur(12px);
+	}
 }
 
 /* Log */
@@ -591,91 +899,57 @@
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 10px;
+	gap: var(--mlab-s-2);
 	justify-content: space-between;
-	margin-bottom: 12px;
+	margin-bottom: var(--mlab-s-2);
 }
 
-.mlab-smtp .mlab-chips {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
+.mlab-smtp .mlab-search {
+	position: relative;
 }
 
-.mlab-smtp .mlab-chip {
-	background: var(--mlab-surface);
-	border: 1px solid var(--mlab-line-strong);
-	border-radius: 16px;
-	color: var(--mlab-fg);
-	padding: 4px 12px;
-	text-decoration: none;
-}
-
-.mlab-smtp .mlab-chip[aria-current] {
-	background: var(--mlab-fg);
-	border-color: var(--mlab-fg);
-	color: #fff;
+.mlab-smtp .mlab-search .mlab-svg {
+	color: var(--mlab-muted);
+	left: 12px;
+	pointer-events: none;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
 }
 
 .mlab-smtp .mlab-search input {
-	max-width: 260px;
-	min-height: 34px;
-	width: 100%;
+	max-width: 320px;
+	padding-left: 40px;
 }
 
-.mlab-smtp .mlab-tablewrap {
-	background: var(--mlab-surface);
-	border: 1px solid var(--mlab-line);
-	border-radius: var(--mlab-radius);
-	overflow-x: auto;
+.mlab-smtp .mlab-logbox {
+	padding: var(--mlab-s-1) var(--mlab-s-2);
 }
 
-.mlab-smtp .mlab-table {
-	border-collapse: collapse;
-	width: 100%;
+.mlab-smtp .mlab-drawer {
+	display: grid;
+	gap: 12px;
+	justify-items: start;
+	position: sticky;
+	top: 48px;
 }
 
-.mlab-smtp .mlab-table th {
-	border-bottom: 1px solid var(--mlab-line);
-	color: var(--mlab-muted);
-	font-size: 12px;
-	letter-spacing: 0.04em;
-	padding: 10px 12px;
-	text-align: left;
-	text-transform: uppercase;
-	white-space: nowrap;
-}
-
-.mlab-smtp .mlab-table td {
-	border-bottom: 1px solid var(--mlab-line);
-	padding: 10px 12px;
-	vertical-align: top;
-}
-
-.mlab-smtp .mlab-table tr:last-child td {
-	border-bottom: 0;
-}
-
-.mlab-smtp .mlab-table tr.is-selected {
-	background: var(--mlab-accent-soft);
-}
-
-.mlab-smtp .mlab-time {
-	color: var(--mlab-muted);
-	font-variant-numeric: tabular-nums;
-	white-space: nowrap;
+.mlab-smtp .mlab-drawer .mlab-hint,
+.mlab-smtp .mlab-drawer .mlab-dl {
+	justify-self: stretch;
+	margin: 0;
 }
 
 .mlab-smtp .mlab-dl {
 	display: grid;
-	font-size: 13.5px;
-	gap: 6px 12px;
-	grid-template-columns: 90px minmax(0, 1fr);
-	margin: 10px 0;
+	gap: var(--mlab-s-1) var(--mlab-s-2);
+	grid-template-columns: 96px minmax(0, 1fr);
 }
 
 .mlab-smtp .mlab-dl dt {
 	color: var(--mlab-muted);
+	font-size: var(--mlab-t-small);
+	padding-top: 2px;
 }
 
 .mlab-smtp .mlab-dl dd {
@@ -687,45 +961,131 @@
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 10px;
+	gap: var(--mlab-s-1) var(--mlab-s-2);
 }
 
-.mlab-smtp .mlab-danger {
-	border-color: var(--mlab-bad);
-	color: var(--mlab-bad);
+/* DNS records: the one real table */
+.mlab-smtp .mlab-tablewrap {
+	border: 1px solid var(--mlab-line);
+	border-radius: var(--mlab-radius);
+	margin: var(--mlab-s-2) 0;
+	overflow-x: auto;
 }
 
-/* Wizard */
+.mlab-smtp .mlab-table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.mlab-smtp .mlab-table th {
+	background: var(--mlab-surface-2);
+	color: var(--mlab-muted);
+	font-size: var(--mlab-t-small);
+	padding: var(--mlab-s-1) 12px;
+	text-align: left;
+	white-space: nowrap;
+}
+
+.mlab-smtp .mlab-table td {
+	border-top: 1px solid var(--mlab-line);
+	font-size: var(--mlab-t-small);
+	padding: var(--mlab-s-1) 12px;
+	vertical-align: top;
+}
+
+/* Wizard: one focused card */
+.mlab-smtp .mlab-wizard {
+	margin: var(--mlab-s-3) auto 0;
+	max-width: 640px;
+}
+
+.mlab-smtp .mlab-wiz {
+	padding: var(--mlab-s-4);
+}
+
+.mlab-smtp .mlab-wiz-top {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+}
+
+.mlab-smtp .mlab-caption {
+	color: var(--mlab-muted);
+	font-size: var(--mlab-t-small);
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.mlab-smtp .mlab-close {
+	align-items: center;
+	border-radius: 50%;
+	color: var(--mlab-muted);
+	display: inline-flex;
+	height: var(--mlab-tap);
+	justify-content: center;
+	margin: calc(-1 * var(--mlab-s-1)) calc(-1 * var(--mlab-s-1)) 0 0;
+	width: var(--mlab-tap);
+}
+
+.mlab-smtp .mlab-close:hover {
+	background: var(--mlab-surface-2);
+	color: var(--mlab-fg);
+}
+
+.mlab-smtp .mlab-wiz h1 {
+	font-size: var(--mlab-t-large);
+}
+
+.mlab-smtp .mlab-stepcount {
+	color: var(--mlab-muted);
+	font-size: var(--mlab-t-small);
+	margin-top: var(--mlab-s-2);
+}
+
 .mlab-smtp .mlab-stepper {
+	align-items: center;
 	counter-reset: mlab-step;
 	display: flex;
-	flex-wrap: wrap;
 	list-style: none;
-	margin: 6px 0 22px;
+	margin: var(--mlab-s-1) 0 var(--mlab-s-4);
 	padding: 0;
 }
 
 .mlab-smtp .mlab-stepper li {
 	align-items: center;
-	color: #646970;
+	color: var(--mlab-muted);
 	counter-increment: mlab-step;
 	display: flex;
-	font-weight: 500;
-	gap: 8px;
+	font-size: var(--mlab-t-small);
+	font-weight: 600;
+	gap: var(--mlab-s-1);
 	margin: 0;
-	padding-right: 18px;
+}
+
+.mlab-smtp .mlab-stepper li:not(:last-child) {
+	flex: 1;
 }
 
 .mlab-smtp .mlab-stepper li::before {
-	border: 2px solid var(--mlab-line-strong);
+	align-items: center;
+	background: var(--mlab-surface);
+	border: 1.5px solid var(--mlab-line-strong);
 	border-radius: 50%;
 	content: counter(mlab-step);
-	display: grid;
-	font-size: 12.5px;
-	font-weight: 700;
-	height: 26px;
-	place-items: center;
-	width: 26px;
+	display: inline-flex;
+	flex: none;
+	height: 28px;
+	justify-content: center;
+	width: 28px;
+}
+
+.mlab-smtp .mlab-stepper li:not(:last-child)::after {
+	background: var(--mlab-line);
+	content: "";
+	flex: 1;
+	height: 1px;
+	margin: 0 var(--mlab-s-1);
 }
 
 .mlab-smtp .mlab-stepper li.is-done::before {
@@ -749,26 +1109,48 @@
 	border: 0;
 	display: grid;
 	gap: 12px;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	margin: 16px 0 0;
+	margin: var(--mlab-s-3) 0 0;
 	padding: 0;
 }
 
 .mlab-smtp .mlab-prov {
-	align-content: start;
+	align-items: center;
 	background: var(--mlab-surface);
 	border: 1px solid var(--mlab-line-strong);
 	border-radius: var(--mlab-radius);
 	cursor: pointer;
 	display: grid;
-	gap: 6px;
-	padding: 16px;
-	position: relative;
+	gap: var(--mlab-s-2);
+	grid-template-columns: auto auto minmax(0, 1fr) auto;
+	min-height: 72px;
+	padding: 12px var(--mlab-s-2);
+	transition: background-color var(--mlab-ease), border-color var(--mlab-ease);
+}
+
+.mlab-smtp .mlab-prov:hover {
+	background: var(--mlab-surface-2);
 }
 
 .mlab-smtp .mlab-prov input {
-	opacity: 0;
-	position: absolute;
+	appearance: none;
+	background: var(--mlab-surface);
+	border: 2px solid var(--mlab-line-strong);
+	border-radius: 50%;
+	box-shadow: none;
+	height: 22px;
+	margin: 0;
+	min-width: 22px;
+	width: 22px;
+}
+
+.mlab-smtp .mlab-prov input::before {
+	display: none;
+}
+
+.mlab-smtp .mlab-prov input:checked {
+	background: var(--mlab-accent);
+	border-color: var(--mlab-accent);
+	box-shadow: inset 0 0 0 4px var(--mlab-surface);
 }
 
 .mlab-smtp .mlab-prov:has(input:checked) {
@@ -782,81 +1164,114 @@
 	outline-offset: 2px;
 }
 
-.mlab-smtp .mlab-prov ul {
-	color: var(--mlab-muted);
-	font-size: 13px;
-	margin: 4px 0 0;
-	padding-left: 18px;
+.mlab-smtp .mlab-prov .mlab-li-main > * {
+	white-space: normal;
 }
 
-.mlab-smtp .mlab-tag {
-	position: absolute;
-	right: 12px;
-	top: 12px;
+.mlab-smtp .mlab-wiz h2 {
+	margin-top: var(--mlab-s-1);
+}
+
+.mlab-smtp .mlab-wiz h2 + p {
+	margin-top: var(--mlab-s-half);
 }
 
 .mlab-smtp .mlab-guide {
-	margin: 14px 0;
+	background: var(--mlab-surface-2);
+	border-radius: var(--mlab-radius);
+	margin: var(--mlab-s-3) 0 0;
+	padding: var(--mlab-s-2);
 }
 
 .mlab-smtp .mlab-guide summary {
-	color: var(--mlab-accent);
+	color: var(--mlab-accent-strong);
 	cursor: pointer;
+	font-weight: 600;
+	min-height: 28px;
+}
+
+.mlab-smtp .mlab-guide > .button {
+	margin-top: var(--mlab-s-1);
 }
 
 .mlab-smtp .mlab-todo {
 	counter-reset: mlab-todo;
 	display: grid;
 	list-style: none;
-	margin: 8px 0;
+	margin: var(--mlab-s-1) 0 0;
 	padding: 0;
 }
 
 .mlab-smtp .mlab-todo li {
-	border-top: 1px solid var(--mlab-line);
 	counter-increment: mlab-todo;
 	display: grid;
-	gap: 10px;
+	gap: 12px;
 	grid-template-columns: 28px minmax(0, 1fr);
 	margin: 0;
 	padding: 12px 0;
 }
 
 .mlab-smtp .mlab-todo li::before {
-	background: var(--mlab-surface-2);
+	align-items: center;
+	background: var(--mlab-surface);
 	border: 1px solid var(--mlab-line-strong);
 	border-radius: 50%;
 	content: counter(mlab-todo);
-	display: grid;
-	font-size: 12px;
-	font-weight: 700;
-	height: 24px;
-	place-items: center;
-	width: 24px;
+	display: inline-flex;
+	font-size: var(--mlab-t-small);
+	font-weight: 600;
+	height: 28px;
+	justify-content: center;
+	width: 28px;
+}
+
+.mlab-smtp .mlab-todo p {
+	color: var(--mlab-muted);
+	font-size: var(--mlab-t-small);
+	margin-top: 2px;
 }
 
 .mlab-smtp .mlab-copy {
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 6px;
-	margin-top: 6px;
+	gap: var(--mlab-s-1);
+	margin-top: var(--mlab-s-1);
 }
 
 .mlab-smtp .mlab-copy code {
-	background: var(--mlab-surface-2);
+	background: var(--mlab-surface);
 	border: 1px solid var(--mlab-line);
-	border-radius: 4px;
-	font-size: 12.5px;
-	padding: 3px 6px;
+	border-radius: var(--mlab-radius-sm);
+	font-family: var(--mlab-mono);
+	font-size: var(--mlab-t-small);
+	padding: 4px 8px;
 	word-break: break-all;
+}
+
+.mlab-smtp .mlab-copy .button {
+	min-height: 32px;
+}
+
+.mlab-smtp .mlab-table .mlab-copy {
+	margin-top: 0;
 }
 
 .mlab-smtp .mlab-preview {
 	background: var(--mlab-surface-2);
 	border-radius: var(--mlab-radius);
-	margin-top: 16px;
-	padding: 14px;
+	margin-top: var(--mlab-s-3);
+	padding: var(--mlab-s-2);
+}
+
+.mlab-smtp .mlab-preview p {
+	font-size: var(--mlab-t-small);
+}
+
+/* Notices of the WordPress core and flash messages */
+.mlab-smtp .notice {
+	border-radius: var(--mlab-radius);
+	margin: 0 0 var(--mlab-s-3);
 }
 
 .mlab-smtp .mlab-spin {
@@ -865,9 +1280,8 @@
 	border-radius: 50%;
 	border-right-color: transparent;
 	display: inline-block;
-	height: 12px;
-	vertical-align: -2px;
-	width: 12px;
+	height: 14px;
+	width: 14px;
 }
 
 @keyframes mlab-spin {
@@ -876,64 +1290,261 @@
 	}
 }
 
-.mlab-smtp a:focus-visible,
-.mlab-smtp summary:focus-visible,
-.mlab-smtp button:focus-visible {
-	outline: 2px solid var(--mlab-accent);
-	outline-offset: 2px;
-}
-
 @media (prefers-reduced-motion: reduce) {
+	.mlab-smtp *,
+	.mlab-smtp *::before,
+	.mlab-smtp *::after {
+		transition: none !important;
+	}
+
 	.mlab-smtp .mlab-spin {
 		animation-duration: 2s;
 	}
-
-	.mlab-smtp .mlab-switch input::after {
-		transition: none;
-	}
 }
 
-/* WP admin switches to the mobile layout at 782px. */
+/* WP admin switches to the mobile layout at 782px: single column, 44px tap targets, one-handed use. */
 @media (max-width: 782px) {
-	.mlab-smtp .mlab-two,
-	.mlab-smtp .mlab-two.is-split,
-	.mlab-smtp .mlab-providers,
-	.mlab-smtp .mlab-set {
-		grid-template-columns: minmax(0, 1fr);
+	.mlab-smtp .mlab-head {
+		align-items: stretch;
+		flex-direction: column;
+		margin-top: var(--mlab-s-2);
 	}
 
-	.mlab-smtp .mlab-set {
-		gap: 8px;
+	.mlab-smtp h1 {
+		font-size: var(--mlab-t-large);
 	}
 
-	.mlab-smtp .mlab-kpis {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-
-	.mlab-smtp .mlab-status {
-		grid-template-columns: auto minmax(0, 1fr);
-	}
-
-	.mlab-smtp .mlab-act {
-		grid-column: 1 / -1;
-	}
-
-	.mlab-smtp .mlab-card {
-		padding: 16px;
-	}
-
+	.mlab-smtp .button,
 	.mlab-smtp .mlab-field input[type="text"],
 	.mlab-smtp .mlab-field input[type="email"],
 	.mlab-smtp .mlab-field input[type="password"],
 	.mlab-smtp .mlab-field input[type="number"],
 	.mlab-smtp .mlab-field input[type="date"],
-	.mlab-smtp .mlab-field select {
+	.mlab-smtp .mlab-field select,
+	.mlab-smtp .mlab-search input {
+		font-size: 16px;
 		max-width: none;
+		min-height: var(--mlab-tap);
+	}
+
+	.mlab-smtp .mlab-field select {
+		min-height: var(--mlab-tap);
+	}
+
+	.mlab-smtp .nav-tab,
+	.mlab-smtp .mlab-seg-item,
+	.mlab-smtp .mlab-seg-group span {
+		min-height: 40px;
+		padding: 0 12px;
+	}
+
+	.mlab-smtp .mlab-tabs,
+	.mlab-smtp .mlab-segmented {
+		display: flex;
+	}
+
+	.mlab-smtp .mlab-tabs .nav-tab,
+	.mlab-smtp .mlab-segmented .mlab-seg-item {
+		flex: 1;
+	}
+
+	.mlab-smtp .mlab-card {
+		padding: var(--mlab-s-2);
+	}
+
+	.mlab-smtp .mlab-two,
+	.mlab-smtp .mlab-kpis,
+	.mlab-smtp .mlab-set {
+		gap: var(--mlab-s-2);
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.mlab-smtp .mlab-drawer {
+		order: -1;
+		position: static;
+	}
+
+	.mlab-smtp .mlab-hint.is-banner {
+		align-items: flex-start;
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		padding: var(--mlab-s-2);
+	}
+
+	.mlab-smtp .is-banner > .button {
+		grid-column: 1 / -1;
+	}
+
+	.mlab-smtp .mlab-steps {
+		font-size: var(--mlab-t-small);
+		gap: var(--mlab-s-1);
+		padding: 12px var(--mlab-s-2);
+	}
+
+	.mlab-smtp .mlab-steps li {
+		gap: 6px;
+	}
+
+	.mlab-smtp .mlab-steps li:not(:last-child)::after {
+		margin: 0 var(--mlab-s-half);
+	}
+
+	.mlab-smtp .mlab-li:has(.mlab-time) {
+		grid-template-columns: auto minmax(0, 1fr) auto;
+	}
+
+	.mlab-smtp .mlab-li:has(.mlab-time) > .mlab-li-main {
+		grid-column: 2 / -1;
+	}
+
+	.mlab-smtp summary.mlab-li > .mlab-li-main {
+		grid-column: 2;
+	}
+
+	.mlab-smtp .mlab-li:has(.mlab-time) > .mlab-pill {
+		grid-column: 2;
+		justify-self: start;
+	}
+
+	.mlab-smtp .mlab-li:has(.mlab-time) > .mlab-time {
+		grid-column: 3;
+		text-align: right;
+	}
+
+	.mlab-smtp .mlab-li:has(.mlab-time) > .mlab-svg {
+		grid-column: 3;
+		grid-row: 1;
+		justify-self: end;
+	}
+
+	.mlab-smtp .mlab-li > a {
+		grid-column: 2 / -1;
+		min-height: 24px;
+	}
+
+	.mlab-smtp .mlab-wiz {
+		padding: var(--mlab-s-3) var(--mlab-s-2);
+	}
+
+	.mlab-smtp .mlab-stepper li:not(.is-now) .mlab-step-label {
+		clip-path: inset(50%);
+		height: 1px;
+		overflow: hidden;
+		position: absolute;
+		width: 1px;
+	}
+
+	.mlab-smtp .mlab-foot {
+		flex-wrap: nowrap;
+	}
+
+	.mlab-smtp .mlab-wiz .mlab-foot .button-primary {
+		flex: 1;
+		max-width: 60%;
+	}
+
+	.mlab-smtp .mlab-savebar {
+		bottom: 0;
+	}
+
+	.mlab-smtp .mlab-savebar .button {
+		width: 100%;
 	}
 
 	.mlab-smtp .mlab-search,
-	.mlab-smtp .mlab-search input {
-		max-width: none;
+	.mlab-smtp .mlab-toolbar > .mlab-segmented {
 		width: 100%;
+	}
+
+	.mlab-smtp .mlab-prov {
+		gap: 12px;
+		padding: 12px;
+	}
+
+	.mlab-smtp .mlab-pill {
+		justify-self: start;
+	}
+
+	.mlab-smtp .mlab-table thead {
+		display: none;
+	}
+
+	.mlab-smtp .mlab-table td {
+		display: block;
+		border-top: 0;
+		padding: 4px var(--mlab-s-2);
+	}
+
+	.mlab-smtp .mlab-table tr {
+		border-top: 1px solid var(--mlab-line);
+		display: block;
+		padding: var(--mlab-s-1) 0;
+	}
+
+	.mlab-smtp .mlab-table tr:first-child {
+		border-top: 0;
+	}
+}
+
+/* Notices of other plugins sit below the page, outside the plugin layout (see foreign-notices.php). */
+.mlab-foreign {
+	font-family: var(--mlab-font);
+	margin: var(--mlab-s-3) 20px 0 2px;
+	max-width: var(--mlab-max);
+}
+
+.mlab-foreign > details {
+	background: var(--mlab-surface);
+	border: 1px solid var(--mlab-line);
+	border-radius: var(--mlab-radius);
+	box-shadow: var(--mlab-shadow);
+}
+
+.mlab-foreign summary {
+	color: var(--mlab-muted);
+	cursor: pointer;
+	font-size: var(--mlab-t-body);
+	min-height: var(--mlab-tap);
+	padding: 10px var(--mlab-s-2);
+}
+
+.mlab-foreign summary:focus-visible {
+	outline: 2px solid var(--mlab-accent);
+	outline-offset: -2px;
+}
+
+.mlab-foreign-count,
+.mlab-foreign-bad {
+	border-radius: 999px;
+	display: inline-block;
+	font-size: var(--mlab-t-small);
+	font-weight: 600;
+	margin-left: var(--mlab-s-1);
+	padding: 0 10px;
+}
+
+.mlab-foreign-count {
+	background: var(--mlab-surface-3);
+	color: var(--mlab-fg);
+}
+
+.mlab-foreign-bad {
+	background: color-mix(in srgb, var(--mlab-bad) 8%, #fff);
+	color: var(--mlab-bad-text);
+}
+
+.mlab-foreign-list {
+	padding: 0 var(--mlab-s-2) var(--mlab-s-2);
+}
+
+.mlab-foreign-list .notice {
+	border-radius: var(--mlab-radius-sm);
+	box-shadow: none;
+	margin: var(--mlab-s-1) 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.mlab-foreign * {
+		transition: none !important;
 	}
 }

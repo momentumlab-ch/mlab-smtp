@@ -8,7 +8,8 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Checks a route without sending a message: SMTP connects and logs in, Microsoft 365 and Google fetch a fresh token.
+ * Checks a route without sending a message: SMTP connects and logs in, Microsoft 365 and Google fetch a fresh token,
+ * Resend asks for the domain list.
  *
  * @param string $route primary or fallback.
  * @return true|WP_Error
@@ -21,10 +22,38 @@ function mlab_smtp_check_connection( string $route = 'primary' ) {
 	if ( 'primary' === $route && ! mlab_smtp_has_credentials() ) {
 		return new WP_Error( 'mlab_smtp_check', __( 'Die Verbindung ist noch nicht vollständig eingetragen. Bitte alle Pflichtfelder ausfüllen und speichern.', 'mlab-smtp' ) );
 	}
-	if ( 'smtp' === $provider ) {
-		return mlab_smtp_check_smtp( 'fallback' === $route ? 'fb_' : '' );
+	if ( 'fallback' === $route ) {
+		return mlab_smtp_check_smtp( 'fb_' );
 	}
-	$token = 'm365' === $provider ? mlab_smtp_m365_token( true ) : mlab_smtp_google_token( true );
+	return call_user_func( mlab_smtp_provider_def( $provider )['check'] );
+}
+
+/**
+ * Registry entry «check» of the own mail server: connects and logs in.
+ *
+ * @return true|WP_Error
+ */
+function mlab_smtp_check_smtp_main() {
+	return mlab_smtp_check_smtp( '' );
+}
+
+/**
+ * Registry entry «check» of Microsoft 365: fetches a fresh token.
+ *
+ * @return true|WP_Error
+ */
+function mlab_smtp_check_m365() {
+	$token = mlab_smtp_m365_token( true );
+	return is_wp_error( $token ) ? $token : true;
+}
+
+/**
+ * Registry entry «check» of Google: fetches a fresh token.
+ *
+ * @return true|WP_Error
+ */
+function mlab_smtp_check_google() {
+	$token = mlab_smtp_google_token( true );
 	return is_wp_error( $token ) ? $token : true;
 }
 
@@ -97,7 +126,7 @@ function mlab_smtp_run_test( string $to ): array {
  * @param bool   $sent  True when sent.
  * @param string $error Error text; with a successful send the error of the main route when the fallback delivered.
  * @param string $debug SMTP conversation.
- * @param string $via   smtp, m365, google or fallback.
+ * @param string $via   smtp, m365, google, resend or fallback.
  * @return array{sent:bool, error:string, hint:string, debug:string, via:string}
  */
 function mlab_smtp_test_result( bool $sent, string $error, string $debug, string $via ): array {
@@ -116,6 +145,71 @@ function mlab_smtp_test_result( bool $sent, string $error, string $debug, string
  * @return array<int, array{pattern:string, hint:string, provider?:string}>
  */
 function mlab_smtp_error_hints(): array {
+	return array_merge( mlab_smtp_resend_error_hints(), mlab_smtp_common_error_hints() );
+}
+
+/**
+ * Error patterns of Resend. They come first: the generic patterns would misread them (for example a timeout
+ * of the API as a problem with a mail server).
+ *
+ * @return array<int, array{pattern:string, hint:string, provider:string}>
+ */
+function mlab_smtp_resend_error_hints(): array {
+	return array(
+		array(
+			'pattern'  => '/API key is invalid|missing_api_key/i',
+			'provider' => 'resend',
+			'hint'     => __( 'Resend kennt den API-Key nicht. Er wurde gelöscht oder falsch kopiert. Erstellen Sie bei Resend unter «API Keys» einen neuen Key und tragen Sie ihn im Assistenten ein.', 'mlab-smtp' ),
+		),
+		array(
+			'pattern'  => '/API key is not active|suspended_api_key|API key is suspended/i',
+			'provider' => 'resend',
+			'hint'     => __( 'Der API-Key ist bei Resend nicht aktiv oder gesperrt. Erstellen Sie einen neuen Key oder wenden Sie sich an den Resend-Support.', 'mlab-smtp' ),
+		),
+		array(
+			'pattern'  => '/only send testing emails|testing emails to your own/i',
+			'provider' => 'resend',
+			'hint'     => __( 'Mit der Testadresse von Resend (resend.dev) ist nur der Versand an die eigene Adresse Ihres Resend-Kontos erlaubt. Verifizieren Sie eine eigene Domain bei Resend und verwenden Sie eine Absender-Adresse dieser Domain.', 'mlab-smtp' ),
+		),
+		array(
+			'pattern'  => '/domain is not verified|is not verified/i',
+			'provider' => 'resend',
+			'hint'     => __( 'Die Domain der Absender-Adresse ist bei Resend nicht verifiziert. Tragen Sie die DNS-Einträge bei Ihrem Domain-Anbieter ein (Einrichtungs-Assistent, Schritt «Absender») oder verwenden Sie eine Adresse einer verifizierten Domain.', 'mlab-smtp' ),
+		),
+		array(
+			'pattern'  => '/daily_quota_exceeded|monthly_quota_exceeded|exceeded your (daily|monthly)/i',
+			'provider' => 'resend',
+			'hint'     => __( 'Das Mail-Kontingent bei Resend ist aufgebraucht (Tages- oder Monatslimit des Tarifs). Mails gehen über den Ersatzweg, sofern er eingerichtet ist. Das Tageslimit gilt bis 00:00 UTC, für mehr Mails hilft ein Tarifwechsel bei Resend.', 'mlab-smtp' ),
+		),
+		array(
+			'pattern'  => '/rate_limit_exceeded|Too many requests/i',
+			'provider' => 'resend',
+			'hint'     => __( 'Die Website sendet zu viele Mails auf einmal (Resend erlaubt 10 Anfragen pro Sekunde). Mails gehen über den Ersatzweg, sofern er eingerichtet ist.', 'mlab-smtp' ),
+		),
+		array(
+			'pattern'  => '/application_error|service_unavailable|dns_lookup_failed|Fehler 5\d\d/i',
+			'provider' => 'resend',
+			'hint'     => __( 'Resend ist vorübergehend gestört. Prüfen Sie resend-status.com. Mails gehen über den Ersatzweg, sofern er eingerichtet ist.', 'mlab-smtp' ),
+		),
+		array(
+			'pattern'  => '/cURL error|could not resolve|timed? ?out|zeitüberschreitung|api\.resend\.com/i',
+			'provider' => 'resend',
+			'hint'     => __( 'Resend ist von diesem Server aus nicht erreichbar (api.resend.com). Prüfen Sie, ob der Hoster ausgehende HTTPS-Verbindungen sperrt, und versuchen Sie es erneut.', 'mlab-smtp' ),
+		),
+		array(
+			'pattern'  => '/invalid_attachment|missing_required|invalid_parameter|validation_error|Fehler 422/i',
+			'provider' => 'resend',
+			'hint'     => __( 'Resend hat die Mail abgelehnt, weil Angaben darin ungültig sind (zum Beispiel Absender, Empfänger oder Anhang). Die technische Meldung unten nennt das Feld.', 'mlab-smtp' ),
+		),
+	);
+}
+
+/**
+ * Error patterns of the other providers.
+ *
+ * @return array<int, array{pattern:string, hint:string, provider?:string}>
+ */
+function mlab_smtp_common_error_hints(): array {
 	return array(
 		array(
 			'pattern' => '/invalid_grant/i',

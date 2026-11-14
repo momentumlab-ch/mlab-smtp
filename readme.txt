@@ -1,22 +1,23 @@
 === MomentumLab SMTP ===
 Contributors: momentumlab
-Tags: smtp, email, microsoft 365, gmail, mail
+Tags: smtp, email, microsoft 365, gmail, resend, mail
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Versendet WordPress-E-Mails über einen eigenen Mailserver (SMTP), Microsoft 365 oder Google.
+Versendet WordPress-E-Mails über einen eigenen Mailserver (SMTP), Microsoft 365, Google oder Resend.
 
 == Description ==
 
-MomentumLab SMTP ersetzt den unzuverlässigen Standardversand von WordPress. Du wählst eine von drei Versandarten:
+MomentumLab SMTP ersetzt den unzuverlässigen Standardversand von WordPress. Du wählst eine von vier Versandarten:
 
 * **Eigener Mailserver (SMTP):** Server, Port, Verschlüsselung, Benutzername und Passwort.
 * **Microsoft 365:** Versand über die Graph-API mit einer App-Registrierung, ohne Benutzer-Login und ohne SMTP-Passwort.
 * **Google:** Versand über die Gmail-API. Das Konto wird einmalig im Backend verbunden.
+* **Resend:** Versand über die Resend-API mit einem API-Key. Der Assistent prüft die Absender-Domain und zeigt fehlende DNS-Einträge.
 
 Ein Assistent führt in 4 Schritten durch die Einrichtung. Dazu kommen Übersicht mit Gesundheitsprüfung, Ersatzweg über einen zweiten Mailserver, Benachrichtigung bei Fehlern, Testmail und Protokoll (ohne Inhalt).
 
@@ -43,7 +44,17 @@ Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ la
 3. Den OAuth-Zustimmungsbildschirm auf «In Produktion» stellen. Im Testmodus läuft der Zugriff nach 7 Tagen ab.
 4. Client-ID und Secret im Assistenten eintragen und «Mit Google anmelden» wählen.
 
+= Resend einrichten =
+
+1. Bei Resend unter «Domains» die Domain hinzufügen (empfohlen: eine Subdomain wie updates.ihre-domain.ch) und die angezeigten DNS-Einträge beim Domain-Anbieter setzen.
+2. Unter «API Keys» einen Key mit «Sending access» für diese Domain erstellen und kopieren.
+3. Den Key im Assistenten unter «Verbinden» eintragen und die Verbindung prüfen. Der Key wird verschlüsselt gespeichert.
+4. Im Schritt «Absender» zeigt das Plugin, ob die Domain verifiziert ist, und nennt fehlende DNS-Einträge. Danach die Testmail senden.
+
 == Changelog ==
+
+= 1.3.0 =
+* Neu: Resend als Versandweg, mit geführter Einrichtung, Prüfung der Absender-Domain und Fehlermeldungen in Klartext (siehe CHANGELOG.md).
 
 = 1.2.0 =
 * Neue Oberfläche mit Einrichtungs-Assistent, Übersicht, Protokoll und Einstellungen.

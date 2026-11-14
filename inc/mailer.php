@@ -91,12 +91,13 @@ function mlab_smtp_route_result( ?array $set = null ): array {
  * True when the selected provider sends through a web API instead of SMTP.
  */
 function mlab_smtp_is_api_provider(): bool {
-	return in_array( mlab_smtp_get( 'provider' ), array( 'm365', 'google' ), true );
+	return ! empty( mlab_smtp_provider_def( (string) mlab_smtp_get( 'provider' ) )['api'] );
 }
 
 /**
  * True when the configured sender replaces whatever WordPress or other plugins set.
- * Microsoft 365 and Google only send from the connected mailbox, so they always force it.
+ * Microsoft 365 and Google only send from the connected mailbox, and Resend only from a verified domain,
+ * so they always force it.
  */
 function mlab_smtp_forces_sender(): bool {
 	return mlab_smtp_is_api_provider() || (bool) mlab_smtp_get( 'force_from' );
@@ -223,19 +224,14 @@ function mlab_smtp_filter_from_name( $name ) {
 }
 
 /**
- * Hands the finished message to the selected API provider. Fails before sending when the sender is missing,
- * because Microsoft 365 and Google only send from the connected mailbox.
+ * Error when no sender address is stored. The API providers send from the connected mailbox (Microsoft 365,
+ * Google) or from a verified domain (Resend) and fail with unclear errors without one.
  *
- * @param string $mime Complete MIME message.
- * @param string $from Sender address of the message.
- * @return true|WP_Error
+ * @return WP_Error|null
  */
-function mlab_smtp_dispatch( string $mime, string $from ) {
-	if ( ! is_email( (string) mlab_smtp_get( 'from_email' ) ) ) {
-		return new WP_Error( 'mlab_smtp_no_sender', __( 'Es ist keine Absender-Adresse hinterlegt. Bitte unter «Einstellungen › Absender» die Adresse des Postfachs eintragen, aus dem gesendet werden soll.', 'mlab-smtp' ) );
+function mlab_smtp_sender_error(): ?WP_Error {
+	if ( is_email( (string) mlab_smtp_get( 'from_email' ) ) ) {
+		return null;
 	}
-	if ( 'm365' === mlab_smtp_get( 'provider' ) ) {
-		return mlab_smtp_send_m365( $mime, $from );
-	}
-	return mlab_smtp_send_google( $mime );
+	return new WP_Error( 'mlab_smtp_no_sender', __( 'Es ist keine Absender-Adresse hinterlegt. Bitte unter «Einstellungen › Absender» die Adresse eintragen, aus der gesendet werden soll.', 'mlab-smtp' ) );
 }
