@@ -4,105 +4,172 @@ Tags: smtp, email, microsoft 365, gmail, resend
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Versendet WordPress-E-Mails über einen eigenen Mailserver (SMTP), Microsoft 365, Google oder Resend.
+Send WordPress emails through SMTP, Microsoft 365, Gmail or Resend, with a delivery log, backup route and optional queue.
 
 == Description ==
 
-MomentumLab SMTP ersetzt den unzuverlässigen Standardversand von WordPress. Du wählst eine von vier Versandarten:
+**Know whether your website is sending email — and what needs your attention.**
 
-* **Eigener Mailserver (SMTP):** Server, Port, Verschlüsselung, Benutzername und Passwort.
-* **Microsoft 365:** Versand über die Graph-API mit einer App-Registrierung, ohne Benutzer-Login und ohne SMTP-Passwort.
-* **Google:** Versand über die Gmail-API. Das Konto wird einmalig im Backend verbunden.
-* **Resend:** Versand über die Resend-API mit einem API-Key. Der Assistent prüft die Absender-Domain und zeigt fehlende DNS-Einträge.
+MomentumLab SMTP connects WordPress to your own mail server or a supported email API. It handles emails sent through WordPress, including password resets, contact-form notifications and order confirmations from plugins that use `wp_mail()`.
 
-Ein Assistent führt in 4 Schritten durch die Einrichtung. Dazu kommen Übersicht mit Gesundheitsprüfung, ein Ersatzweg (zweiter Mailserver oder Resend), Benachrichtigung bei Fehlern, Testmail und ein Protokoll ohne Nachrichteninhalt. Das Protokoll liegt in eigenen Datenbanktabellen, Zustellereignisse von Resend kommen über einen signierten Webhook dazu. Optional werden Mails in einer Warteschlange im Hintergrund versendet und bei vorübergehenden Fehlern wiederholt. Der Staging-Schutz verhindert, dass eine kopierte Website echte Empfänger anschreibt.
+Choose a provider, check the connection, set the sender and send a test email. The dashboard then shows your main route, backup readiness, waiting emails and any sending problems in one place.
 
-Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ lassen sich alle Werte mit Konstanten in der `wp-config.php` setzen, z. B. `MLAB_SMTP_SMTP_PASS` oder `MLAB_SMTP_M365_CLIENT_SECRET`. Mit der optionalen Konstante `MLAB_SMTP_KEY` ist die Verschlüsselung von den WordPress-Salts entkoppelt.
+= Four ways to send =
 
-**Externe Dienste:** Das Plugin sendet Mails und Prüfanfragen nur an den Dienst, den du einrichtest (dein Mailserver, Microsoft Graph und login.microsoftonline.com, Google/Gmail-API, Resend) und, wenn eingerichtet, an deine Alarm-Webhook-URL. Für Updates fragt es die GitHub-Releases des Plugins ab. Es gibt kein Tracking und keine Telemetrie.
+* **SMTP:** Connect your own mail server using its host, port, encryption and credentials.
+* **Microsoft 365:** Send through Microsoft Graph using an app registration and an authorised sender mailbox.
+* **Gmail:** Connect a Google account using OAuth and send through the Gmail API.
+* **Resend:** Connect an API key, check your sending domain and receive signed delivery webhooks.
+
+You need a suitable account or mail server. Provider charges, permissions and sending limits may apply. The plugin does not supply a mailbox or an email-delivery service.
+
+= See what happened to each email =
+
+* Search and filter the delivery log by status, recipient or subject.
+* Inspect sending attempts, the route used, provider responses and available delivery events.
+* Distinguish **accepted by the provider**, **delivery confirmed**, **failed** and **unclear** outcomes. Acceptance does not prove delivery to the recipient's inbox.
+* Find the next action when a connection fails, a backup route needs testing or a message needs a manual decision.
+
+Resend delivery confirmation requires a configured webhook. No provider can guarantee inbox placement, and the plugin does not claim to bypass spam filters.
+
+= Keep sending under control =
+
+* **Guided backup route:** Configure a second SMTP server or Resend account and test it independently. Uncertain sending outcomes are treated conservatively to reduce duplicate-email risk.
+* **Optional background queue:** Store pending messages securely and retry eligible temporary failures. Synchronous sending remains the default.
+* **Staging protection:** Block or redirect email on a staging copy before it reaches real recipients.
+* **Monitoring:** Check connection health, send a test email, configure failure notifications or an optional alert webhook, and export a masked support report.
+
+= Privacy and credentials =
+
+Passwords, API keys and tokens are encrypted at rest. Pending queue payloads are encrypted and cleared after provider acceptance or expiry. An optional `MLAB_SMTP_KEY` separates encryption from the WordPress salts; keep this key backed up.
+
+The delivery log contains recipient information, subject, status, timestamps and diagnostic details. It does not normally store message bodies or attachments. Choose a retention period of 7, 30 or 90 days. WordPress personal-data export and erasure tools are supported.
+
+There is no plugin telemetry, opening tracking or click tracking. Configured providers process the emails you send; see **External services** below.
+
+= Available languages =
+
+The interface is available in English, German, French and Italian. The screenshot shows the real English interface with demonstration data.
 
 == Installation ==
 
-1. Plugins > Installieren > Plugin hochladen: `mlab-smtp.zip` aus dem neuesten Release wählen.
-2. Plugin aktivieren.
-3. Einstellungen > E-Mail-Versand öffnen und «Einrichtung starten» wählen.
-4. Der Assistent führt durch Anbieter, Verbindung, Absender und Testmail.
-5. Auf einem Server mit `DISABLE_WP_CRON` die Warteschlange per System-Cron anstossen (siehe FAQ).
+1. Upload `mlab-smtp.zip` using **Plugins > Add New Plugin > Upload Plugin**, then activate it.
+2. Open **Email sending** in the WordPress admin menu.
+3. Start the setup wizard and choose SMTP, Microsoft 365, Gmail or Resend.
+4. Enter the provider credentials, check the connection and choose your sender address.
+5. Send a test email and check the result before relying on the connection.
+6. Optionally configure and test a backup route. Enable background sending only if you need it.
 
-= Microsoft 365 einrichten =
+The current distribution receives updates from GitHub Releases. A WordPress.org distribution must use WordPress.org updates instead.
 
-1. In Microsoft Entra eine App registrieren und ein Client-Secret anlegen.
-2. Unter API-Berechtigungen die Anwendungsberechtigung `Mail.Send` (Microsoft Graph) hinzufügen und den Administratorzugriff erteilen.
-3. Verzeichnis-ID, Anwendungs-ID und Secret im Plugin eintragen. Als Absender ein Postfach des Tenants angeben.
-4. Empfohlen: Die App mit einer Application Access Policy auf das Absender-Postfach beschränken.
+= Provider requirements =
 
-= Google einrichten =
-
-1. In der Google Cloud Console die Gmail API aktivieren und einen OAuth-Client vom Typ „Webanwendung“ anlegen.
-2. Die im Plugin angezeigte Weiterleitungs-URI als autorisierte Weiterleitungs-URI eintragen.
-3. Den OAuth-Zustimmungsbildschirm auf «In Produktion» stellen. Im Testmodus läuft der Zugriff nach 7 Tagen ab.
-4. Client-ID und Secret im Assistenten eintragen und «Mit Google anmelden» wählen.
-
-= Resend einrichten =
-
-1. Bei Resend unter «Domains» die Domain hinzufügen (empfohlen: eine Subdomain wie updates.ihre-domain.ch) und die angezeigten DNS-Einträge beim Domain-Anbieter setzen.
-2. Unter «API Keys» einen Key mit «Sending access» für diese Domain erstellen und kopieren.
-3. Den Key im Assistenten unter «Verbinden» eintragen und die Verbindung prüfen. Der Key wird verschlüsselt gespeichert.
-4. Im Schritt «Absender» zeigt das Plugin, ob die Domain verifiziert ist, und nennt fehlende DNS-Einträge. Danach die Testmail senden.
+* **SMTP:** Your mail server's connection details and an authorised sender address.
+* **Microsoft 365:** An Entra app registration, tenant ID, client ID and secret, Microsoft Graph application permission `Mail.Send`, and administrator consent. Restrict the application's mailbox access according to your organisation's policies.
+* **Gmail:** A Google Cloud project with Gmail API enabled, a web OAuth client and the redirect URI shown in the plugin. Review Google's consent-screen and production requirements for your deployment.
+* **Resend:** An API key authorised to send from your domain and the DNS records required by Resend. Configure the signed webhook separately if you want delivery events.
 
 == Frequently Asked Questions ==
 
-= Was passiert beim Update von 1.4.0? =
+= Does this work with contact forms and WooCommerce? =
 
-Das alte Protokoll wird beim ersten Aufruf des Backends in die neuen Tabellen übernommen (in Teilen, bei Abbruch wird es fortgesetzt). Die alte Option bleibt für eine Rückstufung erhalten. Einstellungen und Zugangsdaten ändern sich nicht. Details: `docs/upgrade-and-recovery.md` im Repository.
+It handles messages sent through WordPress `wp_mail()`, including emails from plugins that use that function. Plugins that send through a separate service or their own mail client may bypass it.
 
-= Die Zugangsdaten sind nach einem Umzug oder Salt-Wechsel leer. =
+= Does an accepted email mean it reached the inbox? =
 
-Secrets sind mit einem Schlüssel aus den WordPress-Salts oder aus `MLAB_SMTP_KEY` verschlüsselt. Ändern sich die Salts oder die Konstante, sind sie nicht mehr lesbar. Das Plugin erzeugt nie automatisch einen neuen Schlüssel: Secret im Backend neu eintragen. Um das zu vermeiden, `MLAB_SMTP_KEY` einmal setzen und sichern.
+No. Accepted means the configured provider accepted the message for processing. Delivery confirmation is shown only when supported provider evidence is available. Spam filtering and inbox placement remain outside the plugin's control.
 
-= Die Warteschlange läuft nicht. =
+= Are emails queued automatically? =
 
-Die Warteschlange läuft über WP-Cron. Ist `DISABLE_WP_CRON` gesetzt oder erreicht sich die Website nicht selbst, muss ein System-Cron `wp-cron.php` aufrufen, z. B. jede Minute: `* * * * * cd /pfad/zur/website && php wp-cron.php`. Die Übersicht zeigt, wenn fällige Mails zu lange warten.
+No. WordPress email is sent synchronously by default. Background queueing and background retries are explicitly enabled options. In queue mode, a successful `wp_mail()` result means the message was queued, not delivered.
 
-= Auf einer Staging-Kopie werden keine Mails gesendet. =
+= What happens when the queue is not running? =
 
-Das ist gewollt (Staging-Schutz). Im Backend lässt sich der Modus ändern oder der Betrieb ausdrücklich bestätigen.
+Background processing uses WP-Cron. Low traffic, blocked loopback requests or `DISABLE_WP_CRON` can delay it. Configure a real server cron job when necessary, for example once per minute:
+
+`* * * * * cd /path/to/wordpress && php wp-cron.php`
+
+Check your hosting provider's instructions and avoid duplicate cron schedules.
+
+= Can I use the plugin on a staging website? =
+
+Yes. Staging protection can block or redirect outgoing email. Review this setting after cloning or moving a website and explicitly confirm production sending when appropriate.
+
+= What happens if I change the WordPress salts or lose my encryption key? =
+
+Stored credentials may become unreadable. Restore the original key or re-enter the credentials. The plugin does not silently generate a replacement key. Back up `MLAB_SMTP_KEY` separately if you use it.
+
+= Can I use more than one SMTP plugin? =
+
+Use one plugin to control WordPress email sending. Multiple plugins that replace the mailer can conflict. Check the active configuration before sending a test email.
+
+= What happens when I upgrade from 1.4.0? =
+
+The old log is migrated to dedicated database tables in resumable batches. Settings and credentials remain in place. Back up the database before updating and check the migration status afterward. See the upgrade and recovery guide in the source repository.
+
+== Screenshots ==
+
+1. English dashboard with demonstration data: main and backup routes, connection checks, queue status and clear actions for failed or uncertain emails.
+
+== External services ==
+
+The selected email provider receives the sender, recipients, message content and attachments when you send an email. Connection checks and authentication also contact the configured provider. The plugin does not send mail to every provider; only the route you configure is used, with an optional configured backup route.
+
+= Your SMTP server =
+
+The plugin connects to the server you enter during setup for connection checks and email delivery. Its operator's terms and privacy policy apply. No default third-party SMTP server is supplied.
+
+= Microsoft 365 / Microsoft Graph =
+
+When selected, authentication requests go to `login.microsoftonline.com` and email delivery requests go to `graph.microsoft.com`. Microsoft processes credentials or access tokens and message data needed for those operations.
+
+[Microsoft product terms](https://www.microsoft.com/licensing/terms/) | [Microsoft privacy](https://privacy.microsoft.com/privacystatement)
+
+= Google / Gmail =
+
+When you connect a Google account, authorisation uses `accounts.google.com` and token requests use `oauth2.googleapis.com`. Sending uses `gmail.googleapis.com`. Google processes authorisation information and message data needed to send email.
+
+[Google terms](https://policies.google.com/terms) | [Google privacy](https://policies.google.com/privacy)
+
+= Resend =
+
+When selected, the plugin contacts `api.resend.com` for sending and configured domain or connection checks. Resend processes the message data and API credentials needed for those operations. If enabled, Resend sends signed delivery events to your website's webhook endpoint.
+
+[Resend terms](https://resend.com/legal/terms-of-service) | [Resend privacy](https://resend.com/legal/privacy-policy)
+
+= Optional alert webhook =
+
+If you configure an alert URL, the plugin sends masked operational alerts to that endpoint. Email bodies and attachments are not included. The endpoint is chosen by the site administrator; its operator's terms and privacy policy apply.
+
+= GitHub update service =
+
+In the current GitHub distribution, WordPress contacts GitHub to check the plugin's releases and download updates. Those requests include standard connection information such as your server's IP address. Mail content and provider credentials are not sent to GitHub. The plugin details screenshot is bundled locally and does not require an external image request.
+
+[GitHub terms](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service) | [GitHub privacy](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)
 
 == Changelog ==
 
+= 1.5.1 =
+* New: Clear English plugin description, installation steps, FAQ and external-service disclosures.
+* New: A real English dashboard screenshot in the plugin details window and a numbered screenshot caption for the directory listing.
+* Improved: English plugin summary and an updated WordPress.org submission checklist.
+
 = 1.5.0 =
-* Neu: Dauerhafte Warteschlange mit Wiederholung, Statusmodell und ehrlicher Anzeige (angenommen, Zustellung bestätigt, unklar).
-* Neu: Protokoll in eigenen Datenbanktabellen, Datenschutz-Exporter und -Eraser, Aufbewahrung, Maskierung von Secrets.
-* Neu: Geführter Ersatzweg mit Bereitschaftszuständen, Resend-Webhooks, Staging-Schutz, Alarm-Webhook, Supportbericht.
-* Neu: Oberfläche auf Deutsch, Englisch, Französisch und Italienisch.
-* Sicherheit: Schlüsselverwaltung mit Kennung (`MLAB_SMTP_KEY`), Schutz vor SSRF, Nonces je Aktion und Nachricht.
-* Details und Update-Anleitung: CHANGELOG.md und docs/upgrade-and-recovery.md.
+* Added a persistent optional queue, controlled retries and clear accepted, confirmed-delivery and uncertain statuses.
+* Added database-backed delivery logs, privacy export and erasure, retention and secret masking.
+* Added guided backup setup, signed Resend webhooks, staging protection, alert webhooks and support reports.
+* Added English, German, French and Italian interfaces.
+* Hardened encryption-key handling, SSRF protection and message-specific action nonces.
+* See CHANGELOG.md and the upgrade and recovery guide in the repository for full details and older changes.
 
-= 1.4.0 =
-* Neu: Der Ersatzweg kann auch Resend sein, nicht nur ein Mailserver.
-* Neu: Eigener Menüpunkt «E-Mail-Versand» mit Symbol in der Hauptnavigation.
-* Verbessert: Klarere Texte und Schritte im Assistenten.
+== Upgrade Notice ==
 
-= 1.3.0 =
-* Neu: Resend als Versandweg, mit geführter Einrichtung, Prüfung der Absender-Domain und Fehlermeldungen in Klartext (siehe CHANGELOG.md).
+= 1.5.1 =
+English plugin details and a dashboard screenshot. Existing mail settings and delivery behaviour remain unchanged.
 
-= 1.2.0 =
-* Neue Oberfläche mit Einrichtungs-Assistent, Übersicht, Protokoll und Einstellungen.
-* Neu: Ersatzweg, Benachrichtigung bei Fehlern, Gesundheitsprüfung (SPF, DMARC, Schlüssel-Ablauf), Verbindung prüfen, Antwortadresse.
-* Behoben: Google-Verbindung wurde nie gespeichert, stiller Versand ohne eingerichteten Server, Token-Cache nach Änderungen und weitere Fehler (siehe CHANGELOG.md).
-
-= 1.0.2 =
-* Behoben: Antwortete der Mailserver nicht (falscher Port, falsche Verschlüsselung, falsches Passwort), hing die Testmail bis zum Fehler 504. Jeder Schritt bricht jetzt nach 10 Sekunden ab.
-* Die Testmail zeigt bei einem Fehler den Grund, einen Hinweis zur Behebung und den Verlauf der Verbindung (ohne Passwort).
-* Der Knopf „Testmail senden“ zeigt an, dass gesendet wird, und lässt sich nicht doppelt klicken.
-
-= 1.0.1 =
-* Behoben: Beim ersten Speichern wurden Passwörter und Secrets doppelt verschlüsselt, dadurch schlug der Versand (auch die Testmail) fehl.
-* Der Plugin-Name lautet jetzt „MomentumLab SMTP“.
-
-= 1.0.0 =
-* Erste Version: Versand über SMTP, Microsoft 365 und Google, Testmail, Protokoll.
+= 1.5.0 =
+Back up your database before updating from 1.4.0. Check the resumable log migration and send a test email after the update.
