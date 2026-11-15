@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-foreach ( array( 'components', 'handlers', 'rest', 'overview', 'wizard', 'resend-view', 'log-view', 'settings-view', 'fallback-flow', 'foreign-notices' ) as $mlab_smtp_admin_file ) {
+foreach ( array( 'components', 'handlers', 'rest', 'overview', 'wizard', 'resend-view', 'queue-view', 'log-view', 'settings-view', 'fallback-flow', 'foreign-notices' ) as $mlab_smtp_admin_file ) {
 	require_once MLAB_SMTP_DIR . 'inc/admin/' . $mlab_smtp_admin_file . '.php';
 }
 unset( $mlab_smtp_admin_file );
@@ -179,11 +179,48 @@ function mlab_smtp_render_flash(): void {
 		'warning' => 'notice-warning',
 	);
 	$class   = $classes[ $flash['type'] ] ?? 'notice-error';
-	echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible"><p>' . esc_html( $flash['message'] ) . '</p>';
+	echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible" role="' . ( 'notice-error' === $class ? 'alert' : 'status' ) . '"><p>' . esc_html( $flash['message'] ) . '</p>';
 	if ( ! empty( $flash['detail'] ) ) {
 		mlab_smtp_ui_technical( (string) $flash['detail'] );
 	}
 	echo '</div>';
+}
+
+/**
+ * Tabs of the page: slug => label. Other code may add tabs through the filter mlab_smtp_admin_tabs.
+ *
+ * @return array<string, string>
+ */
+function mlab_smtp_admin_tabs(): array {
+	$tabs = apply_filters(
+		'mlab_smtp_admin_tabs',
+		array(
+			'overview' => __( 'Übersicht', 'mlab-smtp' ),
+			'queue'    => __( 'Warteschlange', 'mlab-smtp' ),
+			'log'      => __( 'Protokoll', 'mlab-smtp' ),
+			'settings' => __( 'Einstellungen', 'mlab-smtp' ),
+		)
+	);
+	$out  = array();
+	foreach ( is_array( $tabs ) ? $tabs : array() as $slug => $label ) {
+		if ( is_string( $slug ) && '' !== sanitize_key( $slug ) && is_string( $label ) ) {
+			$out[ sanitize_key( $slug ) ] = $label;
+		}
+	}
+	return $out;
+}
+
+/**
+ * Number shown as badge on a tab (0 = none): failures on the log, open and unclear messages on the queue.
+ *
+ * @param string $slug   Tab.
+ * @param array  $status Result of mlab_smtp_status().
+ */
+function mlab_smtp_tab_count( string $slug, array $status ): int {
+	if ( 'queue' === $slug ) {
+		return mlab_smtp_queue_badge_count();
+	}
+	return ( 'log' === $slug && 'bad' === $status['state'] && $status['failures'] > 0 ) ? (int) $status['failures'] : 0;
 }
 
 /**
@@ -193,11 +230,6 @@ function mlab_smtp_render_flash(): void {
  */
 function mlab_smtp_render_header( string $view ): void {
 	$status = mlab_smtp_status();
-	$tabs   = array(
-		'overview' => __( 'Übersicht', 'mlab-smtp' ),
-		'log'      => __( 'Protokoll', 'mlab-smtp' ),
-		'settings' => __( 'Einstellungen', 'mlab-smtp' ),
-	);
 	echo '<div class="mlab-head"><div><h1>' . esc_html__( 'E-Mail-Versand', 'mlab-smtp' ) . '</h1><p class="mlab-lead">' . esc_html__( 'Sorgt dafür, dass Mails dieser Website zuverlässig ankommen und nicht im Spam landen.', 'mlab-smtp' ) . '</p></div>';
 	if ( 'overview' === $view ) {
 		mlab_smtp_render_head_action();
@@ -205,15 +237,15 @@ function mlab_smtp_render_header( string $view ): void {
 	echo '</div><hr class="wp-header-end">';
 	mlab_smtp_render_flash();
 	echo '<nav class="nav-tab-wrapper mlab-tabs" aria-label="' . esc_attr__( 'Bereiche', 'mlab-smtp' ) . '">';
-	foreach ( $tabs as $slug => $label ) {
-		$count = ( 'log' === $slug && 'bad' === $status['state'] && $status['failures'] > 0 ) ? (int) $status['failures'] : 0;
+	foreach ( mlab_smtp_admin_tabs() as $slug => $label ) {
+		$count = mlab_smtp_tab_count( $slug, $status );
 		printf(
 			'<a class="nav-tab%1$s" href="%2$s"%3$s>%4$s%5$s</a>',
 			$view === $slug ? ' nav-tab-active' : '',
 			esc_url( mlab_smtp_page_url( 'overview' === $slug ? array() : array( 'view' => $slug ) ) ),
 			$view === $slug ? ' aria-current="page"' : '',
 			esc_html( $label ),
-			$count ? '<span class="mlab-count">' . esc_html( (string) $count ) . '</span>' : ''
+			$count ? '<span class="mlab-count">' . esc_html( (string) $count ) . '<span class="screen-reader-text"> ' . esc_html( _n( 'Hinweis', 'Hinweise', $count, 'mlab-smtp' ) ) . '</span></span>' : ''
 		);
 	}
 	echo '</nav>';
@@ -227,7 +259,7 @@ function mlab_smtp_render_page(): void {
 		return;
 	}
 	$view = mlab_smtp_query( 'view', 'overview' );
-	$view = in_array( $view, array( 'overview', 'log', 'settings', 'wizard', 'fallback' ), true ) ? $view : 'overview';
+	$view = in_array( $view, array_merge( array_keys( mlab_smtp_admin_tabs() ), array( 'wizard', 'fallback' ) ), true ) ? $view : 'overview';
 	echo '<div class="wrap mlab-smtp">';
 	if ( 'wizard' === $view ) {
 		mlab_smtp_render_wizard();
@@ -235,13 +267,17 @@ function mlab_smtp_render_page(): void {
 		mlab_smtp_render_fallback_flow();
 	} else {
 		mlab_smtp_render_header( $view );
-		call_user_func(
-			array(
-				'overview' => 'mlab_smtp_render_overview',
-				'log'      => 'mlab_smtp_render_log',
-				'settings' => 'mlab_smtp_render_settings',
-			)[ $view ]
+		$core = array(
+			'overview' => 'mlab_smtp_render_overview',
+			'queue'    => 'mlab_smtp_render_queue',
+			'log'      => 'mlab_smtp_render_log',
+			'settings' => 'mlab_smtp_render_settings',
 		);
+		if ( isset( $core[ $view ] ) ) {
+			call_user_func( $core[ $view ] );
+		} else {
+			do_action( 'mlab_smtp_render_tab_' . $view );
+		}
 	}
 	echo '</div>';
 	mlab_smtp_render_foreign_notices();

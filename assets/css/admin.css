@@ -1648,3 +1648,212 @@
 	display: inline-block;
 	margin-top: 4px;
 }
+
+/* 1.5.0: Übersicht, Warteschlange, Protokoll (Status mit Symbol und Text, nie nur Farbe) */
+.mlab-smtp .mlab-pill.has-icon::before {
+	display: none;
+}
+
+.mlab-smtp .mlab-pill.has-icon > span[aria-hidden] {
+	font-weight: 700;
+	min-width: 1ch;
+	text-align: center;
+}
+
+.mlab-smtp .mlab-kicker {
+	color: var(--mlab-muted);
+	font-size: var(--mlab-t-small);
+	font-weight: 600;
+	letter-spacing: 0;
+	margin: 0 0 var(--mlab-half, 4px);
+	width: 100%;
+}
+
+.mlab-smtp .mlab-cards {
+	display: grid;
+	gap: var(--mlab-s-2);
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mlab-smtp .mlab-cards .mlab-card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mlab-s-1);
+}
+
+.mlab-smtp .mlab-cards .mlab-card > .button,
+.mlab-smtp .mlab-cards .mlab-card > .mlab-pill {
+	align-self: flex-start;
+}
+
+.mlab-smtp .mlab-cards .mlab-card > .button {
+	margin-top: auto;
+}
+
+.mlab-smtp .mlab-counts {
+	margin: 0;
+}
+
+.mlab-smtp .mlab-todo-item {
+	grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.mlab-smtp .mlab-seg-n {
+	color: var(--mlab-muted);
+	font-variant-numeric: tabular-nums;
+	margin-left: 4px;
+}
+
+.mlab-smtp .mlab-help {
+	padding: var(--mlab-s-2);
+}
+
+.mlab-smtp .mlab-help summary {
+	cursor: pointer;
+	min-height: var(--mlab-tap);
+}
+
+.mlab-smtp .mlab-qrow {
+	border-top: 1px solid var(--mlab-line);
+	margin: 0;
+	padding: 12px 0;
+}
+
+.mlab-smtp .mlab-qrow:first-child {
+	border-top: 0;
+}
+
+.mlab-smtp .mlab-qmain {
+	align-items: center;
+	display: grid;
+	gap: var(--mlab-s-2);
+	grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.mlab-smtp .mlab-qerr {
+	margin: var(--mlab-s-1) 0 0 48px;
+	overflow-wrap: anywhere;
+}
+
+.mlab-smtp .mlab-qacts {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mlab-s-1);
+	margin: var(--mlab-s-1) 0 0 48px;
+}
+
+.mlab-smtp .mlab-inline-form {
+	display: inline-block;
+	margin: 0;
+}
+
+.mlab-smtp .mlab-qacts .button,
+.mlab-smtp .mlab-pager .button,
+.mlab-smtp .mlab-todo-item .button,
+.mlab-smtp .mlab-route-card .button,
+.mlab-smtp .mlab-queue-card .button,
+.mlab-smtp .mlab-confirm .button {
+	align-items: center;
+	display: inline-flex;
+	min-height: var(--mlab-tap);
+	min-width: var(--mlab-tap);
+}
+
+.mlab-smtp .mlab-qacts .button:focus-visible,
+.mlab-smtp .mlab-pager .button:focus-visible,
+.mlab-smtp .mlab-seg-item:focus-visible,
+.mlab-smtp .mlab-help summary:focus-visible,
+.mlab-smtp .mlab-todo-item .button:focus-visible,
+.mlab-smtp .mlab-route-card .button:focus-visible,
+.mlab-smtp .mlab-queue-card .button:focus-visible,
+.mlab-smtp .mlab-confirm .button:focus-visible {
+	outline: 2px solid var(--mlab-accent);
+	outline-offset: 2px;
+}
+
+.mlab-smtp .mlab-confirm {
+	background: var(--mlab-surface-2);
+	border-left: 4px solid var(--mlab-warn);
+	border-radius: var(--mlab-radius-sm);
+	flex-basis: 100%;
+	padding: var(--mlab-s-1) var(--mlab-s-2);
+}
+
+.mlab-smtp .mlab-confirm p {
+	margin: 0 0 var(--mlab-s-1);
+}
+
+.mlab-smtp .mlab-pager {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mlab-s-2);
+	justify-content: space-between;
+}
+
+.mlab-smtp .mlab-pager-links {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mlab-s-1);
+}
+
+.mlab-smtp .mlab-pager .button[aria-current] {
+	background: var(--mlab-accent-soft);
+	border-color: var(--mlab-accent);
+	font-weight: 700;
+}
+
+.mlab-smtp .mlab-attempts,
+.mlab-smtp .mlab-events {
+	margin: 0 0 var(--mlab-s-2);
+	padding-left: 20px;
+}
+
+.mlab-smtp .mlab-attempts li,
+.mlab-smtp .mlab-events li {
+	margin-bottom: var(--mlab-s-1);
+	overflow-wrap: anywhere;
+}
+
+.mlab-smtp .mlab-drawer h3 {
+	font-size: var(--mlab-t-body);
+	margin: var(--mlab-s-2) 0 var(--mlab-s-1);
+}
+
+@media (max-width: 960px) {
+	.mlab-smtp .mlab-cards {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 600px) {
+	.mlab-smtp .mlab-qmain {
+		grid-template-columns: auto minmax(0, 1fr);
+	}
+
+	.mlab-smtp .mlab-qmain .mlab-pill {
+		grid-column: 2;
+		justify-self: start;
+		white-space: normal;
+	}
+
+	.mlab-smtp .mlab-qerr,
+	.mlab-smtp .mlab-qacts {
+		margin-left: 0;
+	}
+
+	.mlab-smtp .mlab-todo-item {
+		grid-template-columns: auto minmax(0, 1fr);
+	}
+
+	.mlab-smtp .mlab-todo-item .button {
+		grid-column: 2;
+		justify-self: start;
+	}
+
+	.mlab-smtp .mlab-seg-item {
+		min-height: var(--mlab-tap);
+	}
+}

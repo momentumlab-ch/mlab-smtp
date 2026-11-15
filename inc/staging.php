@@ -304,8 +304,8 @@ function mlab_smtp_staging_redirect_mail( $atts ) {
 	if ( 'redirect' !== $status['effective'] || ! is_array( $atts ) ) {
 		return $atts;
 	}
-	$original        = mlab_smtp_staging_original_recipients( $atts );
-	$html            = mlab_smtp_staging_is_html( (array) ( $atts['headers'] ?? array() ) );
+	$original = mlab_smtp_staging_original_recipients( $atts );
+	$html     = mlab_smtp_staging_is_html( (array) ( $atts['headers'] ?? array() ) );
 	// Masked: the mail reaches the provider and the test address, real customer addresses must not.
 	$list            = mlab_smtp_mask_emails_in( implode( ', ', $original ) );
 	$footer          = $html
