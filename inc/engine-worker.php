@@ -151,7 +151,21 @@ function mlab_smtp_engine_process( array $row ): string {
 		$text = is_wp_error( $proceed ) ? $proceed->get_error_message() : __( 'Der Versand wurde von einer Erweiterung zurückgestellt.', 'mlab-smtp' );
 		return mlab_smtp_engine_hold( $id, $token, time() + 5 * MINUTE_IN_SECONDS, $text );
 	}
+	$attempts = mlab_smtp_store_attempts( $id );
+	if ( mlab_smtp_engine_unclear_expired( $attempts, time() ) ) {
+		// The idempotency key of an unclear Resend message is no longer valid: no automatic resend, a person decides.
+		return mlab_smtp_engine_settle_final( $row, $token, 'unclear', __( 'Idempotenz-Fenster abgelaufen, bitte manuell prüfen.', 'mlab-smtp' ), 'unclear' );
+	}
+	$unclear_before         = in_array( 'unknown', array_column( $attempts, 'outcome' ), true );
 	list( $routes, $until ) = mlab_smtp_engine_active_routes();
+	if ( $unclear_before && ! mlab_smtp_get( 'queue_unclear_failover' ) ) {
+		// An earlier round may have delivered through the primary route: never hand the message to the fallback, also not while the primary is paused.
+		$all_primary = array_values( array_filter( mlab_smtp_engine_routes(), static fn( $r ): bool => 'primary' === $r['route'] ) );
+		$routes      = array_values( array_filter( $routes, static fn( $r ): bool => 'primary' === $r['route'] ) );
+		if ( ! $routes && $all_primary && 0 === $until ) {
+			$until = time() + MINUTE_IN_SECONDS;
+		}
+	}
 	if ( ! $routes ) {
 		return mlab_smtp_engine_hold( $id, $token, max( time() + 1, $until ), __( 'Der Anbieter hat um eine Pause gebeten (Retry-After).', 'mlab-smtp' ) );
 	}
@@ -163,7 +177,7 @@ function mlab_smtp_engine_process( array $row ): string {
 		'message_id'    => (string) ( $snapshot['message_id'] ?? '' ),
 		'resend'        => (int) ( $snapshot['resend'] ?? 0 ),
 		'mode'          => 'queued',
-		'after_unclear' => false,
+		'after_unclear' => $unclear_before,
 	);
 	try {
 		$results = mlab_smtp_engine_run_routes(
