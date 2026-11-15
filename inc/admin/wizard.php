@@ -296,7 +296,14 @@ function mlab_smtp_render_connect_smtp(): void {
 	echo '<h2>' . esc_html__( 'Mit Ihrem Mailserver verbinden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Wählen Sie unten Ihren Hoster, dann tragen wir Server und Port ein. Benutzername und Passwort finden Sie im Kundencenter Ihres Hosters, meist unter «E-Mail-Programm einrichten».', 'mlab-smtp' ) . '</p>';
 	echo '<div class="mlab-fields is-open">';
 	mlab_smtp_render_preset_select();
-	mlab_smtp_ui_field( 'smtp_host', __( 'Server', 'mlab-smtp' ), array( 'placeholder' => 'mail.ihre-domain.ch', 'help' => __( 'Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain.', 'mlab-smtp' ) ) );
+	mlab_smtp_ui_field(
+		'smtp_host',
+		__( 'Server', 'mlab-smtp' ),
+		array(
+			'placeholder' => 'mail.ihre-domain.ch',
+			'help'        => __( 'Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain.', 'mlab-smtp' ),
+		)
+	);
 	mlab_smtp_ui_segmented( 'smtp_secure', __( 'Verbindung', 'mlab-smtp' ), mlab_smtp_secure_options() );
 	mlab_smtp_render_insecure_note( 'smtp_secure' );
 	mlab_smtp_ui_field(

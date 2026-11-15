@@ -72,8 +72,9 @@ function mlab_smtp_plugin_details( $info ) {
 	if ( ! is_object( $info ) ) {
 		return $info;
 	}
-	$image = '<p><img src="' . esc_url( plugins_url( 'assets/screenshots/screenshot-1.png', MLAB_SMTP_FILE ) ) . '" alt="MomentumLab SMTP English dashboard with main route, backup readiness and queue status" style="max-width:100%;height:auto;" /></p>'
-		. '<p>English interface with demonstration data. Review sending health, main and backup routes, waiting emails and issues that need attention.</p>';
+	$screenshot = esc_url( plugins_url( 'assets/screenshots/screenshot-1.png', MLAB_SMTP_FILE ) );
+	$image      = '<p><a class="mlab-plugin-shot-link" href="' . $screenshot . '" target="_blank" rel="noopener noreferrer" aria-label="Open full-size screenshot"><img class="mlab-plugin-shot" src="' . $screenshot . '" alt="MomentumLab SMTP English dashboard with main route, backup readiness and queue status" width="400" height="281" style="max-width:100%;height:auto;" /></a></p>'
+		. '<p>English interface with demonstration data. Select the preview to open the full-size screenshot.</p>';
 
 	$info->banners = array(
 		'low'  => plugins_url( 'assets/banner-772x250.png', MLAB_SMTP_FILE ),

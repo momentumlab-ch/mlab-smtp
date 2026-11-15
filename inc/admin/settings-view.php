@@ -128,7 +128,14 @@ function mlab_smtp_fallback_options(): array {
  * Fields of the own mail server as fallback.
  */
 function mlab_smtp_render_fallback_smtp(): void {
-	mlab_smtp_ui_field( 'fb_smtp_host', __( 'Server', 'mlab-smtp' ), array( 'placeholder' => 'mail.ihre-domain.ch', 'help' => __( 'Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain.', 'mlab-smtp' ) ) );
+	mlab_smtp_ui_field(
+		'fb_smtp_host',
+		__( 'Server', 'mlab-smtp' ),
+		array(
+			'placeholder' => 'mail.ihre-domain.ch',
+			'help'        => __( 'Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain.', 'mlab-smtp' ),
+		)
+	);
 	mlab_smtp_ui_field(
 		'fb_smtp_port',
 		__( 'Port', 'mlab-smtp' ),

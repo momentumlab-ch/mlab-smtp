@@ -126,6 +126,10 @@ function mlab_smtp_action_links( array $links ): array {
  * @param string $hook_suffix Current admin page.
  */
 function mlab_smtp_enqueue_assets( string $hook_suffix ): void {
+	if ( 'plugin-install.php' === $hook_suffix && 'plugin-information' === mlab_smtp_query( 'tab' ) && 'mlab-smtp' === mlab_smtp_query( 'plugin' ) ) {
+		wp_enqueue_style( 'mlab-smtp-details', MLAB_SMTP_URL . 'assets/css/plugin-details.css', array(), MLAB_SMTP_VERSION );
+		return;
+	}
 	if ( MLAB_SMTP_SCREEN !== $hook_suffix ) {
 		return;
 	}

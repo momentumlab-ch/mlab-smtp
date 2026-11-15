@@ -1,0 +1,14 @@
+/* Scoped to this plugin's information iframe; the original screenshot remains available by link. */
+.mlab-plugin-shot-link {
+	display: block;
+	margin: 12px 0;
+	max-width: 100%;
+	width: 400px;
+}
+
+.mlab-plugin-shot-link .mlab-plugin-shot {
+	display: block;
+	height: auto;
+	max-width: 100%;
+	width: 100%;
+}

@@ -2,6 +2,8 @@
 
 ## 1.5.2
 
+- Fixed: Plugin-detail screenshots use a proportional responsive preview with a link to the original image.
+
 - Improved: Setup feedback stays in the active card with accessible focus; the SMTP host and usual-port hints clarify configuration.
 - Improved: Both routes synchronise standard ports with encryption; custom and constant-controlled ports are preserved.
 - Added: Explicit disable and confirmed removal actions for the backup configuration, without deleting the primary route or delivery history.

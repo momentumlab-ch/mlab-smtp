@@ -38,3 +38,14 @@ foreach ( array( 'assets/icon-128x128.png' => array( 128, 128 ), 'assets/icon-25
 }
 assert_contains( 'banner-772x250.png', $info->banners['low'], 'the low-density banner uses the small asset' );
 assert_contains( 'banner-1544x500.png', $info->banners['high'], 'the high-density banner uses the large asset' );
+
+assert_contains( 'width="400" height="281"', $info->sections['screenshots'], 'the details image has a constrained proportional preview size' );
+assert_contains( 'class="mlab-plugin-shot-link"', $info->sections['screenshots'], 'the preview links to the full-size image' );
+assert_contains( 'target="_blank" rel="noopener noreferrer"', $info->sections['screenshots'], 'the full-size image opens safely in a separate tab' );
+$_GET = array( 'tab' => 'plugin-information', 'plugin' => 'other-plugin' );
+mlab_smtp_enqueue_assets( 'plugin-install.php' );
+assert_true( ! wp_style_is( 'mlab-smtp-details', 'enqueued' ), 'other plugin detail windows do not receive our image styles' );
+$_GET['plugin'] = 'mlab-smtp';
+mlab_smtp_enqueue_assets( 'plugin-install.php' );
+assert_true( wp_style_is( 'mlab-smtp-details', 'enqueued' ), 'the own information iframe receives responsive preview styles' );
+unset( $_GET['tab'], $_GET['plugin'] );
