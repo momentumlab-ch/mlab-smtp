@@ -4,7 +4,7 @@ Tags: smtp, email, microsoft 365, gmail, resend, mail
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,11 @@ Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ la
 4. Im Schritt «Absender» zeigt das Plugin, ob die Domain verifiziert ist, und nennt fehlende DNS-Einträge. Danach die Testmail senden.
 
 == Changelog ==
+
+= 1.4.0 =
+* Neu: Der Ersatzweg kann auch Resend sein, nicht nur ein Mailserver.
+* Neu: Eigener Menüpunkt «E-Mail-Versand» mit Symbol in der Hauptnavigation.
+* Verbessert: Klarere Texte und Schritte im Assistenten.
 
 = 1.3.0 =
 * Neu: Resend als Versandweg, mit geführter Einrichtung, Prüfung der Absender-Domain und Fehlermeldungen in Klartext (siehe CHANGELOG.md).

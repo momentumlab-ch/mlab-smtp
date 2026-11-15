@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.0
+
+Ersatzweg über Resend, eigener Menüpunkt und klarere Texte im Assistenten.
+
+- Neu: Der Ersatzweg kann auch Resend sein, nicht nur ein Mailserver. Er hat einen eigenen API-Key, wird in den Einstellungen mit «Verbindung prüfen» getestet und sendet mit der hinterlegten Absender-Adresse (deren Domain muss bei Resend verifiziert sein). Bestehende Einrichtungen bleiben beim Mailserver.
+- Neu: Eigener Menüpunkt «E-Mail-Versand» mit Papierflieger-Symbol in der Hauptnavigation (vorher unter Einstellungen). Alte Links unter Einstellungen leiten weiter.
+- Verbessert: Texte und Schritte im Assistenten sind klarer. Die Schritte heissen wie die Punkte der Übersicht (Anbieter, Verbindung, Absender, Testmail), die Vorbereitung bei Microsoft, Google und Resend zählt nicht mehr eigene «Schritte», und bei jedem Schritt steht, was zu tun ist.
+- Beim Update ändert sich an bestehenden Einrichtungen nichts. Der Ersatzweg bleibt beim Mailserver, bis Resend gewählt wird.
+
 ## 1.3.0
 
 Neu: Versand über Resend, mit geführter Einrichtung und Fehleranzeige.
@@ -15,9 +24,6 @@ Neu: Versand über Resend, mit geführter Einrichtung und Fehleranzeige.
 - Sicherer: Ein Idempotenz-Schlüssel verhindert, dass eine wiederholte Anfrage dieselbe Mail doppelt versendet.
 - Neu: Mitteilungen anderer Plugins erscheinen nicht mehr mitten in der Oberfläche dieses Plugins. Auf der Plugin-Seite liegen sie eingeklappt unterhalb («Mitteilungen anderer Plugins», mit Anzahl und Fehler-Hinweis).
 - Neu: Anbieter-Logos (Microsoft, Google, Mailserver) als Symbole statt Buchstaben.
-- Neu: Eigener Menüpunkt «E-Mail-Versand» mit Papierflieger-Symbol in der Hauptnavigation (vorher unter Einstellungen). Alte Links unter Einstellungen leiten weiter.
-- Verbessert: Texte und Schritte im Assistenten sind klarer. Die Schritte heissen wie die Punkte der Übersicht (Anbieter, Verbindung, Absender, Testmail), die Vorbereitung bei Microsoft, Google und Resend zählt nicht mehr eigene «Schritte», und bei jedem Schritt steht, was zu tun ist.
-- Neu: Der Ersatzweg kann auch Resend sein, nicht nur ein Mailserver. Er hat einen eigenen API-Key, wird in den Einstellungen mit «Verbindung prüfen» getestet und sendet mit der hinterlegten Absender-Adresse (deren Domain muss bei Resend verifiziert sein). Bestehende Einrichtungen bleiben beim Mailserver.
 - Intern: Alle Versandwege stehen in einer zentralen Registry (`inc/providers.php` für die Logik, `mlab_smtp_ui_providers()` für die Oberfläche). Ein neuer Anbieter braucht dort je einen Eintrag statt Änderungen an einem Dutzend Stellen. Das Verhalten von SMTP, Microsoft 365 und Google ist unverändert.
 - Beim Update ändert sich an bestehenden Einrichtungen nichts.
 
