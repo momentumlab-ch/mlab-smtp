@@ -1,10 +1,21 @@
+# Muster für bin/build-zip.sh (gitignore-ähnlich): Eintrag mit "/" am Anfang gilt nur im Plugin-Stamm,
+# Eintrag ohne "/" gilt auf jeder Ebene, "name/" nur für Ordner. lib/plugin-update-checker/vendor bleibt drin.
 .git
-.github
 .gitignore
+.gitattributes
+.github
 .distignore
+.DS_Store
+.idea
+.vscode
 node_modules
-tests
+/tests
+/bin
+/docs
+/vendor
+/dist
 phpcs.xml.dist
+phpunit.xml*
 composer.json
 composer.lock
 package.json
@@ -12,6 +23,12 @@ package-lock.json
 .env
 .env.*
 wp-config.php
+wp-config-*.php
 *.log
 *.map
-docs
+*.zip
+*.orig
+*.rej
+*.swp
+*~
+Thumbs.db

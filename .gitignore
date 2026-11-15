@@ -7,3 +7,4 @@ mlab-smtp.zip
 /tests/env/vendor/
 /tests/env/.run/
 /tests/env/admin-password.txt
+/dist/
