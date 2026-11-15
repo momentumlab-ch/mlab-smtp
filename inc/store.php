@@ -464,7 +464,28 @@ function mlab_smtp_store_apply_pending_events( int $id ): bool {
 			$best = $status;
 		}
 	}
-	return '' !== $best && mlab_smtp_store_apply_event_status( $id, $best );
+	if ( '' === $best ) {
+		return false;
+	}
+	$result = mlab_smtp_store_apply_event_result( $id, $best );
+	if ( ! in_array( $result, array( 'error', 'deferred' ), true ) ) {
+		mlab_smtp_store_mark_events_processed( $id );
+	}
+	return 'changed' === $result;
+}
+
+/**
+ * Marks the events of a message as processed (their status effect is applied or needs no change).
+ *
+ * @param int $id Message id.
+ */
+function mlab_smtp_store_mark_events_processed( int $id ): bool {
+	return false !== mlab_smtp_store_run(
+		static function () use ( $id ) {
+			global $wpdb;
+			return $wpdb->query( $wpdb->prepare( 'UPDATE %i SET processed_at = %d WHERE message_id = %d AND processed_at IS NULL', mlab_smtp_table( 'events' ), mlab_smtp_store_now(), $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
+		}
+	);
 }
 
 /**
@@ -476,30 +497,56 @@ function mlab_smtp_store_apply_pending_events( int $id ): bool {
  * @return bool True when the status changed.
  */
 function mlab_smtp_store_apply_event_status( int $id, string $status, int $now = 0 ): bool {
+	return 'changed' === mlab_smtp_store_apply_event_result( $id, $status, $now );
+}
+
+/**
+ * Like mlab_smtp_store_apply_event_status(), but tells an expected «nothing to change» from a database error.
+ *
+ * - changed:   the status was raised.
+ * - unchanged: nothing to do (the message has a status of equal or higher rank, or does not exist, or the status is unknown).
+ * - deferred:  the row is processing; the event is applied after the completion (mlab_smtp_store_apply_pending_events).
+ * - error:     a database error or an unconfirmed race; the caller must treat the event as not processed.
+ *
+ * @param int    $id     Message id.
+ * @param string $status accepted, delivered, bounced, complained or failed.
+ * @param int    $now    Time (default now).
+ * @return string changed, unchanged, deferred or error.
+ */
+function mlab_smtp_store_apply_event_result( int $id, string $status, int $now = 0 ): string {
 	$new = mlab_smtp_store_rank( $status );
 	if ( null === $new || 'processing' === $status ) {
-		return false;
+		return 'unchanged';
 	}
-	// The event is stored by the caller; while the row is processing it is applied after the completion (mlab_smtp_store_apply_pending_events).
-	return (bool) mlab_smtp_store_run(
-		static function () use ( $id, $status, $new, $now ) {
+	return (string) mlab_smtp_store_run(
+		static function () use ( $id, $status, $new, $now ): string {
 			global $wpdb;
 			for ( $i = 0; $i < 3; $i++ ) {
-				$current = (string) $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM %i WHERE id = %d', mlab_smtp_table( 'messages' ), $id ) );
-				$rank    = mlab_smtp_store_rank( $current );
-				if ( null === $rank || 'processing' === $current || $rank >= $new ) {
-					return false;
+				$current = $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM %i WHERE id = %d', mlab_smtp_table( 'messages' ), $id ) );
+				if ( null === $current ) {
+					return '' === (string) $wpdb->last_error ? 'unchanged' : 'error';
+				}
+				$rank = mlab_smtp_store_rank( (string) $current );
+				if ( 'processing' === $current ) {
+					return 'deferred';
+				}
+				if ( null === $rank || $rank >= $new ) {
+					return 'unchanged';
 				}
 				$set = array(
 					'status'       => $status,
 					'completed_at' => $now > 0 ? $now : mlab_smtp_store_now(),
 				);
 				if ( mlab_smtp_store_cas( $id, $set, $wpdb->prepare( 'AND status = %s', $current ), $now ) ) {
-					return true;
+					return 'changed';
+				}
+				if ( '' !== (string) $wpdb->last_error ) {
+					return 'error';
 				}
 			}
-			return false;
-		}
+			return 'error'; // The race could not be settled: not processed, the delivery is repeated.
+		},
+		'error'
 	);
 }
 

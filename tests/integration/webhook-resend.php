@@ -132,7 +132,7 @@ $nc = wh_signed( 'resend-fallback', $fb_secret, 'msg_nc', wh_event( 'email.sent'
 assert_same( 404, $nc->get_status(), 'no secret configured gives 404' );
 assert_true( ! str_contains( wp_json_encode( $nc->get_data() ), 'whsec' ), 'not configured leaks nothing' );
 
-// ---- Failed processing removes the dedup row; the redelivery succeeds.
+// ---- Failed processing keeps the event stored but unprocessed; the redelivery is processed, not swallowed.
 $boom = static function () {
 	throw new RuntimeException( 'boom' );
 };
@@ -140,10 +140,48 @@ add_action( 'mlab_smtp_webhook_event', $boom );
 $m = mlab_t_msg( array( 'status' => 'accepted' ) );
 mlab_smtp_store_set_status( $m, 'accepted', array( 'provider_msg_id' => 'em_r' ) );
 assert_same( 500, wh_signed( 'resend', $main_secret, 'msg_r', wh_event( 'email.delivered', 'em_r' ) )->get_status(), 'failing processing answers 500' );
-assert_same( 0, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . " WHERE event_id = 'msg_r'" ), 'dedup row removed' );
+assert_same( 1, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . " WHERE event_id = 'msg_r' AND processed_at IS NULL" ), 'event stored but not processed' );
 remove_action( 'mlab_smtp_webhook_event', $boom );
 assert_same( 200, wh_signed( 'resend', $main_secret, 'msg_r', wh_event( 'email.delivered', 'em_r' ) )->get_status(), 'redelivery succeeds' );
 assert_same( 'delivered', wh_status( $m ), 'redelivery applied' );
+assert_same( 1, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . " WHERE event_id = 'msg_r' AND processed_at IS NOT NULL" ), 'event marked processed after the redelivery' );
+assert_same( 'duplicate', wh_signed( 'resend', $main_secret, 'msg_r', wh_event( 'email.delivered', 'em_r' ) )->get_data()['status'], 'a processed event is a real duplicate' );
+
+// ---- The status update fails (database error): stored, but 500 and not marked processed; the redelivery repairs it.
+$m2 = mlab_t_msg( array( 'status' => 'accepted' ) );
+mlab_smtp_store_set_status( $m2, 'accepted', array( 'provider_msg_id' => 'em_db' ) );
+$break = static fn( $sql ) => str_starts_with( $sql, 'UPDATE `' . mlab_smtp_table( 'messages' ) . '`' ) ? 'UPDATE mlab_smtp_missing_table SET x = 1' : $sql;
+add_filter( 'query', $break );
+$r = wh_signed( 'resend', $main_secret, 'msg_db', wh_event( 'email.delivered', 'em_db' ) );
+remove_filter( 'query', $break );
+assert_same( 500, $r->get_status(), 'database error while applying the status answers 500' );
+assert_same( 'accepted', wh_status( $m2 ), 'status unchanged after the failure' );
+assert_same( 1, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . " WHERE event_id = 'msg_db' AND processed_at IS NULL" ), 'event kept as not processed' );
+$r = wh_signed( 'resend', $main_secret, 'msg_db', wh_event( 'email.delivered', 'em_db' ) );
+assert_same( 200, $r->get_status(), 'redelivery of the same event id is accepted' );
+assert_true( 'duplicate' !== ( $r->get_data()['status'] ?? '' ), 'redelivery is not discarded as duplicate' );
+assert_same( 'delivered', wh_status( $m2 ), 'redelivery applies the status' );
+assert_same( 1, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . " WHERE event_id = 'msg_db'" ), 'still a single row (dedup intact)' );
+assert_same( 'duplicate', wh_signed( 'resend', $main_secret, 'msg_db', wh_event( 'email.delivered', 'em_db' ) )->get_data()['status'], 'now it is a duplicate' );
+
+// ---- Already higher status: expected «unchanged» is no error and counts as processed.
+$m3 = mlab_t_msg( array( 'status' => 'delivered' ) );
+mlab_smtp_store_set_status( $m3, 'delivered', array( 'provider_msg_id' => 'em_hi' ) );
+assert_same( 200, wh_signed( 'resend', $main_secret, 'msg_hi', wh_event( 'email.sent', 'em_hi' ) )->get_status(), 'unchanged status is answered with 200' );
+assert_same( 1, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . " WHERE event_id = 'msg_hi' AND processed_at IS NOT NULL" ), 'unchanged counts as processed' );
+
+// ---- Event during a running send: stored, applied after the completion, then processed.
+$m4 = mlab_t_msg( array( 'status' => 'processing' ) );
+$wpdb->update( mlab_smtp_table( 'messages' ), array( 'provider_msg_id' => 'em_run' ), array( 'id' => $m4 ) );
+assert_same( 200, wh_signed( 'resend', $main_secret, 'msg_run', wh_event( 'email.delivered', 'em_run' ) )->get_status(), 'event during processing answers 200' );
+assert_same( 'processing', wh_status( $m4 ), 'event does not change a processing row' );
+assert_same( 1, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . " WHERE event_id = 'msg_run' AND processed_at IS NULL" ), 'event waits unprocessed' );
+mlab_smtp_store_apply_pending_events( $m4 );
+assert_same( 'processing', wh_status( $m4 ), 'still processing: nothing applied, not marked' );
+$wpdb->update( mlab_smtp_table( 'messages' ), array( 'status' => 'accepted' ), array( 'id' => $m4 ) );
+mlab_smtp_store_apply_pending_events( $m4 );
+assert_same( 'delivered', wh_status( $m4 ), 'applied after the completion' );
+assert_same( 1, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . " WHERE event_id = 'msg_run' AND processed_at IS NOT NULL" ), 'processed after the completion' );
 
 // ---- Event before the provider id, rematch, orphan purge.
 $late = mlab_t_msg( array( 'status' => 'accepted', 'uuid' => $u2 = wp_generate_uuid4() ) );

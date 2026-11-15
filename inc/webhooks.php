@@ -172,7 +172,10 @@ function mlab_smtp_webhook_verify( string $secret, string $id, string $timestamp
 }
 
 /**
- * Stores and applies one verified event exactly once.
+ * Stores one verified event and applies its status effect. «Stored» and «processed» are different states: a repeated
+ * delivery is only answered as a duplicate when the event was processed. An event that is stored but whose status
+ * could not be applied (database error) answers 500 and is processed again on the next delivery; the status
+ * application is idempotent, so repeated or parallel deliveries are safe.
  *
  * @param string $provider resend or resend-fallback.
  * @param string $event_id svix-id.
@@ -180,30 +183,26 @@ function mlab_smtp_webhook_verify( string $secret, string $id, string $timestamp
  * @return WP_REST_Response|WP_Error
  */
 function mlab_smtp_webhook_process( string $provider, string $event_id, array $payload ) {
-	if ( mlab_smtp_webhook_event_exists( $provider, $event_id ) ) {
+	$row = mlab_smtp_webhook_event_row( $provider, $event_id );
+	if ( $row && null !== $row['processed_at'] ) {
 		return new WP_REST_Response( array( 'status' => 'duplicate' ), 200 );
 	}
 	$type = (string) $payload['type'];
-	$info = mlab_smtp_webhook_summary( $payload );
 	try {
-		$message = mlab_smtp_webhook_match( $info['email_id'], $info['mlab_id'], $provider );
-		$stored  = mlab_smtp_store_add_event(
-			array(
-				'provider'    => $provider,
-				'event_id'    => $event_id,
-				'type'        => $type,
-				'occurred_at' => mlab_smtp_webhook_time( (string) ( $payload['created_at'] ?? '' ) ),
-				'message_id'  => $message,
-				'detail'      => wp_json_encode( $info ),
-			)
-		);
-		if ( ! $stored ) {
+		if ( ! $row ) {
+			$row = mlab_smtp_webhook_store( $provider, $event_id, $type, $payload );
+		}
+		if ( ! $row ) {
 			return mlab_smtp_webhook_error( 'mlab_smtp_webhook_failed', 500 );
 		}
-	} catch ( Throwable $e ) {
-		return mlab_smtp_webhook_error( 'mlab_smtp_webhook_failed', 500 );
-	}
-	try {
+		$message = $row['message_id'] ? (int) $row['message_id'] : null;
+		if ( ! $message ) {
+			$info    = mlab_smtp_webhook_summary( $payload );
+			$message = mlab_smtp_webhook_match( $info['email_id'], $info['mlab_id'], $provider );
+			if ( $message ) {
+				mlab_smtp_webhook_attach( (int) $row['id'], $message );
+			}
+		}
 		/**
 		 * Fires while an event is processed. An exception makes the delivery fail so Resend repeats it.
 		 *
@@ -212,12 +211,41 @@ function mlab_smtp_webhook_process( string $provider, string $event_id, array $p
 		 * @param string   $provider resend or resend-fallback.
 		 */
 		do_action( 'mlab_smtp_webhook_event', $type, $message, $provider );
-		mlab_smtp_webhook_apply( $type, $message );
+		$result = mlab_smtp_webhook_apply( $type, $message );
 	} catch ( Throwable $e ) {
-		mlab_smtp_store_delete_event( $provider, $event_id );
 		return mlab_smtp_webhook_error( 'mlab_smtp_webhook_failed', 500 );
 	}
+	if ( 'error' === $result ) {
+		return mlab_smtp_webhook_error( 'mlab_smtp_webhook_failed', 500 );
+	}
+	if ( ! in_array( $result, array( 'deferred', 'unmatched' ), true ) ) {
+		mlab_smtp_webhook_mark_processed( (int) $row['id'] );
+	}
 	return new WP_REST_Response( array( 'status' => 'ok' ), 200 );
+}
+
+/**
+ * Stores a new event. A parallel delivery of the same event that was faster is not an error: its row is used.
+ *
+ * @param string $provider resend or resend-fallback.
+ * @param string $event_id svix-id.
+ * @param string $type     Event type.
+ * @param array  $payload  Decoded body.
+ * @return array|null Event row (id, message_id, processed_at), null when it could not be stored.
+ */
+function mlab_smtp_webhook_store( string $provider, string $event_id, string $type, array $payload ): ?array {
+	$info = mlab_smtp_webhook_summary( $payload );
+	mlab_smtp_store_add_event(
+		array(
+			'provider'    => $provider,
+			'event_id'    => $event_id,
+			'type'        => $type,
+			'occurred_at' => mlab_smtp_webhook_time( (string) ( $payload['created_at'] ?? '' ) ),
+			'message_id'  => mlab_smtp_webhook_match( $info['email_id'], $info['mlab_id'], $provider ),
+			'detail'      => wp_json_encode( $info ),
+		)
+	);
+	return mlab_smtp_webhook_event_row( $provider, $event_id );
 }
 
 /**
@@ -304,25 +332,51 @@ function mlab_smtp_webhook_route_fits( array $row, string $provider ): bool {
  *
  * @param string   $type    Event type.
  * @param int|null $message Message id.
+ * @return string changed, unchanged (nothing to do), deferred (message is processing), unmatched or error.
  */
-function mlab_smtp_webhook_apply( string $type, ?int $message ): void {
+function mlab_smtp_webhook_apply( string $type, ?int $message ): string {
 	$status = mlab_smtp_webhook_types()[ $type ] ?? null;
-	if ( $message && $status ) {
-		mlab_smtp_store_apply_event_status( $message, $status );
+	if ( ! $status ) {
+		return 'unchanged';
 	}
+	return $message ? mlab_smtp_store_apply_event_result( $message, $status ) : 'unmatched';
 }
 
 /**
- * True when the delivery was already stored.
+ * Stored row of a delivery.
  *
  * @param string $provider Provider.
  * @param string $event_id Event id.
+ * @return array{id:int, message_id:?int, processed_at:?int}|null Null when it is not stored.
  */
-function mlab_smtp_webhook_event_exists( string $provider, string $event_id ): bool {
-	return (bool) mlab_smtp_store_run(
+function mlab_smtp_webhook_event_row( string $provider, string $event_id ): ?array {
+	$row = mlab_smtp_store_run(
 		static function () use ( $provider, $event_id ) {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM %i WHERE provider = %s AND event_id = %s', mlab_smtp_table( 'events' ), $provider, $event_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
+			return $wpdb->get_row( $wpdb->prepare( 'SELECT id, message_id, processed_at FROM %i WHERE provider = %s AND event_id = %s', mlab_smtp_table( 'events' ), $provider, $event_id ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
+		},
+		null
+	);
+	if ( ! is_array( $row ) ) {
+		return null;
+	}
+	return array(
+		'id'           => (int) $row['id'],
+		'message_id'   => null === $row['message_id'] ? null : (int) $row['message_id'],
+		'processed_at' => null === $row['processed_at'] ? null : (int) $row['processed_at'],
+	);
+}
+
+/**
+ * Marks one event as processed.
+ *
+ * @param int $event_id Event row id.
+ */
+function mlab_smtp_webhook_mark_processed( int $event_id ): bool {
+	return false !== mlab_smtp_store_run(
+		static function () use ( $event_id ) {
+			global $wpdb;
+			return $wpdb->query( $wpdb->prepare( 'UPDATE %i SET processed_at = %d WHERE id = %d AND processed_at IS NULL', mlab_smtp_table( 'events' ), mlab_smtp_store_now(), $event_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
 		}
 	);
 }
@@ -346,7 +400,9 @@ function mlab_smtp_webhook_rematch(): int {
 		$info    = json_decode( (string) $row['detail'], true );
 		$message = is_array( $info ) ? mlab_smtp_webhook_match( (string) ( $info['email_id'] ?? '' ), (string) ( $info['mlab_id'] ?? '' ), (string) $row['provider'] ) : null;
 		if ( $message && mlab_smtp_webhook_attach( (int) $row['id'], $message ) ) {
-			mlab_smtp_webhook_apply( (string) $row['type'], $message );
+			if ( ! in_array( mlab_smtp_webhook_apply( (string) $row['type'], $message ), array( 'error', 'deferred' ), true ) ) {
+				mlab_smtp_webhook_mark_processed( (int) $row['id'] );
+			}
 			++$count;
 		}
 	}
