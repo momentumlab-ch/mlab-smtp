@@ -592,7 +592,7 @@ function mlab_smtp_store_release( int $id, string $token, int $next_attempt_at, 
  *
  * @param int $now   Time (default now).
  * @param int $limit Maximum number of rows per call.
- * @return array<string,int> Counts: requeued, unclear.
+ * @return array<string,int> Counts: requeued, unclear, and failed (only when present).
  */
 function mlab_smtp_store_sweep( int $now = 0, int $limit = 100 ): array {
 	$now   = $now > 0 ? $now : mlab_smtp_store_now();
@@ -617,7 +617,7 @@ function mlab_smtp_store_sweep( int $now = 0, int $limit = 100 ): array {
 	foreach ( $ids as $id ) {
 		$outcome = mlab_smtp_store_sweep_one( (int) $id, $now );
 		if ( $outcome ) {
-			++$count[ $outcome ];
+			$count[ $outcome ] = ( $count[ $outcome ] ?? 0 ) + 1;
 		}
 	}
 	return $count;
@@ -628,26 +628,37 @@ function mlab_smtp_store_sweep( int $now = 0, int $limit = 100 ): array {
  *
  * @param int $id  Message id.
  * @param int $now Time.
- * @return string requeued, unclear or empty when the row was not taken over.
+ * @return string requeued, unclear, failed or empty when the row was not taken over.
  */
 function mlab_smtp_store_sweep_one( int $id, int $now ): string {
-	$sent    = (int) mlab_smtp_store_run(
-		static function () use ( $id ) {
+	$message = mlab_smtp_store_get( $id );
+	if ( ! $message ) {
+		return '';
+	}
+	// Only attempts of the current claim count (unfinished, started since the claim): earlier rounds are settled already.
+	$claim = (int) $message['updated_at'];
+	$sent  = (int) mlab_smtp_store_run(
+		static function () use ( $id, $claim ) {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'attempts' ) . ' WHERE message_id = %d AND request_sent_at IS NOT NULL', $id ) );
+			return $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'attempts' ) . ' WHERE message_id = %d AND request_sent_at IS NOT NULL AND finished_at IS NULL AND started_at >= %d', $id, $claim ) );
 		},
 		0
 	);
-	$message = mlab_smtp_store_get( $id );
-	$queued  = 0 === $sent && $message && 'queued' === $message['mode'] && ! empty( $message['has_payload'] );
-	$set     = array(
-		'status'       => $queued ? 'queued' : 'unclear',
-		'lock_token'   => null,
-		'locked_until' => null,
-	);
-	if ( ! $queued ) {
-		$set['completed_at'] = $now;
-		$set['last_error']   = mlab_smtp_store_text( __( 'Der Versand wurde unterbrochen, ob der Anbieter die Nachricht angenommen hat, ist unklar.', 'mlab-smtp' ) );
+	$queued = 0 === $sent && 'queued' === $message['mode'] && ! empty( $message['has_payload'] );
+	$text   = '';
+	if ( $queued && mlab_smtp_store_swept_count( $id ) >= max( 1, (int) $message['max_attempts'] ) ) {
+		$queued = false; // The worker died again and again before any request: stop, a person decides.
+		$text   = __( 'Der Worker wurde wiederholt vor dem Senden unterbrochen, die Nachricht wird nicht weiter versucht.', 'mlab-smtp' );
+		$set    = mlab_smtp_store_status_fields( 'failed', array( 'error_class' => 'permanent', 'last_error' => $text ), $now );
+	} elseif ( $queued ) {
+		$set = array(
+			'status'       => 'queued',
+			'lock_token'   => null,
+			'locked_until' => null,
+		);
+	} else {
+		$text = __( 'Der Versand wurde unterbrochen, ob der Anbieter die Nachricht angenommen hat, ist unklar.', 'mlab-smtp' );
+		$set  = mlab_smtp_store_status_fields( 'unclear', array( 'last_error' => $text ), $now );
 	}
 	$won = mlab_smtp_store_run(
 		static function () use ( $id, $set, $now ) {
@@ -656,7 +667,50 @@ function mlab_smtp_store_sweep_one( int $id, int $now ): string {
 			return mlab_smtp_store_cas( $id, $set, $where, $now );
 		}
 	);
-	return $won ? ( $queued ? 'requeued' : 'unclear' ) : '';
+	if ( $won && $queued ) {
+		mlab_smtp_store_note_sweep( $id, $now );
+	}
+	return $won ? ( $queued ? 'requeued' : ( 'failed' === $set['status'] ? 'failed' : 'unclear' ) ) : '';
+}
+
+/**
+ * Number of times the sweep put a message back into the queue (marker attempts with outcome «swept»).
+ *
+ * @param int $id Message id.
+ */
+function mlab_smtp_store_swept_count( int $id ): int {
+	return (int) mlab_smtp_store_run(
+		static function () use ( $id ) {
+			global $wpdb;
+			return $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'attempts' ) . " WHERE message_id = %d AND outcome = 'swept'", $id ) );
+		},
+		0
+	);
+}
+
+/**
+ * Remembers a requeue by the sweep as a marker attempt (no route, so it is no round and no request).
+ *
+ * @param int $id  Message id.
+ * @param int $now Time.
+ */
+function mlab_smtp_store_note_sweep( int $id, int $now ): void {
+	mlab_smtp_store_run(
+		static function () use ( $id, $now ) {
+			global $wpdb;
+			return $wpdb->insert(
+				mlab_smtp_table( 'attempts' ),
+				array(
+					'message_id'  => $id,
+					'started_at'  => $now,
+					'finished_at' => $now,
+					'outcome'     => 'swept',
+					'error_code'  => 'lease_expired',
+					'error_text'  => '',
+				)
+			);
+		}
+	);
 }
 
 /**
