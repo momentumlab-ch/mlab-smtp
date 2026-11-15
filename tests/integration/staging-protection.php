@@ -21,6 +21,7 @@ function sp_reset( array $staging = array() ): void {
 	mlab_t_reset_store();
 	delete_option( MLAB_SMTP_OPTION );
 	delete_option( MLAB_SMTP_STAGING_OPTION );
+	delete_option( MLAB_SMTP_STATE_OPTION );
 	mlab_http_reset();
 	$GLOBALS['sp_env'] = 'production';
 	mlab_smtp_store( array( 'provider' => 'resend', 'setup_done' => 1, 'from_email' => 'info@example.ch', 'resend_api_key' => 're_main_key_1234567890' ) );
