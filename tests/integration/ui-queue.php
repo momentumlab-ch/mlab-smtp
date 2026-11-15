@@ -171,9 +171,17 @@ assert_contains( 'anderen Status', ui_render( 'mlab_smtp_render_flash' ), 'wrong
 $_REQUEST = $_POST = array( 'do' => 'delivered', 'id' => (string) $unclear_a, 'back' => array( 'view' => 'queue' ) );
 assert_throws( 'mlab_smtp_handle_message_action', 'missing nonce is refused', Throwable::class );
 assert_same( 'unclear', mlab_smtp_store_get( $unclear_a )['status'], 'mail untouched without nonce' );
-$_REQUEST = $_POST = array( 'do' => 'delivered', 'id' => '1' );
-mlab_smtp_handle_message_action();
-assert_true( true, 'requests without return field are left to the standard handler' );
+// Ohne Rückkehr-Feld (alter Link) gilt derselbe Handler und es geht zurück ins Protokoll.
+$old_link = mlab_t_msg( array( 'status' => 'unclear', 'subject' => 'Alter Link' ) );
+$_REQUEST = $_POST = array( 'do' => 'delivered', 'id' => (string) $old_link, '_wpnonce' => wp_create_nonce( mlab_smtp_message_nonce_action( $old_link, 'delivered' ) ) );
+$location = '';
+try {
+	mlab_smtp_handle_message_action();
+} catch ( UQ_Redirect $e ) {
+	$location = $e->getMessage();
+}
+assert_true( str_contains( $location, 'view=log' ), 'request without return field goes back to the log' );
+assert_same( 'accepted', mlab_smtp_store_get( $old_link )['status'], 'and the action ran with the bound nonce' );
 
 // Zugriff: Abonnent und anonym.
 $sub = get_user_by( 'login', 'ui_sub' ) ? get_user_by( 'login', 'ui_sub' )->ID : wp_insert_user( array( 'user_login' => 'ui_sub', 'user_pass' => 'pw-Sub-123456!', 'role' => 'subscriber', 'user_email' => 'sub@example.test' ) );
