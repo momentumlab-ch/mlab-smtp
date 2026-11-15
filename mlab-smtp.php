@@ -27,13 +27,14 @@ define( 'MLAB_SMTP_TIMEOUT', 10 );
 // Screen id of the plugin page (own top-level menu).
 define( 'MLAB_SMTP_SCREEN', 'toplevel_page_mlab-smtp' );
 
-foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'db', 'store', 'log', 'log-migrate', 'webhooks', 'privacy', 'mailer', 'notify', 'health', 'detect', 'check', 'readiness', 'staging', 'alerts', 'support-report', 'admin/page', 'updater' ) as $mlab_smtp_module ) {
+foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'db', 'store', 'log', 'log-migrate', 'webhooks', 'privacy', 'mailer', 'engine', 'engine-send', 'engine-worker', 'notify', 'health', 'detect', 'check', 'readiness', 'staging', 'alerts', 'support-report', 'admin/page', 'updater' ) as $mlab_smtp_module ) {
 	require_once MLAB_SMTP_DIR . 'inc/' . $mlab_smtp_module . '.php';
 }
 unset( $mlab_smtp_module );
 
 register_activation_hook( __FILE__, 'mlab_smtp_db_activate' );
-register_deactivation_hook( __FILE__, 'mlab_smtp_deactivate' );
+register_activation_hook( __FILE__, 'mlab_smtp_engine_schedule' );
+register_deactivation_hook( __FILE__, 'mlab_smtp_engine_deactivate' );
 
 add_action( 'init', 'mlab_smtp_load_textdomain' );
 

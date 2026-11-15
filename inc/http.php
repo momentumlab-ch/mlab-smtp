@@ -15,6 +15,15 @@ defined( 'ABSPATH' ) || exit;
  */
 function mlab_smtp_decode_response( $response ) {
 	if ( is_wp_error( $response ) ) {
+		if ( ! $response->get_error_data() ) {
+			// Transport error (no HTTP answer): the engine classifies it by its text and by whether the request had left.
+			$response->add_data(
+				array(
+					'status'    => 0,
+					'transport' => true,
+				)
+			);
+		}
 		return $response;
 	}
 	$code = (int) wp_remote_retrieve_response_code( $response );
@@ -26,12 +35,100 @@ function mlab_smtp_decode_response( $response ) {
 			/* translators: 1: HTTP status code, 2: error message of the provider */
 			sprintf( __( 'Der Anbieter hat mit Fehler %1$d geantwortet: %2$s', 'mlab-smtp' ), $code, mlab_smtp_error_message( $data ) ),
 			array(
-				'status' => $code,
-				'name'   => (string) ( $data['name'] ?? '' ),
+				'status'      => $code,
+				'name'        => (string) ( $data['name'] ?? '' ),
+				'retry_after' => mlab_smtp_parse_retry_after( mlab_smtp_response_header( $response, 'retry-after' ) ),
 			)
 		);
 	}
 	return $data;
+}
+
+/**
+ * Value of a response header (case-insensitive), empty when missing.
+ *
+ * @param array|object $response Result of wp_remote_*().
+ * @param string       $name     Lowercase header name.
+ */
+function mlab_smtp_response_header( $response, string $name ): string {
+	$headers = is_array( $response ) ? ( $response['headers'] ?? array() ) : array();
+	if ( ! is_array( $headers ) && ! $headers instanceof Traversable ) {
+		return '';
+	}
+	foreach ( $headers as $key => $value ) {
+		if ( strtolower( (string) $key ) === $name ) {
+			return trim( (string) ( is_array( $value ) ? reset( $value ) : $value ) );
+		}
+	}
+	return '';
+}
+
+/**
+ * Seconds to wait from a Retry-After header (a number of seconds or an HTTP date). 0 when missing or invalid.
+ *
+ * @param string $value Header value.
+ * @param int    $now   Current time (tests).
+ */
+function mlab_smtp_parse_retry_after( string $value, int $now = 0 ): int {
+	$value = trim( $value );
+	if ( '' === $value ) {
+		return 0;
+	}
+	if ( ctype_digit( $value ) ) {
+		return (int) $value;
+	}
+	$time = strtotime( $value );
+	return false === $time ? 0 : max( 0, $time - ( $now > 0 ? $now : time() ) );
+}
+
+/**
+ * Context of the route attempt that is running (uuid, idempotency key, attempt row). Empty outside the engine.
+ *
+ * @param array|null $set New context (missing keys get the defaults, an empty array resets), null to only read.
+ * @return array{uuid:string, idem_key:string, attempt_id:int, request_sent:bool, provider_msg_id:string}
+ */
+function mlab_smtp_engine_context( ?array $set = null ): array {
+	static $context = null;
+	if ( null !== $set || null === $context ) {
+		$context = array_merge(
+			array(
+				'uuid'            => '',
+				'idem_key'        => '',
+				'attempt_id'      => 0,
+				'request_sent'    => false,
+				'provider_msg_id' => '',
+			),
+			(array) $set
+		);
+	}
+	return $context;
+}
+
+/**
+ * Marks that the request is about to leave: from here on a lost worker means "unclear". Call right before network I/O.
+ */
+function mlab_smtp_engine_io_start(): void {
+	$context = mlab_smtp_engine_context();
+	if ( $context['request_sent'] ) {
+		return;
+	}
+	$context['request_sent'] = true;
+	mlab_smtp_engine_context( $context );
+	if ( $context['attempt_id'] > 0 && function_exists( 'mlab_smtp_store_mark_request_sent' ) ) {
+		mlab_smtp_store_mark_request_sent( $context['attempt_id'] );
+	}
+}
+
+/**
+ * Remembers a value of the running attempt (for example the provider message id).
+ *
+ * @param string $key   Context key.
+ * @param string $value Value.
+ */
+function mlab_smtp_engine_note( string $key, string $value ): void {
+	$context         = mlab_smtp_engine_context();
+	$context[ $key ] = $value;
+	mlab_smtp_engine_context( $context );
 }
 
 /**
@@ -156,6 +253,7 @@ function mlab_smtp_api_post( string $provider, string $url, string $body, string
 		if ( is_wp_error( $token ) ) {
 			return $token;
 		}
+		mlab_smtp_engine_io_start();
 		$response = wp_remote_post(
 			$url,
 			array(

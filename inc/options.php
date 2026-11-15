@@ -31,7 +31,7 @@ function mlab_smtp_secret_keys(): array {
  * @return string[]
  */
 function mlab_smtp_checkbox_keys(): array {
-	return array( 'force_from', 'smtp_auth', 'fallback_enabled', 'fb_smtp_auth', 'notify_enabled', 'log_enabled' );
+	return array( 'force_from', 'smtp_auth', 'fallback_enabled', 'fb_smtp_auth', 'notify_enabled', 'log_enabled', 'retry_in_background', 'unclear_failover', 'queue_unclear_failover' );
 }
 
 /**
@@ -47,6 +47,9 @@ function mlab_smtp_choices(): array {
 		'fb_smtp_secure' => array( 'tls', 'ssl', 'none' ),
 		'notify_mode'    => array( 'instant', 'daily' ),
 		'log_retention'  => array( 7, 30, 90 ),
+		'delivery_mode'  => array( 'sync', 'queue' ),
+		'max_attempts'   => array( 2, 3, 4, 5, 6, 8, 10 ),
+		'payload_days'   => array( 1, 3, 7, 14 ),
 	);
 }
 
@@ -94,6 +97,12 @@ function mlab_smtp_defaults(): array {
 		'notify_mode'              => 'instant',
 		'log_enabled'              => 1,
 		'log_retention'            => 30,
+		'delivery_mode'            => 'sync',
+		'retry_in_background'      => 0,
+		'unclear_failover'         => 1,
+		'queue_unclear_failover'   => 0,
+		'max_attempts'             => 6,
+		'payload_days'             => 7,
 	);
 }
 

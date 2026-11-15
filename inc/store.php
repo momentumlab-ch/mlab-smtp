@@ -380,7 +380,7 @@ function mlab_smtp_store_status_fields( string $status, array $fields, int $now 
 	if ( in_array( $status, array( 'accepted', 'delivered', 'partial', 'blocked' ), true ) ) {
 		$set['payload']            = null;
 		$set['payload_expires_at'] = null;
-	} elseif ( 'failed' === $status ) {
+	} elseif ( in_array( $status, array( 'failed', 'unclear' ), true ) ) {
 		$days                      = min( 14, max( 1, (int) apply_filters( 'mlab_smtp_failed_payload_days', 7 ) ) );
 		$set['payload_expires_at'] = $now + $days * DAY_IN_SECONDS;
 	}

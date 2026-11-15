@@ -330,13 +330,10 @@ function mlab_smtp_run_fallback_test( string $to ): array {
 	$collect = static function ( string $line ) use ( &$lines ): void {
 		$lines[] = $line;
 	};
-	$enable  = static function ( $options ) {
-		return is_array( $options ) ? array_merge( $options, array( 'fallback_enabled' => 1 ) ) : $options;
-	};
 	add_action( 'wp_mail_failed', $capture );
 	add_action( 'mlab_smtp_debug_line', $collect );
 	add_filter( 'mlab_smtp_debug', '__return_true' );
-	add_filter( 'option_' . MLAB_SMTP_OPTION, $enable );
+	mlab_smtp_flag( 'fallback_test', true );
 	mlab_smtp_flag( 'force', true );
 	mlab_smtp_flag( 'fallback_only', true );
 
@@ -346,7 +343,7 @@ function mlab_smtp_run_fallback_test( string $to ): array {
 
 	mlab_smtp_flag( 'fallback_only', false );
 	mlab_smtp_flag( 'force', false );
-	remove_filter( 'option_' . MLAB_SMTP_OPTION, $enable );
+	mlab_smtp_flag( 'fallback_test', false );
 	remove_filter( 'mlab_smtp_debug', '__return_true' );
 	remove_action( 'mlab_smtp_debug_line', $collect );
 	remove_action( 'wp_mail_failed', $capture );

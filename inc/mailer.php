@@ -17,8 +17,10 @@ add_filter( 'wp_mail_from_name', 'mlab_smtp_filter_from_name', 99 );
  * Request-wide switches (static storage, not persisted).
  * force: intercept even though the setup is not finished (test mail in the wizard).
  * fallback_only: skip the primary route (notifications about a failing primary route).
+ * fallback_test: treat the fallback as switched on for this request (test mail before activation).
+ * quiet: the events of this mail are neither logged nor counted (a message that was only queued, a worker event).
  *
- * @param string    $name Flag name: bypass, force or fallback_only.
+ * @param string    $name Flag name: bypass, force, fallback_only, fallback_test or quiet.
  * @param bool|null $set  New value, null to only read.
  * @return bool Current value.
  */
@@ -54,7 +56,7 @@ function mlab_smtp_intercepting(): bool {
  * is not the live one, are neither recorded nor notified; they only return their result.
  */
 function mlab_smtp_tracking(): bool {
-	if ( ! mlab_smtp_intercepting() || mlab_smtp_flag( 'fallback_only' ) ) {
+	if ( ! mlab_smtp_intercepting() || mlab_smtp_flag( 'fallback_only' ) || mlab_smtp_flag( 'quiet' ) ) {
 		return false;
 	}
 	$draft = '' !== mlab_smtp_provider_override() && mlab_smtp_provider_override() !== (string) ( mlab_smtp_get_all()['provider'] ?? '' );
@@ -78,7 +80,7 @@ function mlab_smtp_fallback_filled(): bool {
  * True when the fallback is switched on and complete.
  */
 function mlab_smtp_fallback_ready(): bool {
-	return (bool) mlab_smtp_get( 'fallback_enabled' ) && mlab_smtp_fallback_filled();
+	return ( mlab_smtp_flag( 'fallback_test' ) || (bool) mlab_smtp_get( 'fallback_enabled' ) ) && mlab_smtp_fallback_filled();
 }
 
 /**
@@ -126,6 +128,7 @@ function mlab_smtp_prepare_mailer( $short_circuit ) {
 	global $phpmailer;
 
 	mlab_smtp_route_result( array() );
+	mlab_smtp_flag( 'quiet', false );
 	if ( mlab_smtp_intercepting() ) {
 		require_once ABSPATH . WPINC . '/PHPMailer/PHPMailer.php';
 		require_once ABSPATH . WPINC . '/PHPMailer/SMTP.php';
@@ -150,6 +153,7 @@ function mlab_smtp_configure_mailer( $phpmailer ): void {
 	if ( ! $phpmailer instanceof Mlab_Smtp_Mailer ) {
 		return;
 	}
+	mlab_smtp_engine_identify( $phpmailer );
 	if ( mlab_smtp_is_api_provider() ) {
 		// Anything but "mail" keeps the Bcc header in the message, which the APIs need.
 		$phpmailer->Mailer = 'sendmail';
