@@ -5,10 +5,10 @@ $GLOBALS['mlab_http_mocks']    = array();
 $GLOBALS['mlab_http_requests'] = array();
 
 /** Registriert eine Antwort für URLs, die auf das Regex-Muster passen. $body: Array (wird JSON) oder String. */
-function mlab_http_mock( string $pattern, int $code = 200, $body = array(), ?string $method = null ): void {
+function mlab_http_mock( string $pattern, int $code = 200, $body = array(), ?string $method = null, array $headers = array() ): void {
 	array_unshift(
 		$GLOBALS['mlab_http_mocks'],
-		array( $pattern, $code, is_string( $body ) ? $body : wp_json_encode( $body ), $method )
+		array( $pattern, $code, is_string( $body ) ? $body : wp_json_encode( $body ), $method, $headers )
 	);
 }
 
@@ -32,7 +32,7 @@ add_filter(
 		foreach ( $GLOBALS['mlab_http_mocks'] as $m ) {
 			if ( preg_match( $m[0], $url ) && ( null === $m[3] || strtoupper( $m[3] ) === strtoupper( $args['method'] ?? 'GET' ) ) ) {
 				return array(
-					'headers'  => array(),
+					'headers'  => $m[4] ?? array(),
 					'body'     => $m[2],
 					'response' => array(
 						'code'    => $m[1],

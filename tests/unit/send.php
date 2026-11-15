@@ -3,7 +3,7 @@
 error_reporting( E_ALL );
 define( 'MLAB_SMTP_SCREEN', 'toplevel_page_mlab-smtp' ); define( 'ABSPATH', '/x/' ); define( 'WPINC', 'inc' ); define( 'MB_IN_BYTES', 1048576 ); define( 'MINUTE_IN_SECONDS', 60 ); define( 'HOUR_IN_SECONDS', 3600 ); define( 'DAY_IN_SECONDS', 86400 );
 define( 'MLAB_SMTP_DIR', dirname( __DIR__, 2 ) . '/' ); define( 'MLAB_SMTP_VERSION', '1.3.0' ); define( 'MLAB_SMTP_TIMEOUT', 10 );
-class WP_Error { public $c; public $m; public $d = array(); function __construct( $c = '', $m = '', $d = '' ) { $this->c = $c; $this->m = $m; if ( '' !== $d ) { $this->d = $d; } } function get_error_message() { return $this->m; } function add_data( $d ) { $this->d = $d; } function get_error_data() { return $this->d; } }
+class WP_Error { public $c; public $m; public $d = array(); function __construct( $c = '', $m = '', $d = '' ) { $this->c = $c; $this->m = $m; if ( '' !== $d ) { $this->d = $d; } } function get_error_message() { return $this->m; } function get_error_code() { return $this->c; } function add_data( $d ) { $this->d = $d; } function get_error_data() { return $this->d; } }
 function is_wp_error( $x ) { return $x instanceof WP_Error; } function __( $s ) { return $s; } function _n( $a, $b, $n ) { return $a; }
 function add_action() {} function add_filter() {} function apply_filters( $t, $v ) { return $v; } function do_action() {}
 function get_option( $k, $d = false ) { return $GLOBALS['opts'][ $k ] ?? $d; } function update_option( $k, $v ) { $GLOBALS['opts'][ $k ] = $v; }
@@ -13,7 +13,7 @@ function is_email( $e ) { return (bool) filter_var( $e, FILTER_VALIDATE_EMAIL );
 function wp_remote_retrieve_response_code( $r ) { return $r['code']; } function wp_remote_retrieve_body( $r ) { return $r['body']; }
 function wp_remote_post( $url, $args ) { $GLOBALS['calls'][] = array( $url, $args ); if ( str_contains( $url, 'oauth' ) || str_contains( $url, 'token' ) ) { return array( 'code' => 200, 'body' => '{"access_token":"T","expires_in":3600}' ); } return array( 'code' => $GLOBALS['code'] ?? 202, 'body' => $GLOBALS['body'] ?? '' ); }
 function wp_remote_request( $url, $args ) { $GLOBALS['calls'][] = array( $url, $args ); return array( 'code' => $GLOBALS['rcode'] ?? 200, 'body' => $GLOBALS['rbody'] ?? '{"id":"1"}' ); }
-foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'mailer', 'check' ) as $m ) { require MLAB_SMTP_DIR . "inc/$m.php"; }
+foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'mailer', 'engine', 'engine-send', 'check' ) as $m ) { require MLAB_SMTP_DIR . "inc/$m.php"; }
 require dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 require MLAB_SMTP_DIR . 'inc/class-mlab-smtp-mailer.php';
 class_alias( \PHPMailer\PHPMailer\Exception::class, 'X' );
