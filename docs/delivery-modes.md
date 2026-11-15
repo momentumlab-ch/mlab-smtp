@@ -34,7 +34,9 @@ Abstand 60 s, doppelt je Versuch, höchstens 6 h, ±20 % Jitter; `Retry-After` h
 
 Unklar heisst nie «nicht angenommen». Eine unklare Nachricht wird nicht automatisch erneut gesendet, ausser bei Resend innerhalb von 23 Stunden nach dem ersten Versuch (gleicher Schlüssel, daher kein Duplikat). Bei M365, Google und SMTP entscheidet der Administrator: «Als zugestellt markieren» oder «Erneut senden (Doppelversand möglich)».
 
-Ersatzweg nach unklar: im Modus «Sofort senden» wie bisher aktiv (Einstellung `unclear_failover`, Standard an; der Versuch trägt den Vermerk `fallback_after_unclear`). Für Nachrichten aus der Warteschlange Standard aus (`queue_unclear_failover`).
+Ersatzweg nach unklar: im Modus «Sofort senden» wie bisher aktiv (Einstellung `unclear_failover`, Standard an; der Versuch trägt den Vermerk `fallback_after_unclear`). Für Nachrichten aus der Warteschlange Standard aus (`queue_unclear_failover`). Die Regel gilt über alle Runden: war irgendein früherer Versuch der Nachricht unklar, springt der Ersatzweg nicht ein, auch nicht, wenn der Hauptweg pausiert ist oder temporär ausfällt; die Nachricht wartet. Das 23-Stunden-Fenster wird beim Übernehmen erneut geprüft: ist es abgelaufen, bleibt die Nachricht «unklar» (Inhalt bleibt bis zur Entscheidung), es wird nichts automatisch gesendet.
+
+SMTP: Lehnt der Server alle Empfänger ab, ist das keine Teilzustellung, sondern temporär (4xx) oder dauerhaft (5xx). «Teilweise» gilt nur, wenn weniger Empfänger abgelehnt wurden als es gab. Eine Pause nach Retry-After gilt je Weg und Anbieter (Hauptkonto und Ersatzkonto bei Resend pausieren getrennt). Anbieter-Ereignisse (zugestellt, Bounce) während der Verarbeitung werden gespeichert und unmittelbar nach dem Abschluss angewendet; ein erreichter Status wird nie zurückgestuft.
 
 ## Grenzen
 
