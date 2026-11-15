@@ -413,16 +413,22 @@ function mlab_smtp_store_set_status( int $id, string $status, array $fields = ar
 	$ok = (bool) mlab_smtp_store_run(
 		static function () use ( $id, $status, $fields, $now, $keep_events ) {
 			global $wpdb;
-			$set   = mlab_smtp_store_status_fields( $status, $fields, $now );
-			$where = '';
+			$set      = mlab_smtp_store_status_fields( $status, $fields, $now );
+			$where    = '';
+			$expected = $status;
 			if ( $keep_events ) {
 				$current = (string) $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM %i WHERE id = %d', mlab_smtp_table( 'messages' ), $id ) );
 				if ( in_array( $current, array( 'delivered', 'bounced', 'complained' ), true ) && (int) mlab_smtp_store_rank( $current ) > (int) mlab_smtp_store_rank( $status ) ) {
 					unset( $set['status'], $set['completed_at'] );
-					$where = $wpdb->prepare( 'AND status = %s', $current );
+					$where    = $wpdb->prepare( 'AND status = %s', $current );
+					$expected = $current;
 				}
 			}
-			return mlab_smtp_store_cas( $id, $set, $where, $now );
+			if ( mlab_smtp_store_cas( $id, $set, $where, $now ) ) {
+				return true;
+			}
+			// MySQL reports 0 affected rows when nothing changed (same values within one second): that is no failure.
+			return $expected === (string) $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM %i WHERE id = %d', mlab_smtp_table( 'messages' ), $id ) );
 		}
 	);
 	if ( $ok ) {
@@ -637,18 +643,32 @@ function mlab_smtp_store_sweep_one( int $id, int $now ): string {
 	if ( ! $message ) {
 		return '';
 	}
-	// Only attempts of the current claim count (unfinished, started since the claim): earlier rounds are settled already.
-	$claim  = (int) $message['updated_at'];
-	$sent   = (int) mlab_smtp_store_run(
+	// Only attempts of the current claim count (started since the claim, finished or not): earlier rounds are settled already.
+	// A finished attempt with a definite refusal (temporary, permanent) means nothing was delivered.
+	$claim    = (int) $message['updated_at'];
+	$attempts = (array) mlab_smtp_store_run(
 		static function () use ( $id, $claim ) {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE message_id = %d AND request_sent_at IS NOT NULL AND finished_at IS NULL AND started_at >= %d', mlab_smtp_table( 'attempts' ), $id, $claim ) );
+			return $wpdb->get_results( $wpdb->prepare( "SELECT route, provider, outcome, provider_msg_id FROM %i WHERE message_id = %d AND request_sent_at IS NOT NULL AND started_at >= %d AND outcome NOT IN ('temporary','permanent') ORDER BY id ASC", mlab_smtp_table( 'attempts' ), $id, $claim ), ARRAY_A );
 		},
-		0
+		array()
 	);
-	$queued = 0 === $sent && 'queued' === $message['mode'] && ! empty( $message['has_payload'] );
-	$text   = '';
-	if ( $queued && mlab_smtp_store_swept_count( $id ) >= max( 1, (int) $message['max_attempts'] ) ) {
+	$sent     = count( $attempts );
+	$accepted = array_values( array_filter( $attempts, static fn( $a ): bool => 'accepted' === $a['outcome'] ) );
+	$queued   = 0 === $sent && 'queued' === $message['mode'] && ! empty( $message['has_payload'] );
+	$text     = '';
+	if ( $accepted ) {
+		$hit = end( $accepted );
+		$set = mlab_smtp_store_status_fields(
+			'accepted',
+			array(
+				'provider_msg_id' => (string) $hit['provider_msg_id'],
+				'via'             => (string) $hit['provider'],
+				'fallback'        => 'fallback' === $hit['route'] ? 1 : 0,
+			),
+			$now
+		);
+	} elseif ( $queued && mlab_smtp_store_swept_count( $id ) >= max( 1, (int) $message['max_attempts'] ) ) {
 		$queued = false; // The worker died again and again before any request: stop, a person decides.
 		$text   = __( 'Der Worker wurde wiederholt vor dem Senden unterbrochen, die Nachricht wird nicht weiter versucht.', 'mlab-smtp' );
 		$set    = mlab_smtp_store_status_fields(
@@ -679,7 +699,10 @@ function mlab_smtp_store_sweep_one( int $id, int $now ): string {
 	if ( $won && $queued ) {
 		mlab_smtp_store_note_sweep( $id, $now );
 	}
-	return $won ? ( $queued ? 'requeued' : ( 'failed' === $set['status'] ? 'failed' : 'unclear' ) ) : '';
+	if ( $won && ! $queued ) {
+		mlab_smtp_store_apply_pending_events( $id ); // An event that arrived while the worker owned the row.
+	}
+	return $won ? ( $queued ? 'requeued' : (string) $set['status'] ) : '';
 }
 
 /**
@@ -775,7 +798,7 @@ function mlab_smtp_store_find( string $value, string $field = 'uuid' ): ?array {
 	$row = mlab_smtp_store_run(
 		static function () use ( $value, $field ) {
 			global $wpdb;
-			return $wpdb->get_row( $wpdb->prepare( 'SELECT ' . MLAB_SMTP_STORE_COLUMNS .  ' FROM %i WHERE %i = %s ORDER BY id DESC LIMIT 1', mlab_smtp_table( 'messages' ), $field, $value ), ARRAY_A );
+			return $wpdb->get_row( $wpdb->prepare( 'SELECT ' . MLAB_SMTP_STORE_COLUMNS . ' FROM %i WHERE %i = %s ORDER BY id DESC LIMIT 1', mlab_smtp_table( 'messages' ), $field, $value ), ARRAY_A );
 		},
 		null
 	);

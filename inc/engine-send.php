@@ -628,8 +628,9 @@ function mlab_smtp_engine_retry_in_background( $mailer, array $msg, array $o ): 
 		'last_error'      => mlab_smtp_store_text( $o['message'], 2000 ),
 	);
 	if ( $msg['id'] > 0 && true === mlab_smtp_store_set_payload( $msg['id'], $snapshot, 0, array( 'processing' ) ) ) {
-		mlab_smtp_store_cas( $msg['id'], $fields );
-		$id = $msg['id'];
+		global $wpdb;
+		// Only while the row is still ours (processing): a swept or changed row stays as it is.
+		$id = mlab_smtp_store_cas( $msg['id'], $fields, $wpdb->prepare( 'AND status = %s', 'processing' ) ) ? $msg['id'] : 0;
 	} else {
 		$id = $msg['id'] > 0 ? 0 : mlab_smtp_engine_store_queued( $mailer, $msg, $snapshot, 'temp_failed', $next );
 	}

@@ -143,7 +143,7 @@ function mlab_smtp_log_add( array $mail_data, ?string $error ): void {
 	);
 	$active = mlab_smtp_log_active_message();
 	if ( $active > 0 ) {
-		mlab_smtp_store_set_status( $active, null === $error ? 'accepted' : 'failed', $fields );
+		mlab_smtp_store_set_status( $active, null === $error ? 'accepted' : 'failed', $fields, 0, true );
 		return;
 	}
 	mlab_smtp_store_create(

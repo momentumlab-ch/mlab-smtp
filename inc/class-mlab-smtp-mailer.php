@@ -130,11 +130,14 @@ class Mlab_Smtp_Mailer extends \PHPMailer\PHPMailer\PHPMailer {
 			return false;
 		}
 		$tail   = strtolower( substr( $message, strlen( $prefix ) ) );
-		$total  = array_keys( $this->getAllRecipientAddresses() );
+		$total  = array_map( 'strtolower', array_map( 'strval', array_keys( $this->getAllRecipientAddresses() ) ) );
 		$failed = 0;
+		// Longest address first and removed once found, so «ob@x.com» does not match inside «bob@x.com».
+		usort( $total, static fn( $a, $b ): int => strlen( $b ) <=> strlen( $a ) );
 		foreach ( $total as $address ) {
-			if ( str_contains( $tail, strtolower( (string) $address ) ) ) {
+			if ( str_contains( $tail, $address ) ) {
 				++$failed;
+				$tail = str_replace( $address, ' ', $tail );
 			}
 		}
 		return ! ( $failed > 0 && $failed >= count( $total ) );

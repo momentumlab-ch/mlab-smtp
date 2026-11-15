@@ -58,3 +58,11 @@ assert_same( 'failed', $r['status'], 'worker: failed' );
 list( $out, $r ) = $settle( $one );
 assert_same( 'partial', $out, 'worker: one of two refused is partial' );
 assert_same( 0, (int) $r['has_payload'], 'worker: partial clears the payload (some recipients got it)' );
+
+// Minor 7: exakter Adressvergleich (ob@ ist kein Teil von bob@).
+$sub = eng_smtp_info( array( 'bob@example.test', 'ob@example.test' ), array( 'ob@example.test' ), 550 );
+assert_same( true, $sub['partial'], 'suffix address: only ob@ refused is partial' );
+$sub = eng_smtp_info( array( 'bob@example.test', 'ob@example.test' ), array( 'bob@example.test' ), 550 );
+assert_same( true, $sub['partial'], 'suffix address: only bob@ refused is partial (ob@ is a substring)' );
+$sub = eng_smtp_info( array( 'bob@example.test', 'ob@example.test' ), array( 'bob@example.test', 'ob@example.test' ), 550 );
+assert_same( false, $sub['partial'], 'suffix address: both refused is not partial' );
