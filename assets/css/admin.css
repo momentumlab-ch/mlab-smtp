@@ -1976,3 +1976,22 @@
 .mlab-smtp .mlab-index {
 	margin: var(--mlab-s-2) 0 var(--mlab-s-3);
 }
+
+/* Branded header and setup feedback stay within the active card. */
+.mlab-smtp .mlab-brand {
+	display: block;
+	height: auto;
+	margin-bottom: var(--mlab-s-2);
+	max-width: 100%;
+}
+
+.mlab-smtp .mlab-step-feedback {
+	margin-bottom: var(--mlab-s-3);
+	scroll-margin-top: 48px;
+}
+
+.mlab-smtp .mlab-step-feedback:focus {
+	border-radius: var(--mlab-radius);
+	outline: 2px solid var(--mlab-accent);
+	outline-offset: 4px;
+}

@@ -3380,3 +3380,34 @@ msgstr ""
 #: inc/updater.php:54
 msgid "Updates sind nicht aktiv: In wp-config.php fehlt die Konstante MLAB_SMTP_GITHUB_TOKEN."
 msgstr ""
+
+msgid "Der Ersatzweg ist deaktiviert. Seine Konfiguration bleibt gespeichert."
+msgstr ""
+
+msgid "Der Ersatzweg ist in wp-config.php festgelegt. Ändern Sie zuerst die entsprechenden Konstanten."
+msgstr ""
+
+msgid "Der Ersatzweg konnte nicht vollständig geändert werden. Bitte versuchen Sie es erneut."
+msgstr ""
+
+msgid "Der Ersatzweg wurde entfernt. Hauptversand und Protokolle bleiben erhalten."
+msgstr ""
+
+msgid "Entfernt Server, Zugangsdaten und Prüfstatus des Ersatzwegs. Hauptversand und Protokolle bleiben erhalten."
+msgstr ""
+
+msgid "Ersatzweg deaktivieren"
+msgstr ""
+
+msgid "Ersatzweg endgültig entfernen"
+msgstr ""
+
+msgid "Ersatzweg entfernen"
+msgstr ""
+
+msgid "Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain."
+msgstr ""
+
+#, php-format
+msgid "Üblicher Port: %s. Individuell vorgegebene Ports bleiben beim Wechsel erhalten."
+msgstr ""

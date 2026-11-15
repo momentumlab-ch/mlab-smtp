@@ -86,11 +86,11 @@ function mlab_smtp_render_fallback_flow(): void {
 		7 => 'mlab_smtp_render_fb_summary',
 	);
 	echo '<hr class="wp-header-end">';
-	mlab_smtp_render_flash();
 	echo '<div class="mlab-wizard mlab-fbflow"><div class="mlab-card mlab-wiz"><div class="mlab-wiz-top"><span class="mlab-caption">' . esc_html__( 'Ersatzweg', 'mlab-smtp' ) . '</span>';
 	echo '<a class="mlab-close" href="' . esc_url( mlab_smtp_page_url( array( 'view' => 'settings' ) ) ) . '" aria-label="' . esc_attr__( 'Schliessen', 'mlab-smtp' ) . '">' . mlab_smtp_ui_svg( 'close' ) . '</a></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	echo '<h1>' . esc_html__( 'Ersatzweg einrichten', 'mlab-smtp' ) . '</h1>';
 	mlab_smtp_render_fb_stepper( $step );
+	mlab_smtp_render_flash( true );
 	if ( $step > 3 && ! mlab_smtp_fallback_filled() ) {
 		mlab_smtp_ui_hint( 'warn', __( 'Zuerst die Zugangsdaten eintragen', 'mlab-smtp' ), __( 'Der Ersatzweg ist noch nicht eingetragen. Bitte zuerst Schritt 3 abschliessen.', 'mlab-smtp' ) );
 		echo '<div class="mlab-foot"><a class="button button-primary" href="' . esc_url( mlab_smtp_fallback_url( 3 ) ) . '">' . esc_html__( 'Zu Schritt 3', 'mlab-smtp' ) . '</a></div>';

@@ -38,11 +38,11 @@ function mlab_smtp_render_wizard(): void {
 		4 => 'mlab_smtp_render_step_test',
 	);
 	echo '<hr class="wp-header-end">';
-	mlab_smtp_render_flash();
 	echo '<div class="mlab-wizard"><div class="mlab-card mlab-wiz"><div class="mlab-wiz-top"><span class="mlab-caption">' . esc_html__( 'Einrichtung', 'mlab-smtp' ) . '</span>';
 	echo '<a class="mlab-close" href="' . esc_url( mlab_smtp_page_url() ) . '" aria-label="' . esc_attr__( 'Abbrechen', 'mlab-smtp' ) . '">' . mlab_smtp_ui_svg( 'close' ) . '</a></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	echo '<h1>' . esc_html__( 'E-Mail-Versand einrichten', 'mlab-smtp' ) . '</h1>';
 	mlab_smtp_render_stepper( $step );
+	mlab_smtp_render_flash( true );
 	call_user_func( $steps[ $step ], $provider );
 	echo '</div></div>';
 }
@@ -296,7 +296,7 @@ function mlab_smtp_render_connect_smtp(): void {
 	echo '<h2>' . esc_html__( 'Mit Ihrem Mailserver verbinden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Wählen Sie unten Ihren Hoster, dann tragen wir Server und Port ein. Benutzername und Passwort finden Sie im Kundencenter Ihres Hosters, meist unter «E-Mail-Programm einrichten».', 'mlab-smtp' ) . '</p>';
 	echo '<div class="mlab-fields is-open">';
 	mlab_smtp_render_preset_select();
-	mlab_smtp_ui_field( 'smtp_host', __( 'Server', 'mlab-smtp' ), array( 'placeholder' => 'mail.ihre-domain.ch' ) );
+	mlab_smtp_ui_field( 'smtp_host', __( 'Server', 'mlab-smtp' ), array( 'placeholder' => 'mail.ihre-domain.ch', 'help' => __( 'Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain.', 'mlab-smtp' ) ) );
 	mlab_smtp_ui_segmented( 'smtp_secure', __( 'Verbindung', 'mlab-smtp' ), mlab_smtp_secure_options() );
 	mlab_smtp_render_insecure_note( 'smtp_secure' );
 	mlab_smtp_ui_field(
@@ -310,6 +310,7 @@ function mlab_smtp_render_connect_smtp(): void {
 			),
 		)
 	);
+	mlab_smtp_render_smtp_port_hint( 'smtp_secure' );
 	mlab_smtp_ui_switch( 'smtp_auth', __( 'Der Server verlangt Benutzername und Passwort', 'mlab-smtp' ) );
 	mlab_smtp_ui_field( 'smtp_user', __( 'Benutzername', 'mlab-smtp' ), array( 'help' => __( 'Meist die vollständige Mailadresse.', 'mlab-smtp' ) ) );
 	mlab_smtp_ui_field( 'smtp_pass', __( 'Passwort', 'mlab-smtp' ), array( 'type' => 'password' ) );

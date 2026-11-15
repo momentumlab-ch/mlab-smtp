@@ -75,6 +75,11 @@ function mlab_smtp_plugin_details( $info ) {
 	$image = '<p><img src="' . esc_url( plugins_url( 'assets/screenshots/screenshot-1.png', MLAB_SMTP_FILE ) ) . '" alt="MomentumLab SMTP English dashboard with main route, backup readiness and queue status" style="max-width:100%;height:auto;" /></p>'
 		. '<p>English interface with demonstration data. Review sending health, main and backup routes, waiting emails and issues that need attention.</p>';
 
+	$info->banners = array(
+		'low'  => plugins_url( 'assets/banner-772x250.png', MLAB_SMTP_FILE ),
+		'high' => plugins_url( 'assets/banner-1544x500.png', MLAB_SMTP_FILE ),
+	);
+
 	$info->sections = (array) ( $info->sections ?? array() );
 
 	$info->sections['screenshots'] = $image;

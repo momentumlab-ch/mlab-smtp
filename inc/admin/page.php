@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-foreach ( array( 'components', 'handlers', 'rest', 'overview', 'wizard', 'resend-view', 'queue-view', 'log-view', 'settings-view', 'fallback-flow', 'foreign-notices' ) as $mlab_smtp_admin_file ) {
+foreach ( array( 'components', 'handlers', 'rest', 'overview', 'wizard', 'resend-view', 'queue-view', 'log-view', 'settings-view', 'fallback-flow', 'fallback-actions', 'foreign-notices' ) as $mlab_smtp_admin_file ) {
 	require_once MLAB_SMTP_DIR . 'inc/admin/' . $mlab_smtp_admin_file . '.php';
 }
 unset( $mlab_smtp_admin_file );
@@ -79,7 +79,7 @@ function mlab_smtp_query( string $key, string $fallback = '' ): string {
 }
 
 /**
- * Adds the plugin as its own top-level menu entry with a paper plane icon.
+ * Adds the plugin as its own top-level menu entry with the branded mail icon.
  */
 function mlab_smtp_add_menu(): void {
 	add_menu_page(
@@ -88,7 +88,7 @@ function mlab_smtp_add_menu(): void {
 		mlab_smtp_capability(),
 		'mlab-smtp',
 		'mlab_smtp_render_page',
-		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAyMCI+PHBhdGggZmlsbD0iI2E3YWFhZCIgZD0iTTE4LjYgMS40YTEgMSAwIDAgMC0xLS4yTDEuNSA3LjRhMSAxIDAgMCAwLS4xIDEuOGw1LjQgMi41IDIuNSA1LjRhMSAxIDAgMCAwIDEuOC0uMWw2LjItMTYuMWExIDEgMCAwIDAtLjctMS41ek04LjIgMTEuMyA1IDkuOCAxNS4yIDUuOWwtNyA1LjR6Ii8+PC9zdmc+',
+		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYTdhYWFkIiBzdHJva2Utd2lkdGg9IjEuNCIgZD0iTTIuNiA4LjJhMTAgMTAgMCAwIDEgMTguOCAwTTIuNiAxNS44YTEwIDEwIDAgMCAwIDE4LjggME01LjIgOC4yaDEzLjZ2Ny42SDUuMnpNNS4yIDguMiAxMiAxMy4ybDYuOC01Ii8+PC9zdmc+',
 		76
 	);
 }
@@ -166,14 +166,32 @@ function mlab_smtp_script_config(): array {
 
 /**
  * Prints the message left by the last action and clears it.
+ *
+ * @param bool $inline Keep the message in the current setup card instead of a movable WordPress notice.
  */
-function mlab_smtp_render_flash(): void {
+function mlab_smtp_render_flash( bool $inline = false ): void {
 	$key   = 'mlab_smtp_flash_' . get_current_user_id();
 	$flash = get_transient( $key );
 	if ( ! is_array( $flash ) ) {
 		return;
 	}
 	delete_transient( $key );
+	if ( $inline ) {
+		$level = array( 'success' => 'ok', 'warning' => 'warn' )[ $flash['type'] ] ?? 'bad';
+		echo '<div id="mlab-step-feedback" class="mlab-step-feedback" data-mlab-step-feedback tabindex="-1" role="' . ( 'bad' === $level ? 'alert' : 'status' ) . '">';
+		mlab_smtp_ui_hint(
+			$level,
+			(string) $flash['message'],
+			'',
+			static function () use ( $flash ): void {
+				if ( ! empty( $flash['detail'] ) ) {
+					mlab_smtp_ui_technical( (string) $flash['detail'] );
+				}
+			}
+		);
+		echo '</div>';
+		return;
+	}
 	$classes = array(
 		'success' => 'notice-success',
 		'warning' => 'notice-warning',
@@ -230,12 +248,14 @@ function mlab_smtp_tab_count( string $slug, array $status ): int {
  */
 function mlab_smtp_render_header( string $view ): void {
 	$status = mlab_smtp_status();
-	echo '<div class="mlab-head"><div><h1>' . esc_html__( 'E-Mail-Versand', 'mlab-smtp' ) . '</h1><p class="mlab-lead">' . esc_html__( 'Sorgt dafür, dass Mails dieser Website zuverlässig ankommen und nicht im Spam landen.', 'mlab-smtp' ) . '</p></div>';
+	echo '<div class="mlab-head"><div><img class="mlab-brand" src="' . esc_url( MLAB_SMTP_URL . 'assets/brand/logo.svg' ) . '" alt="MomentumLab SMTP" width="260" height="65"><h1>' . esc_html__( 'E-Mail-Versand', 'mlab-smtp' ) . '</h1><p class="mlab-lead">' . esc_html__( 'Sorgt dafür, dass Mails dieser Website zuverlässig ankommen und nicht im Spam landen.', 'mlab-smtp' ) . '</p></div>';
 	if ( 'overview' === $view ) {
 		mlab_smtp_render_head_action();
 	}
 	echo '</div><hr class="wp-header-end">';
-	mlab_smtp_render_flash();
+	if ( 'fallback' !== mlab_smtp_query( 'feedback' ) ) {
+		mlab_smtp_render_flash();
+	}
 	echo '<nav class="nav-tab-wrapper mlab-tabs" aria-label="' . esc_attr__( 'Bereiche', 'mlab-smtp' ) . '">';
 	foreach ( mlab_smtp_admin_tabs() as $slug => $label ) {
 		$count = mlab_smtp_tab_count( $slug, $status );

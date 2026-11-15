@@ -34,6 +34,7 @@ skip() { echo "==> $1"; echo "    NICHT AUSGEFÜHRT: $2"; record "$1" SKIPPED "$
 
 run "Lint (php -l)" 1 - bash bin/lint.sh
 if [ -x vendor/bin/phpcs ]; then run "PHPCS (WordPress Coding Standards)" 1 - bash bin/phpcs.sh; else skip "PHPCS (WordPress Coding Standards)" "vendor/bin/phpcs fehlt ('composer install')"; fi
+run "JavaScript-Verhalten" 1 - node tests/js/smtp-ports.cjs
 run "Versionsprüfung" 1 - bash bin/check-version.sh ${EXPECTED:+"$EXPECTED"}
 if [ -f tests/env/wordpress/wp-config.php ]; then
 	run "Unit- und Integrationstests" 1 - php tests/run.php

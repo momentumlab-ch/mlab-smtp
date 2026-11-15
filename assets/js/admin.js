@@ -313,13 +313,42 @@
 		} );
 	}
 
-	// Choosing an encryption suggests its usual port.
+	// Both SMTP routes use the same encryption/port behaviour. Custom and locked ports are preserved.
 	var ports = { tls: '587', ssl: '465', none: '25' };
-	document.querySelectorAll( 'input[name="smtp_secure"]' ).forEach( function ( radio ) {
-		radio.addEventListener( 'change', function () {
-			setField( 'smtp_port', ports[ radio.value ] || '587' );
+	[ 'smtp_secure', 'fb_smtp_secure' ].forEach( function ( name ) {
+		var port = root.querySelector( '[name="' + name.replace( 'secure', 'port' ) + '"]' );
+		var hint = root.querySelector( '[data-mlab-port-hint="' + name + '"]' );
+		root.querySelectorAll( '[name="' + name + '"]' ).forEach( function ( choice ) {
+			choice.addEventListener( 'input', function () {
+				if ( hint && ports[ choice.value ] && ( choice.type !== 'radio' || choice.checked ) ) {
+					hint.textContent = hint.dataset.template.replace( '%s', ports[ choice.value ] );
+				}
+			} );
+			choice.addEventListener( 'change', function () {
+				if ( choice.disabled || ( choice.type === 'radio' && ! choice.checked ) ) {
+					return;
+				}
+				var usual = ports[ choice.value ];
+				if ( ! usual ) {
+					return;
+				}
+				if ( port && ! port.disabled && ! port.readOnly && [ '', '25', '465', '587' ].indexOf( port.value ) !== -1 ) {
+					port.value = usual;
+					port.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+				}
+				if ( hint ) {
+					hint.textContent = hint.dataset.template.replace( '%s', usual );
+				}
+			} );
 		} );
 	} );
+
+	// Setup feedback belongs to the active card and receives keyboard focus after a POST redirect.
+	var feedback = root.querySelector( '[data-mlab-step-feedback]' );
+	if ( feedback ) {
+		feedback.focus( { preventScroll: true } );
+		feedback.scrollIntoView( { block: 'nearest' } );
+	}
 
 	// Live sender preview in wizard step 3.
 	document.querySelectorAll( '[data-mlab-preview]' ).forEach( function ( output ) {

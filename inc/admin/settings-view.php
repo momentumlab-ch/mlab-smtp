@@ -76,7 +76,11 @@ function mlab_smtp_render_set_connection(): void {
  */
 function mlab_smtp_render_set_fallback(): void {
 	mlab_smtp_ui_row_open( __( 'Ersatzweg', 'mlab-smtp' ), __( 'Springt ein, wenn die Hauptverbindung ausfällt oder eine Mail ablehnt.', 'mlab-smtp' ) );
+	if ( 'fallback' === mlab_smtp_query( 'feedback' ) ) {
+		mlab_smtp_render_flash( true );
+	}
 	mlab_smtp_render_fallback_status();
+	mlab_smtp_render_fallback_actions();
 	echo '<div data-mlab-fields data-group="fallback">';
 	mlab_smtp_ui_switch( 'fallback_enabled', __( 'Ersatzweg verwenden', 'mlab-smtp' ), 'mlab-fallback' );
 	echo '<div class="mlab-fields mlab-fb" id="mlab-fallback">';
@@ -124,7 +128,7 @@ function mlab_smtp_fallback_options(): array {
  * Fields of the own mail server as fallback.
  */
 function mlab_smtp_render_fallback_smtp(): void {
-	mlab_smtp_ui_field( 'fb_smtp_host', __( 'Server', 'mlab-smtp' ), array( 'placeholder' => 'mail.ihre-domain.ch' ) );
+	mlab_smtp_ui_field( 'fb_smtp_host', __( 'Server', 'mlab-smtp' ), array( 'placeholder' => 'mail.ihre-domain.ch', 'help' => __( 'Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain.', 'mlab-smtp' ) ) );
 	mlab_smtp_ui_field(
 		'fb_smtp_port',
 		__( 'Port', 'mlab-smtp' ),
@@ -141,6 +145,7 @@ function mlab_smtp_render_fallback_smtp(): void {
 		__( 'Verschlüsselung', 'mlab-smtp' ),
 		array( 'options' => mlab_smtp_secure_options() )
 	);
+	mlab_smtp_render_smtp_port_hint( 'fb_smtp_secure' );
 	mlab_smtp_render_insecure_note( 'fb_smtp_secure' );
 	mlab_smtp_ui_switch( 'fb_smtp_auth', __( 'Der Server verlangt Benutzername und Passwort', 'mlab-smtp' ) );
 	mlab_smtp_ui_field( 'fb_smtp_user', __( 'Benutzername', 'mlab-smtp' ) );
@@ -160,6 +165,19 @@ function mlab_smtp_render_fallback_resend(): void {
 			'help'        => __( 'Beginnt mit «re_». Die Domain Ihrer Absender-Adresse muss bei Resend verifiziert sein, und der Ersatzweg sendet immer mit dieser Adresse.', 'mlab-smtp' ),
 		)
 	);
+}
+
+/**
+ * Shows the standard port for the selected encryption, also when JavaScript is unavailable.
+ *
+ * @param string $field Encryption field of the main or backup route.
+ */
+function mlab_smtp_render_smtp_port_hint( string $field ): void {
+	$ports = array( 'tls' => '587', 'ssl' => '465', 'none' => '25' );
+	/* translators: %s: usual SMTP port */
+	$template = __( 'Üblicher Port: %s. Individuell vorgegebene Ports bleiben beim Wechsel erhalten.', 'mlab-smtp' );
+	$port     = $ports[ (string) mlab_smtp_get( $field ) ] ?? '587';
+	echo '<p class="mlab-muted mlab-small" id="mlab-port-hint-' . esc_attr( $field ) . '" data-mlab-port-hint="' . esc_attr( $field ) . '" data-template="' . esc_attr( $template ) . '" aria-live="polite">' . esc_html( sprintf( $template, $port ) ) . '</p>';
 }
 
 /**

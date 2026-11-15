@@ -3379,3 +3379,34 @@ msgstr "Ultime 20 voci del registro"
 #: inc/updater.php:54
 msgid "Updates sind nicht aktiv: In wp-config.php fehlt die Konstante MLAB_SMTP_GITHUB_TOKEN."
 msgstr "Gli aggiornamenti non sono attivi: in wp-config.php manca la costante MLAB_SMTP_GITHUB_TOKEN."
+
+msgid "Der Ersatzweg ist deaktiviert. Seine Konfiguration bleibt gespeichert."
+msgstr "Il percorso di riserva è disattivato. La configurazione rimane salvata."
+
+msgid "Der Ersatzweg ist in wp-config.php festgelegt. Ändern Sie zuerst die entsprechenden Konstanten."
+msgstr "Il percorso di riserva è definito in wp-config.php. Modifica prima le costanti corrispondenti."
+
+msgid "Der Ersatzweg konnte nicht vollständig geändert werden. Bitte versuchen Sie es erneut."
+msgstr "Non è stato possibile aggiornare completamente il percorso di riserva. Riprova."
+
+msgid "Der Ersatzweg wurde entfernt. Hauptversand und Protokolle bleiben erhalten."
+msgstr "Il percorso di riserva è stato rimosso. L’invio principale e i registri vengono conservati."
+
+msgid "Entfernt Server, Zugangsdaten und Prüfstatus des Ersatzwegs. Hauptversand und Protokolle bleiben erhalten."
+msgstr "Rimuove server, credenziali e stato di verifica del percorso di riserva. L’invio principale e i registri vengono conservati."
+
+msgid "Ersatzweg deaktivieren"
+msgstr "Disattiva percorso di riserva"
+
+msgid "Ersatzweg endgültig entfernen"
+msgstr "Rimuovi definitivamente il percorso di riserva"
+
+msgid "Ersatzweg entfernen"
+msgstr "Rimuovi percorso di riserva"
+
+msgid "Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain."
+msgstr "Inserisci qui il server SMTP del tuo provider di posta, che non coincide necessariamente con il dominio del mittente o di invio."
+
+#, php-format
+msgid "Üblicher Port: %s. Individuell vorgegebene Ports bleiben beim Wechsel erhalten."
+msgstr "Porta abituale: %s. Le porte personalizzate vengono mantenute quando si cambia."

@@ -87,6 +87,14 @@ No. Accepted means the configured provider accepted the message for processing. 
 
 No. WordPress email is sent synchronously by default. Background queueing and background retries are explicitly enabled options. In queue mode, a successful `wp_mail()` result means the message was queued, not delivered.
 
+= Can I disable or remove the backup route? =
+
+Yes. Open Settings > Backup route. Disabling switches the backup off while retaining its credentials and test status. Removing it requires the explicit confirmation button and clears its stored server, credentials and readiness. The primary route and delivery history are retained. Settings defined in `wp-config.php` must be changed there.
+
+= Is my sending subdomain also my SMTP server? =
+
+Not automatically. Enter the SMTP hostname supplied by your mail provider. A custom hostname such as `send.example.com` works only if it resolves to the actual SMTP server and the server's TLS certificate covers that hostname. This field does not change your From address. Sender-domain authentication (SPF, DKIM and DMARC) is configured separately with your provider.
+
 = What happens when the queue is not running? =
 
 Background processing uses WP-Cron. Low traffic, blocked loopback requests or `DISABLE_WP_CRON` can delay it. Configure a real server cron job when necessary, for example once per minute:
@@ -154,6 +162,10 @@ In the current GitHub distribution, WordPress contacts GitHub to check the plugi
 == Changelog ==
 
 = 1.5.2 =
+* Improved: Setup errors stay inside the current card and receive focus after a redirect.
+* Improved: Encryption changes adjust standard SMTP ports for both routes while preserving custom and locked ports.
+* Added: Explicit disable and confirmed removal actions for the backup route.
+* Added: Corporate mail logo with Montserrat wordmark, plugin icons and detail banners.
 * Fixed: Duplicate manual update links in the plugin list.
 * Improved: Resend console links now appear below their matching setup instruction.
 * Fixed: Untested backup routes can no longer skip the test step; the summary links directly to the required test and back to settings.
