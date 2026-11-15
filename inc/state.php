@@ -80,6 +80,7 @@ function mlab_smtp_credentials_error(): string {
  * @param bool   $fallback True when the fallback route delivered.
  */
 function mlab_smtp_record( bool $ok, string $error, bool $fallback ): void {
+	$error = mlab_smtp_redact( $error );
 	$state = mlab_smtp_state_get();
 	$now   = time();
 	if ( $ok ) {
@@ -140,7 +141,7 @@ function mlab_smtp_status(): array {
 	$state  = mlab_smtp_state_get();
 	$result = array(
 		'state'    => 'ok',
-		'title'    => __( 'Mails werden zugestellt', 'mlab-smtp' ),
+		'title'    => __( 'Der Versand funktioniert', 'mlab-smtp' ),
 		'text'     => $state['last_success'] ? '' : __( 'Es wurde noch keine Mail über das Plugin versendet. Senden Sie eine Testmail, um den Versand zu prüfen.', 'mlab-smtp' ),
 		'since'    => (int) $state['failing_since'],
 		'failures' => (int) $state['failures_since'],
@@ -160,7 +161,7 @@ function mlab_smtp_status(): array {
 			$result,
 			array(
 				'state' => 'bad',
-				'title' => __( 'Mails werden nicht zugestellt', 'mlab-smtp' ),
+				'title' => __( 'Der Versand ist gestört', 'mlab-smtp' ),
 				'text'  => mlab_smtp_credentials_error(),
 			)
 		);
@@ -184,7 +185,7 @@ function mlab_smtp_status(): array {
 		$result,
 		array(
 			'state' => 'bad',
-			'title' => __( 'Mails werden nicht zugestellt', 'mlab-smtp' ),
+			'title' => __( 'Der Versand ist gestört', 'mlab-smtp' ),
 			'text'  => $text,
 		)
 	);

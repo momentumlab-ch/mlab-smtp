@@ -139,7 +139,7 @@ function mlab_smtp_google_connect(): void {
  * The one-time state token takes the place of a nonce: it is bound to the user and can be used once.
  */
 function mlab_smtp_google_callback(): void {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( mlab_smtp_capability() ) ) {
 		wp_die( esc_html__( 'Dafür fehlt die Berechtigung.', 'mlab-smtp' ), '', array( 'response' => 403 ) );
 	}
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- The state parameter is a one-time token, verified below.
@@ -163,7 +163,9 @@ function mlab_smtp_google_callback(): void {
 	if ( '' !== $result['account'] ) {
 		$changes['from_email'] = $result['account'];
 	}
-	mlab_smtp_store( $changes );
+	if ( ! mlab_smtp_store( $changes ) ) {
+		mlab_smtp_google_return( 'error', mlab_smtp_crypto_error()->get_error_message() );
+	}
 	mlab_smtp_google_return( 'success', __( 'Mit Google verbunden.', 'mlab-smtp' ) );
 }
 

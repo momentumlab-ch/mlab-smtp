@@ -1,10 +1,10 @@
 === MomentumLab SMTP ===
 Contributors: momentumlab
-Tags: smtp, email, microsoft 365, gmail, resend, mail
+Tags: smtp, email, microsoft 365, gmail, resend
 Requires at least: 6.4
-Tested up to: 6.8
+Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,9 +19,11 @@ MomentumLab SMTP ersetzt den unzuverlässigen Standardversand von WordPress. Du 
 * **Google:** Versand über die Gmail-API. Das Konto wird einmalig im Backend verbunden.
 * **Resend:** Versand über die Resend-API mit einem API-Key. Der Assistent prüft die Absender-Domain und zeigt fehlende DNS-Einträge.
 
-Ein Assistent führt in 4 Schritten durch die Einrichtung. Dazu kommen Übersicht mit Gesundheitsprüfung, Ersatzweg über einen zweiten Mailserver, Benachrichtigung bei Fehlern, Testmail und Protokoll (ohne Inhalt).
+Ein Assistent führt in 4 Schritten durch die Einrichtung. Dazu kommen Übersicht mit Gesundheitsprüfung, ein Ersatzweg (zweiter Mailserver oder Resend), Benachrichtigung bei Fehlern, Testmail und ein Protokoll ohne Nachrichteninhalt. Das Protokoll liegt in eigenen Datenbanktabellen, Zustellereignisse von Resend kommen über einen signierten Webhook dazu. Optional werden Mails in einer Warteschlange im Hintergrund versendet und bei vorübergehenden Fehlern wiederholt. Der Staging-Schutz verhindert, dass eine kopierte Website echte Empfänger anschreibt.
 
-Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ lassen sich alle Werte mit Konstanten in der `wp-config.php` setzen, z. B. `MLAB_SMTP_SMTP_PASS` oder `MLAB_SMTP_M365_CLIENT_SECRET`.
+Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ lassen sich alle Werte mit Konstanten in der `wp-config.php` setzen, z. B. `MLAB_SMTP_SMTP_PASS` oder `MLAB_SMTP_M365_CLIENT_SECRET`. Mit der optionalen Konstante `MLAB_SMTP_KEY` ist die Verschlüsselung von den WordPress-Salts entkoppelt.
+
+**Externe Dienste:** Das Plugin sendet Mails und Prüfanfragen nur an den Dienst, den du einrichtest (dein Mailserver, Microsoft Graph und login.microsoftonline.com, Google/Gmail-API, Resend) und, wenn eingerichtet, an deine Alarm-Webhook-URL. Für Updates fragt es die GitHub-Releases des Plugins ab. Es gibt kein Tracking und keine Telemetrie.
 
 == Installation ==
 
@@ -29,6 +31,7 @@ Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ la
 2. Plugin aktivieren.
 3. Einstellungen > E-Mail-Versand öffnen und «Einrichtung starten» wählen.
 4. Der Assistent führt durch Anbieter, Verbindung, Absender und Testmail.
+5. Auf einem Server mit `DISABLE_WP_CRON` die Warteschlange per System-Cron anstossen (siehe FAQ).
 
 = Microsoft 365 einrichten =
 
@@ -51,7 +54,33 @@ Passwörter, Secrets und Tokens werden verschlüsselt gespeichert. Alternativ la
 3. Den Key im Assistenten unter «Verbinden» eintragen und die Verbindung prüfen. Der Key wird verschlüsselt gespeichert.
 4. Im Schritt «Absender» zeigt das Plugin, ob die Domain verifiziert ist, und nennt fehlende DNS-Einträge. Danach die Testmail senden.
 
+== Frequently Asked Questions ==
+
+= Was passiert beim Update von 1.4.0? =
+
+Das alte Protokoll wird beim ersten Aufruf des Backends in die neuen Tabellen übernommen (in Teilen, bei Abbruch wird es fortgesetzt). Die alte Option bleibt für eine Rückstufung erhalten. Einstellungen und Zugangsdaten ändern sich nicht. Details: `docs/upgrade-and-recovery.md` im Repository.
+
+= Die Zugangsdaten sind nach einem Umzug oder Salt-Wechsel leer. =
+
+Secrets sind mit einem Schlüssel aus den WordPress-Salts oder aus `MLAB_SMTP_KEY` verschlüsselt. Ändern sich die Salts oder die Konstante, sind sie nicht mehr lesbar. Das Plugin erzeugt nie automatisch einen neuen Schlüssel: Secret im Backend neu eintragen. Um das zu vermeiden, `MLAB_SMTP_KEY` einmal setzen und sichern.
+
+= Die Warteschlange läuft nicht. =
+
+Die Warteschlange läuft über WP-Cron. Ist `DISABLE_WP_CRON` gesetzt oder erreicht sich die Website nicht selbst, muss ein System-Cron `wp-cron.php` aufrufen, z. B. jede Minute: `* * * * * cd /pfad/zur/website && php wp-cron.php`. Die Übersicht zeigt, wenn fällige Mails zu lange warten.
+
+= Auf einer Staging-Kopie werden keine Mails gesendet. =
+
+Das ist gewollt (Staging-Schutz). Im Backend lässt sich der Modus ändern oder der Betrieb ausdrücklich bestätigen.
+
 == Changelog ==
+
+= 1.5.0 =
+* Neu: Dauerhafte Warteschlange mit Wiederholung, Statusmodell und ehrlicher Anzeige (angenommen, Zustellung bestätigt, unklar).
+* Neu: Protokoll in eigenen Datenbanktabellen, Datenschutz-Exporter und -Eraser, Aufbewahrung, Maskierung von Secrets.
+* Neu: Geführter Ersatzweg mit Bereitschaftszuständen, Resend-Webhooks, Staging-Schutz, Alarm-Webhook, Supportbericht.
+* Neu: Oberfläche auf Deutsch, Englisch, Französisch und Italienisch.
+* Sicherheit: Schlüsselverwaltung mit Kennung (`MLAB_SMTP_KEY`), Schutz vor SSRF, Nonces je Aktion und Nachricht.
+* Details und Update-Anleitung: CHANGELOG.md und docs/upgrade-and-recovery.md.
 
 = 1.4.0 =
 * Neu: Der Ersatzweg kann auch Resend sein, nicht nur ein Mailserver.

@@ -100,7 +100,7 @@ function mlab_smtp_resend_request_args( string $method, string $key, array $head
 /**
  * Sends one request to the Resend API with the stored key.
  *
- * Errors carry the HTTP status and the Resend error name as error data: array{status:int, name:string}.
+ * Errors carry the HTTP status, the Resend error name and the Retry-After seconds as error data: array{status:int, name:string, retry_after:int}.
  *
  * @param string     $method  GET or POST.
  * @param string     $path    Path below the API host, starting with a slash.
@@ -120,6 +120,9 @@ function mlab_smtp_resend_request( string $method, string $path, ?array $body = 
 			return new WP_Error( 'mlab_smtp_resend_json', __( 'Die Nachricht enthält Zeichen, die nicht übertragen werden können. Bitte Betreff und Text prüfen.', 'mlab-smtp' ) );
 		}
 		$args['body'] = $json;
+	}
+	if ( 'POST' === strtoupper( $method ) ) {
+		mlab_smtp_engine_io_start();
 	}
 	return mlab_smtp_decode_response( wp_remote_request( MLAB_SMTP_RESEND_API . $path, $args ) );
 }
@@ -279,14 +282,24 @@ function mlab_smtp_send_resend( $mailer ) {
 	if ( is_wp_error( $payload ) ) {
 		return $payload;
 	}
+	$context = mlab_smtp_engine_context();
+	if ( '' !== $context['uuid'] ) {
+		// Tag for the webhook matching (letters, digits, underscore, dash only).
+		$payload['tags'] = array(
+			array(
+				'name'  => 'mlab_id',
+				'value' => str_replace( '-', '', $context['uuid'] ),
+			),
+		);
+	}
 	$id     = (string) $mailer->getLastMessageID();
-	$result = mlab_smtp_resend_request(
-		'POST',
-		'/emails',
-		$payload,
-		array( 'Idempotency-Key' => 'mlab-' . substr( hash( 'sha256', '' !== $id ? $id : wp_generate_uuid4() ), 0, 48 ) )
-	);
-	return is_wp_error( $result ) ? $result : true;
+	$key    = '' !== $context['idem_key'] ? $context['idem_key'] : 'mlab-' . substr( hash( 'sha256', '' !== $id ? $id : wp_generate_uuid4() ), 0, 48 );
+	$result = mlab_smtp_resend_request( 'POST', '/emails', $payload, array( 'Idempotency-Key' => $key ) );
+	if ( is_wp_error( $result ) ) {
+		return $result;
+	}
+	mlab_smtp_engine_note( 'provider_msg_id', (string) ( $result['id'] ?? '' ) );
+	return true;
 }
 
 /**

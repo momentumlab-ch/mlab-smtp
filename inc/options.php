@@ -31,7 +31,7 @@ function mlab_smtp_secret_keys(): array {
  * @return string[]
  */
 function mlab_smtp_checkbox_keys(): array {
-	return array( 'force_from', 'smtp_auth', 'fallback_enabled', 'fb_smtp_auth', 'notify_enabled', 'log_enabled' );
+	return array( 'force_from', 'smtp_auth', 'fallback_enabled', 'fb_smtp_auth', 'notify_enabled', 'log_enabled', 'retry_in_background', 'unclear_failover', 'queue_unclear_failover' );
 }
 
 /**
@@ -47,6 +47,9 @@ function mlab_smtp_choices(): array {
 		'fb_smtp_secure' => array( 'tls', 'ssl', 'none' ),
 		'notify_mode'    => array( 'instant', 'daily' ),
 		'log_retention'  => array( 7, 30, 90 ),
+		'delivery_mode'  => array( 'sync', 'queue' ),
+		'max_attempts'   => array( 2, 3, 4, 5, 6, 8, 10 ),
+		'payload_days'   => array( 1, 3, 7, 14 ),
 	);
 }
 
@@ -57,41 +60,49 @@ function mlab_smtp_choices(): array {
  */
 function mlab_smtp_defaults(): array {
 	return array(
-		'provider'             => '',
-		'setup_done'           => 0,
-		'from_email'           => '',
-		'from_name'            => '',
-		'reply_to'             => '',
-		'force_from'           => 1,
-		'smtp_host'            => '',
-		'smtp_port'            => 587,
-		'smtp_secure'          => 'tls',
-		'smtp_auth'            => 1,
-		'smtp_user'            => '',
-		'smtp_pass'            => '',
-		'm365_tenant'          => '',
-		'm365_client_id'       => '',
-		'm365_client_secret'   => '',
-		'm365_secret_expires'  => '',
-		'google_client_id'     => '',
-		'google_client_secret' => '',
-		'google_refresh_token' => '',
-		'google_account'       => '',
-		'resend_api_key'       => '',
-		'fallback_enabled'     => 0,
-		'fb_provider'          => 'smtp',
-		'fb_resend_api_key'    => '',
-		'fb_smtp_host'         => '',
-		'fb_smtp_port'         => 587,
-		'fb_smtp_secure'       => 'tls',
-		'fb_smtp_auth'         => 1,
-		'fb_smtp_user'         => '',
-		'fb_smtp_pass'         => '',
-		'notify_enabled'       => 1,
-		'notify_email'         => '',
-		'notify_mode'          => 'instant',
-		'log_enabled'          => 1,
-		'log_retention'        => 30,
+		'provider'                 => '',
+		'setup_done'               => 0,
+		'from_email'               => '',
+		'from_name'                => '',
+		'reply_to'                 => '',
+		'force_from'               => 1,
+		'smtp_host'                => '',
+		'smtp_port'                => 587,
+		'smtp_secure'              => 'tls',
+		'smtp_auth'                => 1,
+		'smtp_user'                => '',
+		'smtp_pass'                => '',
+		'm365_tenant'              => '',
+		'm365_client_id'           => '',
+		'm365_client_secret'       => '',
+		'm365_secret_expires'      => '',
+		'google_client_id'         => '',
+		'google_client_secret'     => '',
+		'google_refresh_token'     => '',
+		'google_account'           => '',
+		'resend_api_key'           => '',
+		'fallback_enabled'         => 0,
+		'fb_provider'              => 'smtp',
+		'fb_resend_api_key'        => '',
+		'resend_webhook_secret'    => '',
+		'fb_resend_webhook_secret' => '',
+		'fb_smtp_host'             => '',
+		'fb_smtp_port'             => 587,
+		'fb_smtp_secure'           => 'tls',
+		'fb_smtp_auth'             => 1,
+		'fb_smtp_user'             => '',
+		'fb_smtp_pass'             => '',
+		'notify_enabled'           => 1,
+		'notify_email'             => '',
+		'notify_mode'              => 'instant',
+		'log_enabled'              => 1,
+		'log_retention'            => 30,
+		'delivery_mode'            => 'sync',
+		'retry_in_background'      => 0,
+		'unclear_failover'         => 1,
+		'queue_unclear_failover'   => 0,
+		'max_attempts'             => 6,
+		'payload_days'             => 7,
 	);
 }
 
@@ -196,21 +207,52 @@ function mlab_smtp_secret_unreadable( string $key ): bool {
  * when a credential changed.
  *
  * @param array<string, mixed> $changes Key => new plain value.
+ * @return bool False when a secret could not be stored because the encryption is not available.
  */
-function mlab_smtp_store( array $changes ): void {
+function mlab_smtp_store( array $changes ): bool {
+	if ( ! mlab_smtp_crypto_available() && array_intersect( array_keys( $changes ), mlab_smtp_secret_keys() ) ) {
+		// Never store a secret as plain text because the encryption is missing.
+		return false;
+	}
 	$options = mlab_smtp_get_all();
-	$changed = false;
+	$names   = mlab_smtp_changed_keys( $options, $changes );
 	foreach ( $changes as $key => $value ) {
-		if ( in_array( $key, mlab_smtp_credential_keys(), true ) && (string) mlab_smtp_get( $key ) !== (string) $value ) {
-			$changed = true;
-		}
 		$options[ $key ] = in_array( $key, mlab_smtp_secret_keys(), true ) ? mlab_smtp_encrypt( (string) $value ) : $value;
 	}
-	if ( $changed ) {
+	if ( array_intersect( $names, mlab_smtp_credential_keys() ) ) {
 		// Before the write: the cached tokens belong to the old credentials.
 		mlab_smtp_clear_tokens();
 	}
 	update_option( MLAB_SMTP_OPTION, $options, false );
+	if ( $names ) {
+		/**
+		 * Fires after settings were saved. Names only, never values (secrets stay secret): the base for a change log.
+		 *
+		 * @param string[] $names   Keys whose value really changed.
+		 * @param int      $user_id User who saved (0 when there is none, for example during a cron run).
+		 */
+		do_action( 'mlab_smtp_settings_changed', $names, get_current_user_id() );
+	}
+	return true;
+}
+
+/**
+ * Keys of a change set whose plain value differs from the stored one. Secrets are compared decrypted.
+ *
+ * @param array $options Stored settings (secrets still encrypted).
+ * @param array $changes Key => new plain value.
+ * @return string[]
+ */
+function mlab_smtp_changed_keys( array $options, array $changes ): array {
+	$names = array();
+	foreach ( $changes as $key => $value ) {
+		$old = (string) ( $options[ $key ] ?? '' );
+		$old = in_array( $key, mlab_smtp_secret_keys(), true ) ? mlab_smtp_decrypt( $old ) : $old;
+		if ( $old !== (string) $value ) {
+			$names[] = (string) $key;
+		}
+	}
+	return $names;
 }
 
 /**
@@ -234,6 +276,9 @@ function mlab_smtp_save_fields( array $input, array $keys ): array {
 	$errors   = array();
 	$changes  = array();
 	$defaults = mlab_smtp_defaults();
+	if ( ! mlab_smtp_crypto_available() && array_intersect( $keys, mlab_smtp_secret_keys() ) ) {
+		return array( mlab_smtp_crypto_error()->get_error_message() );
+	}
 	foreach ( $keys as $key ) {
 		if ( ! array_key_exists( $key, $defaults ) || mlab_smtp_is_locked( $key ) ) {
 			continue;
@@ -290,6 +335,9 @@ function mlab_smtp_sanitize_field( string $key, $raw, $fallback ) {
 	if ( in_array( $key, array( 'resend_api_key', 'fb_resend_api_key' ), true ) ) {
 		return mlab_smtp_sanitize_resend_key( $raw );
 	}
+	if ( in_array( $key, array( 'resend_webhook_secret', 'fb_resend_webhook_secret' ), true ) ) {
+		return mlab_smtp_sanitize_webhook_secret( $raw );
+	}
 	if ( in_array( $key, mlab_smtp_secret_keys(), true ) ) {
 		// Never trim: passwords may start or end with a space. Empty keeps the stored secret.
 		return '' === $raw ? null : $raw;
@@ -311,6 +359,23 @@ function mlab_smtp_sanitize_field( string $key, $raw, $fallback ) {
 		return mlab_smtp_sanitize_date_field( $raw );
 	}
 	return sanitize_text_field( $raw );
+}
+
+/**
+ * Validates a Resend webhook signing secret (whsec_ plus Base64). An empty field keeps the stored secret.
+ *
+ * @param string $raw Submitted value.
+ * @return string|WP_Error|null Secret, error, or null to keep the stored secret.
+ */
+function mlab_smtp_sanitize_webhook_secret( string $raw ) {
+	$raw = trim( $raw );
+	if ( '' === $raw ) {
+		return null;
+	}
+	if ( 1 === preg_match( '/^whsec_[A-Za-z0-9+\/]{16,}={0,2}$/', $raw ) && false !== base64_decode( substr( $raw, 6 ), true ) ) { // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions -- Format check of a Base64 secret.
+		return $raw;
+	}
+	return new WP_Error( 'mlab_smtp_webhook_secret', __( 'Das ist kein Signing Secret von Resend. Es beginnt mit «whsec_» und steht auf der Seite des Webhooks bei Resend. Der bisherige Wert bleibt erhalten.', 'mlab-smtp' ) );
 }
 
 /**

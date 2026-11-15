@@ -8,26 +8,44 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Overview tab.
+ * Overview tab: answer, to-do list, the three cards, key figures, latest mails, health.
  */
 function mlab_smtp_render_overview(): void {
 	$status = mlab_smtp_status();
-	$stats  = mlab_smtp_stats();
 	echo '<div class="mlab-stack">';
+	mlab_smtp_staging_banner( true );
 	if ( 'none' === $status['state'] ) {
 		mlab_smtp_render_onboarding( $status );
-	} else {
-		mlab_smtp_render_status_card( $status );
-		mlab_smtp_render_quick_test();
-		mlab_smtp_render_steps();
-		mlab_smtp_render_kpis( $stats );
-		echo '<div class="mlab-two">';
-		mlab_smtp_render_recent();
-		mlab_smtp_render_connection_card( $status );
 		echo '</div>';
-		mlab_smtp_render_health();
+		return;
 	}
+	$problem = mlab_smtp_ui_store_problem();
+	$engine  = $problem && 'bad' === $problem['level'] ? null : mlab_smtp_health_engine( true );
+	mlab_smtp_render_status_card( $status, $engine );
+	if ( $problem ) {
+		mlab_smtp_ui_hint( $problem['level'], $problem['title'], $problem['text'] );
+	}
+	mlab_smtp_render_todo( mlab_smtp_overview_todos( $status, $engine ) );
+	mlab_smtp_render_quick_test();
+	mlab_smtp_render_steps();
+	mlab_smtp_render_cards( $engine );
+	mlab_smtp_render_figures( $engine );
+	mlab_smtp_render_health();
 	echo '</div>';
+}
+
+/**
+ * Key figures and latest mails, or the explicit reason why there is no data.
+ *
+ * @param array|null $engine Engine summary, null when the tables are missing.
+ */
+function mlab_smtp_render_figures( ?array $engine ): void {
+	if ( null === $engine ) {
+		mlab_smtp_ui_hint( 'info', __( 'Keine Zahlen verfügbar', 'mlab-smtp' ), __( 'Solange Protokoll und Warteschlange nicht verfügbar sind, kann die Übersicht keine Mails zählen.', 'mlab-smtp' ) );
+		return;
+	}
+	mlab_smtp_render_kpis( mlab_smtp_stats() );
+	mlab_smtp_render_recent();
 }
 
 /**
@@ -43,16 +61,17 @@ function mlab_smtp_render_head_action(): void {
 /**
  * Full-width status banner with one action. It is the shared hint in its large form.
  *
- * @param string $level   ok, warn, bad or info.
- * @param string $title   Bold line.
- * @param string $text    Short explanation.
- * @param string $label   Label of the action.
- * @param string $url     Target of the action.
- * @param bool   $primary Whether the action is the primary button of the screen.
+ * @param string $level    ok, warn, bad or info.
+ * @param string $title    Bold line.
+ * @param string $text     Short explanation.
+ * @param string $label    Label of the action.
+ * @param string $url      Target of the action.
+ * @param bool   $primary  Whether the action is the primary button of the screen.
+ * @param string $question Small question above the title, may be empty.
  */
-function mlab_smtp_render_banner( string $level, string $title, string $text, string $label, string $url, bool $primary = false ): void {
+function mlab_smtp_render_banner( string $level, string $title, string $text, string $label, string $url, bool $primary = false, string $question = '' ): void {
 	echo '<div class="mlab-hint is-banner is-' . esc_attr( $level ) . '"><span class="mlab-ic is-' . esc_attr( $level ) . '" aria-hidden="true">' . esc_html( mlab_smtp_ui_icon( $level ) ) . '</span>';
-	echo '<div class="mlab-hint-body"><strong>' . esc_html( $title ) . '</strong><p>' . esc_html( $text ) . '</p></div>';
+	echo '<div class="mlab-hint-body">' . ( '' !== $question ? '<h2 class="mlab-kicker">' . esc_html( $question ) . '</h2>' : '' ) . '<strong>' . esc_html( $title ) . '</strong><p>' . esc_html( $text ) . '</p></div>';
 	echo '<a class="button' . ( $primary ? ' button-primary' : '' ) . '" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></div>';
 }
 
@@ -77,14 +96,240 @@ function mlab_smtp_render_onboarding( array $status ): void {
 }
 
 /**
+ * One entry of the answer banner or the to-do list.
+ *
+ * @param string $level ok, warn, bad or info.
+ * @param string $title Bold line.
+ * @param string $text  Explanation.
+ * @param string $label Button text.
+ * @param string $url   Button target.
+ * @return array{level:string, title:string, text:string, label:string, url:string}
+ */
+function mlab_smtp_overview_item( string $level, string $title, string $text, string $label, string $url ): array {
+	return array(
+		'level' => $level,
+		'title' => $title,
+		'text'  => $text,
+		'label' => $label,
+		'url'   => $url,
+	);
+}
+
+/**
+ * Answer to «Funktioniert der Versand?»: level, title, text and the one next action.
+ *
+ * @param array      $status Result of mlab_smtp_status().
+ * @param array|null $engine Engine summary or null.
+ * @return array{level:string, title:string, text:string, label:string, url:string}
+ */
+function mlab_smtp_overview_answer( array $status, ?array $engine ): array {
+	$fix   = mlab_smtp_wizard_url( 2, (string) mlab_smtp_get( 'provider' ) );
+	$queue = mlab_smtp_page_url( array( 'view' => 'queue' ) );
+	$stage = mlab_smtp_staging_status();
+	if ( 'block' === $stage['effective'] ) {
+		return mlab_smtp_overview_item( 'bad', __( 'Nein, der Versand ist blockiert', 'mlab-smtp' ), $stage['text'], __( 'Einstellungen öffnen', 'mlab-smtp' ), mlab_smtp_page_url( array( 'view' => 'settings' ) ) );
+	}
+	if ( 'bad' === $status['state'] ) {
+		return mlab_smtp_overview_item( 'bad', __( 'Nein, Mails werden nicht gesendet', 'mlab-smtp' ), $status['text'], __( 'Fehler beheben', 'mlab-smtp' ), $fix );
+	}
+	if ( 'warn' === $status['state'] ) {
+		return mlab_smtp_overview_item( 'warn', __( 'Eingeschränkt: Der Ersatzweg übernimmt', 'mlab-smtp' ), $status['text'], __( 'Fehler beheben', 'mlab-smtp' ), $fix );
+	}
+	if ( $engine && ( $engine['failed'] > 0 || $engine['unclear'] > 0 || $engine['stale'] ) ) {
+		return mlab_smtp_overview_item( 'warn', __( 'Ja, aber einige Mails brauchen Ihre Aufmerksamkeit', 'mlab-smtp' ), __( 'Der Versand läuft, doch es gibt Mails, die warten, fehlgeschlagen oder unklar sind.', 'mlab-smtp' ), __( 'Wartende E-Mails ansehen', 'mlab-smtp' ), $queue );
+	}
+	if ( ! mlab_smtp_state_get()['last_success'] ) {
+		return mlab_smtp_overview_item( 'info', __( 'Noch nicht erprobt', 'mlab-smtp' ), $status['text'], __( 'Testmail senden', 'mlab-smtp' ), '#mlab-quick' );
+	}
+	return mlab_smtp_overview_item( 'ok', __( 'Ja, der Anbieter nimmt Ihre Mails an', 'mlab-smtp' ), mlab_smtp_route_summary() . '. ' . __( 'Angenommen heisst: Der Anbieter hat die Mail übernommen. Zugestellt ist sie erst mit einem Zustellbeleg.', 'mlab-smtp' ), __( 'Verbindung prüfen', 'mlab-smtp' ), $fix );
+}
+
+/**
  * Banner with the overall state of sending.
  *
- * @param array $status Result of mlab_smtp_status().
+ * @param array      $status Result of mlab_smtp_status().
+ * @param array|null $engine Engine summary or null.
  */
-function mlab_smtp_render_status_card( array $status ): void {
-	$url   = mlab_smtp_wizard_url( 2, (string) mlab_smtp_get( 'provider' ) );
-	$label = 'ok' === $status['state'] ? __( 'Verbindung prüfen', 'mlab-smtp' ) : __( 'Beheben', 'mlab-smtp' );
-	mlab_smtp_render_banner( $status['state'], $status['title'], '' !== $status['text'] ? $status['text'] : mlab_smtp_route_summary(), $label, $url );
+function mlab_smtp_render_status_card( array $status, ?array $engine = null ): void {
+	$a = mlab_smtp_overview_answer( $status, $engine );
+	mlab_smtp_render_banner( $a['level'], $a['title'], $a['text'], $a['label'], $a['url'], false, __( 'Funktioniert der Versand?', 'mlab-smtp' ) );
+}
+
+/**
+ * Short prioritised list of what to do, at most four items, each with one button.
+ *
+ * @param array      $status Result of mlab_smtp_status().
+ * @param array|null $engine Engine summary or null.
+ * @return array<int, array{level:string, title:string, text:string, label:string, url:string}>
+ */
+function mlab_smtp_overview_todos( array $status, ?array $engine ): array {
+	$items = array();
+	$add   = static function ( string $level, string $title, string $text, string $label, string $url ) use ( &$items ): void {
+		$items[] = mlab_smtp_overview_item( $level, $title, $text, $label, $url );
+	};
+	$queue = static fn( string $filter ): string => mlab_smtp_page_url(
+		array(
+			'view'   => 'queue',
+			'filter' => $filter,
+		)
+	);
+	if ( 'bad' === $status['state'] || 'warn' === $status['state'] ) {
+		$add( 'bad' === $status['state'] ? 'bad' : 'warn', __( 'Der Hauptweg hat ein Problem', 'mlab-smtp' ), $status['text'], __( 'Fehler beheben', 'mlab-smtp' ), mlab_smtp_wizard_url( 2, (string) mlab_smtp_get( 'provider' ) ) );
+	}
+	if ( $engine && $engine['failed'] > 0 ) {
+		/* translators: %d: number of messages */
+		$add( 'bad', sprintf( _n( '%d Mail ist endgültig fehlgeschlagen', '%d Mails sind endgültig fehlgeschlagen', $engine['failed'], 'mlab-smtp' ), $engine['failed'] ), __( 'Diese Mails wurden nicht gesendet. Sie können sie erneut versuchen, solange der Inhalt aufbewahrt wird.', 'mlab-smtp' ), __( 'Fehlgeschlagene ansehen', 'mlab-smtp' ), $queue( 'failed' ) );
+	}
+	if ( $engine && $engine['unclear'] > 0 ) {
+		/* translators: %d: number of messages */
+		$add( 'warn', sprintf( _n( '%d Mail hat einen unklaren Versandstatus', '%d Mails haben einen unklaren Versandstatus', $engine['unclear'], 'mlab-smtp' ), $engine['unclear'] ), __( 'Der Anbieter hat möglicherweise angenommen. Bitte entscheiden Sie, ob erneut gesendet werden soll.', 'mlab-smtp' ), __( 'Unklare Mails ansehen', 'mlab-smtp' ), $queue( 'unclear' ) );
+	}
+	if ( $engine && $engine['stale'] ) {
+		$add( 'warn', __( 'Wartende E-Mails werden nicht abgearbeitet', 'mlab-smtp' ), $engine['cron_text'], __( 'Wartende E-Mails ansehen', 'mlab-smtp' ), $queue( 'all' ) );
+	}
+	$items = array_merge( $items, mlab_smtp_overview_route_todos() );
+	return array_slice( $items, 0, 4 );
+}
+
+/**
+ * To-do items about the readiness of the two routes.
+ *
+ * @return array<int, array{level:string, title:string, text:string, label:string, url:string}>
+ */
+function mlab_smtp_overview_route_todos(): array {
+	$items    = array();
+	$primary  = mlab_smtp_route_state( 'primary' );
+	$fallback = mlab_smtp_fallback_tested_answer();
+	if ( ! $primary['getestet'] ) {
+		$items[] = array(
+			'level' => 'warn',
+			'title' => __( 'Der Hauptweg ist noch nicht getestet', 'mlab-smtp' ),
+			'text'  => $primary['text'],
+			'label' => __( 'Verbindung prüfen', 'mlab-smtp' ),
+			'url'   => mlab_smtp_wizard_url( 2, (string) mlab_smtp_get( 'provider' ) ),
+		);
+	}
+	if ( ! $fallback['tested'] || ! $fallback['enabled'] ) {
+		$filled  = mlab_smtp_route_state( 'fallback' )['eingetragen'];
+		$items[] = array(
+			'level' => 'warn',
+			'title' => $filled ? __( 'Der Ersatzweg ist nicht getestet', 'mlab-smtp' ) : __( 'Es gibt noch keinen Ersatzweg', 'mlab-smtp' ),
+			'text'  => $fallback['text'],
+			'label' => $filled ? __( 'Ersatzweg testen', 'mlab-smtp' ) : __( 'Ersatzweg einrichten', 'mlab-smtp' ),
+			'url'   => mlab_smtp_page_url(
+				$filled ? array(
+					'view' => 'fallback',
+					'step' => 6,
+				) : array( 'view' => 'fallback' )
+			),
+		);
+	}
+	return $items;
+}
+
+/**
+ * The list «Was muss ich tun?»; when empty, a calm confirmation.
+ *
+ * @param array $items Result of mlab_smtp_overview_todos().
+ */
+function mlab_smtp_render_todo( array $items ): void {
+	echo '<section class="mlab-card mlab-todolist" aria-labelledby="mlab-todo-h"><h2 id="mlab-todo-h">' . esc_html__( 'Was muss ich tun?', 'mlab-smtp' ) . '</h2>';
+	if ( ! $items ) {
+		echo '<p class="mlab-li"><span class="mlab-ic is-ok" aria-hidden="true">✓</span><span>' . esc_html__( 'Nichts. Alles ist in Ordnung.', 'mlab-smtp' ) . '</span></p></section>';
+		return;
+	}
+	echo '<ul class="mlab-list">';
+	foreach ( $items as $item ) {
+		echo '<li class="mlab-li mlab-todo-item"><span class="mlab-ic is-' . esc_attr( $item['level'] ) . '" aria-hidden="true">' . esc_html( mlab_smtp_ui_icon( $item['level'] ) ) . '</span><span class="mlab-li-main"><strong>' . esc_html( $item['title'] ) . '</strong><span class="mlab-muted">' . esc_html( $item['text'] ) . '</span></span>';
+		echo '<a class="button" href="' . esc_url( $item['url'] ) . '">' . esc_html( $item['label'] ) . '</a></li>';
+	}
+	echo '</ul></section>';
+}
+
+/**
+ * The three cards: main route, fallback, queue.
+ *
+ * @param array|null $engine Engine summary or null.
+ */
+function mlab_smtp_render_cards( ?array $engine ): void {
+	echo '<div class="mlab-cards">';
+	mlab_smtp_render_route_card( 'primary' );
+	mlab_smtp_render_route_card( 'fallback' );
+	mlab_smtp_render_queue_card( $engine );
+	echo '</div>';
+}
+
+/**
+ * Card of one route: provider, sender and its state in words.
+ *
+ * @param string $route primary or fallback.
+ */
+function mlab_smtp_render_route_card( string $route ): void {
+	$state    = mlab_smtp_route_state( $route );
+	$fallback = 'fallback' === $route;
+	$title    = $fallback ? __( 'Ersatzweg', 'mlab-smtp' ) : __( 'Hauptweg', 'mlab-smtp' );
+	echo '<section class="mlab-card mlab-route-card"><h2>' . esc_html( $title ) . '</h2>';
+	if ( ! $state['eingetragen'] ) {
+		mlab_smtp_ui_icon_pill( 'info', __( 'Nicht eingerichtet', 'mlab-smtp' ) );
+		echo '<p class="mlab-muted">' . esc_html( $fallback ? __( 'Ohne Ersatzweg gehen Mails verloren, wenn der Hauptweg ausfällt.', 'mlab-smtp' ) : $state['text'] ) . '</p>';
+		$url = $fallback ? mlab_smtp_page_url( array( 'view' => 'fallback' ) ) : mlab_smtp_page_url( array( 'view' => 'wizard' ) );
+		echo '<a class="button" href="' . esc_url( $url ) . '">' . esc_html( $fallback ? __( 'Ersatzweg einrichten', 'mlab-smtp' ) : __( 'Einrichtung starten', 'mlab-smtp' ) ) . '</a></section>';
+		return;
+	}
+	echo '<div class="mlab-conn">';
+	mlab_smtp_ui_logo( $state['provider'] );
+	echo '<div class="mlab-li-main"><strong>' . esc_html( mlab_smtp_ui_providers()[ $state['provider'] ]['name'] ?? $state['provider'] ) . '</strong><span class="mlab-muted">' . esc_html( (string) mlab_smtp_get( 'from_email' ) ) . '</span></div></div>';
+	mlab_smtp_ui_icon_pill( $state['level'], $state['label'] );
+	echo '<p class="mlab-muted">' . esc_html( $state['text'] ) . '</p>';
+	if ( $fallback ) {
+		$answer = mlab_smtp_fallback_tested_answer();
+		echo '<p><strong>' . esc_html( $answer['question'] ) . '</strong> ' . esc_html( $answer['tested'] ? __( 'Ja.', 'mlab-smtp' ) : __( 'Nein.', 'mlab-smtp' ) ) . '</p>';
+		echo '<p class="mlab-muted">' . esc_html( $answer['text'] ) . '</p>';
+	}
+	$url   = $fallback ? mlab_smtp_page_url(
+		array(
+			'view' => 'fallback',
+			'step' => 6,
+		)
+	) : mlab_smtp_page_url( array( 'view' => 'settings' ) );
+	$label = $fallback ? __( 'Ersatzweg testen', 'mlab-smtp' ) : __( 'Verwalten', 'mlab-smtp' );
+	echo '<a class="button" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></section>';
+}
+
+/**
+ * Card of the queue: counts, oldest wait, delivery mode in words, link.
+ *
+ * @param array|null $engine Engine summary or null when the tables are missing.
+ */
+function mlab_smtp_render_queue_card( ?array $engine ): void {
+	echo '<section class="mlab-card mlab-queue-card"><h2>' . esc_html__( 'Warteschlange', 'mlab-smtp' ) . '</h2>';
+	if ( null === $engine ) {
+		mlab_smtp_ui_icon_pill( 'bad', __( 'Nicht verfügbar', 'mlab-smtp' ) );
+		echo '<p class="mlab-muted">' . esc_html__( 'Die Datenbanktabellen fehlen, deshalb gibt es keine Warteschlange.', 'mlab-smtp' ) . '</p></section>';
+		return;
+	}
+	$counts = mlab_smtp_store_counts();
+	$rows   = array(
+		'queued'      => __( 'Wartend', 'mlab-smtp' ),
+		'processing'  => __( 'In Bearbeitung', 'mlab-smtp' ),
+		'temp_failed' => __( 'Wiederholung geplant', 'mlab-smtp' ),
+		'unclear'     => __( 'Unklar', 'mlab-smtp' ),
+		'failed'      => __( 'Endgültig fehlgeschlagen', 'mlab-smtp' ),
+	);
+	echo '<dl class="mlab-dl mlab-counts">';
+	foreach ( $rows as $status => $label ) {
+		echo '<dt>' . esc_html( $label ) . '</dt><dd>' . esc_html( (string) (int) $counts[ $status ] ) . '</dd>';
+	}
+	echo '</dl><p class="mlab-muted">';
+	echo esc_html(
+		$engine['oldest_wait'] > 0 ? sprintf(
+		/* translators: %s: duration, e.g. 5 Minuten */
+			__( 'Älteste fällige Mail wartet seit %s.', 'mlab-smtp' ),
+			human_time_diff( time() - $engine['oldest_wait'] )
+		) : __( 'Keine fällige Mail wartet.', 'mlab-smtp' )
+	);
+	echo ' ' . esc_html( mlab_smtp_ui_mode_text( $engine ) ) . '</p>';
+	echo '<a class="button" href="' . esc_url( mlab_smtp_page_url( array( 'view' => 'queue' ) ) ) . '">' . esc_html__( 'Warteschlange öffnen', 'mlab-smtp' ) . '</a></section>';
 }
 
 /**
@@ -118,7 +363,7 @@ function mlab_smtp_render_steps(): void {
 	$steps = array(
 		array( __( 'Verbindung', 'mlab-smtp' ), mlab_smtp_has_credentials() ),
 		array( __( 'Absender', 'mlab-smtp' ), '' !== (string) mlab_smtp_get( 'from_email' ) ),
-		array( __( 'Testmail', 'mlab-smtp' ), (bool) mlab_smtp_state_get()['last_success'] ),
+		array( __( 'Testmail', 'mlab-smtp' ), mlab_smtp_route_state( 'primary' )['getestet'] ),
 	);
 	echo '<ol class="mlab-card mlab-steps" aria-label="' . esc_attr__( 'Einrichtung', 'mlab-smtp' ) . '">';
 	foreach ( $steps as $index => $step ) {
@@ -189,8 +434,8 @@ function mlab_smtp_kpi_items( array $stats ): array {
 		$failed
 	);
 	return array(
-		array( __( 'Gesendet, 7 Tage', 'mlab-smtp' ), (string) (int) $stats['sent'], '', $sent, 'info' ),
-		array( __( 'Erfolgsquote', 'mlab-smtp' ), $rate, '', mlab_smtp_rate_series( $daily, $failed ), 'ok' ),
+		array( __( 'Vom Anbieter angenommen, 7 Tage', 'mlab-smtp' ), (string) (int) $stats['sent'], '', $sent, 'info' ),
+		array( __( 'Annahmequote', 'mlab-smtp' ), $rate, '', mlab_smtp_rate_series( $daily, $failed ), 'ok' ),
 		array( __( 'Fehlgeschlagen', 'mlab-smtp' ), (string) (int) $stats['failed'], $stats['failed'] > 0 ? 'is-bad' : '', $failed, 'bad' ),
 	);
 }
@@ -233,7 +478,7 @@ function mlab_smtp_render_recent(): void {
 	$entries = mlab_smtp_log_get( array( 'limit' => 5 ) );
 	$opened  = false;
 	foreach ( $entries as $entry ) {
-		$expand = empty( $entry['ok'] ) && ! $opened;
+		$expand = mlab_smtp_recent_has_detail( $entry ) && ! $opened;
 		$opened = $opened || $expand;
 		mlab_smtp_render_recent_row( $entry, $expand );
 	}
@@ -244,13 +489,22 @@ function mlab_smtp_render_recent(): void {
 }
 
 /**
+ * Whether a row opens to an explanation: it has an error text and did not succeed.
+ *
+ * @param array $entry Log entry.
+ */
+function mlab_smtp_recent_has_detail( array $entry ): bool {
+	return empty( $entry['ok'] ) && '' !== (string) $entry['error'];
+}
+
+/**
  * One row of the latest mails.
  *
  * @param array $entry  Log entry.
  * @param bool  $expand Whether a failed row starts open.
  */
 function mlab_smtp_render_recent_row( array $entry, bool $expand ): void {
-	if ( ! empty( $entry['ok'] ) ) {
+	if ( ! mlab_smtp_recent_has_detail( $entry ) ) {
 		$url = mlab_smtp_page_url(
 			array(
 				'view'  => 'log',
@@ -265,13 +519,19 @@ function mlab_smtp_render_recent_row( array $entry, bool $expand ): void {
 	echo '<li><details' . ( $expand ? ' open' : '' ) . '><summary class="mlab-li">';
 	mlab_smtp_render_entry_summary( $entry );
 	echo mlab_smtp_ui_svg( 'chevron' ) . '</summary>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
-	$fix = mlab_smtp_wizard_url( 2, (string) mlab_smtp_get( 'provider' ) );
+	if ( in_array( $entry['status'], array( 'unclear', 'partial', 'blocked' ), true ) ) {
+		$fix   = mlab_smtp_page_url( array( 'view' => 'queue' ) );
+		$label = __( 'Warteschlange öffnen', 'mlab-smtp' );
+	} else {
+		$fix   = mlab_smtp_wizard_url( 2, (string) mlab_smtp_get( 'provider' ) );
+		$label = __( 'Fehler beheben', 'mlab-smtp' );
+	}
 	mlab_smtp_ui_hint(
-		'bad',
+		mlab_smtp_ui_entry_level( $entry ),
 		'',
 		mlab_smtp_ui_error_texts( (string) $entry['error'] )['message'],
-		static function () use ( $fix ): void {
-			echo '<a href="' . esc_url( $fix ) . '">' . esc_html__( 'Fehler beheben', 'mlab-smtp' ) . '</a>';
+		static function () use ( $fix, $label ): void {
+			echo '<a href="' . esc_url( $fix ) . '">' . esc_html( $label ) . '</a>';
 		}
 	);
 	echo '</details></li>';
@@ -284,26 +544,8 @@ function mlab_smtp_render_recent_row( array $entry, bool $expand ): void {
  */
 function mlab_smtp_render_entry_summary( array $entry ): void {
 	$level = mlab_smtp_ui_entry_level( $entry );
-	echo '<span class="mlab-ic is-' . esc_attr( $level ) . '" aria-hidden="true">' . esc_html( mlab_smtp_ui_icon( $level ) ) . '</span>';
+	echo '<span class="mlab-ic is-' . esc_attr( $level ) . '" aria-hidden="true">' . esc_html( mlab_smtp_ui_message_status( (string) $entry['status'] )['icon'] ) . '</span>';
 	echo '<span class="mlab-li-main"><strong>' . esc_html( $entry['subject'] ) . '</strong><span class="mlab-muted">' . esc_html( $entry['to'] ) . '</span></span>';
 	mlab_smtp_ui_entry_pill( $entry );
 	echo '<span class="mlab-time">' . esc_html( mlab_smtp_ui_time( (int) $entry['time'] ) ) . '</span>';
-}
-
-/**
- * Card with the active connection and the way to manage it.
- *
- * @param array $status Result of mlab_smtp_status().
- */
-function mlab_smtp_render_connection_card( array $status ): void {
-	$provider = (string) mlab_smtp_get( 'provider' );
-	echo '<section class="mlab-card mlab-active"><h2>' . esc_html__( 'Aktive Verbindung', 'mlab-smtp' ) . '</h2><div class="mlab-conn">';
-	mlab_smtp_ui_logo( $provider );
-	echo '<div class="mlab-li-main"><strong>' . esc_html( mlab_smtp_ui_providers()[ $provider ]['name'] ?? '' ) . '</strong><span class="mlab-muted">' . esc_html( (string) mlab_smtp_get( 'from_email' ) ) . '</span></div></div>';
-	if ( 'ok' === $status['state'] ) {
-		mlab_smtp_ui_pill( 'ok', __( 'Verbunden', 'mlab-smtp' ) );
-	} else {
-		mlab_smtp_ui_pill( $status['state'], __( 'Gestört', 'mlab-smtp' ) );
-	}
-	echo '<a class="button" href="' . esc_url( mlab_smtp_page_url( array( 'view' => 'settings' ) ) ) . '">' . mlab_smtp_ui_svg( 'gear' ) . esc_html__( 'Verwalten', 'mlab-smtp' ) . '</a></section>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 }

@@ -145,11 +145,12 @@ function mlab_smtp_run_test( string $to ): array {
  * @return array{sent:bool, error:string, hint:string, debug:string, via:string}
  */
 function mlab_smtp_test_result( bool $sent, string $error, string $debug, string $via ): array {
+	$error = mlab_smtp_redact( $error );
 	return array(
 		'sent'  => $sent,
 		'error' => $error,
 		'hint'  => '' === $error ? '' : mlab_smtp_explain_error( $error ),
-		'debug' => $debug,
+		'debug' => mlab_smtp_redact( $debug ),
 		'via'   => $via,
 	);
 }
@@ -269,20 +270,87 @@ function mlab_smtp_common_error_hints(): array {
 }
 
 /**
- * Plain-language advice for an error message.
+ * Plain-language advice for an error message. For the fallback route the advice follows the provider of the
+ * fallback and names the route («Ersatzweg»), so nobody looks for the fault in the main connection.
  *
  * @param string $error Error message of the mailer or provider.
+ * @param string $route primary, fallback, or empty to take it from the message («Ersatzweg: …»).
  * @return string Advice, empty when the error is not known.
  */
-function mlab_smtp_explain_error( string $error ): string {
-	$provider = (string) mlab_smtp_get( 'provider' );
+function mlab_smtp_explain_error( string $error, string $route = '' ): string {
+	$fallback = 'fallback' === $route || ( '' === $route && preg_match( '/^Ersatzweg: /', $error ) );
+	$provider = (string) mlab_smtp_get( $fallback ? 'fb_provider' : 'provider' );
 	foreach ( mlab_smtp_error_hints() as $entry ) {
 		if ( isset( $entry['provider'] ) && $entry['provider'] !== $provider ) {
 			continue;
 		}
 		if ( preg_match( $entry['pattern'], $error ) ) {
-			return $entry['hint'];
+			return $fallback ? __( 'Ersatzweg: ', 'mlab-smtp' ) . $entry['hint'] : $entry['hint'];
 		}
 	}
 	return '';
+}
+
+/**
+ * Message and technical detail of an error of one route.
+ *
+ * @param string $raw   Raw error text.
+ * @param string $route primary or fallback.
+ * @return array{message:string, detail:string}
+ */
+function mlab_smtp_route_error_texts( string $raw, string $route ): array {
+	$raw  = mlab_smtp_redact( $raw );
+	$hint = mlab_smtp_explain_error( $raw, mlab_smtp_route_name( $route ) );
+	if ( '' === $hint && 'fallback' === $route ) {
+		$hint = __( 'Ersatzweg: ', 'mlab-smtp' ) . $raw;
+	}
+	return array(
+		'message' => '' !== $hint ? $hint : $raw,
+		'detail'  => $raw,
+	);
+}
+
+/**
+ * Sends one test mail through the fallback only. The main route is never contacted: the fallback_only flag skips it,
+ * and the fallback counts as switched on for this one mail, so it can be tested before it is activated.
+ * The result is stored as the test state of the route.
+ *
+ * @param string $to Recipient.
+ * @return array{sent:bool, error:string, hint:string, debug:string, via:string}
+ */
+function mlab_smtp_run_fallback_test( string $to ): array {
+	if ( ! mlab_smtp_fallback_filled() ) {
+		return mlab_smtp_test_result( false, __( 'Ersatzweg: Er ist noch nicht vollständig eingetragen, es wurde keine Testmail versendet.', 'mlab-smtp' ), '', '' );
+	}
+	$errors  = array();
+	$lines   = array();
+	$capture = static function ( WP_Error $error ) use ( &$errors ): void {
+		$errors[] = $error->get_error_message();
+	};
+	$collect = static function ( string $line ) use ( &$lines ): void {
+		$lines[] = $line;
+	};
+	add_action( 'wp_mail_failed', $capture );
+	add_action( 'mlab_smtp_debug_line', $collect );
+	add_filter( 'mlab_smtp_debug', '__return_true' );
+	mlab_smtp_flag( 'fallback_test', true );
+	mlab_smtp_flag( 'force', true );
+	mlab_smtp_flag( 'fallback_only', true );
+
+	/* translators: %s: site name */
+	$subject = sprintf( __( 'Testmail über den Ersatzweg von %s', 'mlab-smtp' ), wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ) );
+	$sent    = wp_mail( $to, $subject, __( 'Diese Nachricht bestätigt, dass der Ersatzweg Mails versenden kann.', 'mlab-smtp' ) );
+
+	mlab_smtp_flag( 'fallback_only', false );
+	mlab_smtp_flag( 'force', false );
+	mlab_smtp_flag( 'fallback_test', false );
+	remove_filter( 'mlab_smtp_debug', '__return_true' );
+	remove_action( 'mlab_smtp_debug_line', $collect );
+	remove_action( 'wp_mail_failed', $capture );
+
+	$error = $sent ? '' : ( $errors ? implode( ' ', $errors ) : __( 'Ersatzweg: Unbekannter Fehler.', 'mlab-smtp' ) );
+	mlab_smtp_readiness_record( 'fallback', 'test', $sent, $to );
+	$result         = mlab_smtp_test_result( $sent, $error, implode( "\n", array_slice( $lines, -15 ) ), (string) mlab_smtp_get( 'fb_provider' ) );
+	$result['hint'] = '' === $error ? '' : mlab_smtp_route_error_texts( $error, 'fallback' )['message'];
+	return $result;
 }

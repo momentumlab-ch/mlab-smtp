@@ -1,0 +1,22 @@
+{
+	"name": "mlab/mlab-smtp-test-env",
+	"description": "Lokale WordPress-Testumgebung (WordPress-Core und WP-CLI).",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"johnpbloch/wordpress-core": "^7.1",
+		"johnpbloch/wordpress-core-installer": "^2.0",
+		"wp-cli/wp-cli-bundle": "^2.11"
+	},
+	"config": {
+		"allow-plugins": {
+			"johnpbloch/wordpress-core-installer": true
+		},
+		"platform": {
+			"php": "8.0.30"
+		}
+	},
+	"extra": {
+		"wordpress-install-dir": "wordpress"
+	}
+}

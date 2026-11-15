@@ -11,6 +11,8 @@ add_action( 'admin_post_mlab_smtp_wizard', 'mlab_smtp_handle_wizard' );
 add_action( 'admin_post_mlab_smtp_save_settings', 'mlab_smtp_handle_save_settings' );
 add_action( 'admin_post_mlab_smtp_test', 'mlab_smtp_handle_test' );
 add_action( 'admin_post_mlab_smtp_clear_log_confirmed', 'mlab_smtp_handle_clear_log' );
+add_action( 'admin_post_mlab_smtp_message_action', 'mlab_smtp_handle_message_action' );
+add_action( 'admin_post_mlab_smtp_reencrypt', 'mlab_smtp_handle_reencrypt' );
 
 /**
  * Setting keys the UI may save, grouped by form section. Every save names its group explicitly.
@@ -31,7 +33,7 @@ function mlab_smtp_key_groups(): array {
 		array(
 			'sender'   => $sender,
 			'fallback' => $fallback,
-			'settings' => array_merge( $sender, $fallback, array( 'force_from', 'notify_enabled', 'notify_email', 'notify_mode', 'log_enabled', 'log_retention' ) ),
+			'settings' => array_merge( $sender, $fallback, array( 'resend_webhook_secret', 'fb_resend_webhook_secret', 'force_from', 'notify_enabled', 'notify_email', 'notify_mode', 'log_enabled', 'log_retention', 'delivery_mode', 'retry_in_background', 'unclear_failover', 'queue_unclear_failover', 'max_attempts', 'payload_days' ) ),
 		)
 	);
 }
@@ -244,7 +246,7 @@ function mlab_smtp_wizard_step_test( array $input, string $provider, string $act
 		mlab_smtp_wizard_flag( 'tested', false );
 		mlab_smtp_wizard_flag( 'verified', false );
 		mlab_smtp_draft_provider( '' );
-		mlab_smtp_flash( 'success', __( 'Einrichtung abgeschlossen. Mails werden jetzt zugestellt.', 'mlab-smtp' ) );
+		mlab_smtp_flash( 'success', __( 'Einrichtung abgeschlossen. Mails werden jetzt über den neuen Versandweg gesendet.', 'mlab-smtp' ) );
 		mlab_smtp_back();
 	}
 	if ( 'finish' === $action ) {
@@ -271,7 +273,8 @@ function mlab_smtp_flash_test( string $to ): void {
  */
 function mlab_smtp_handle_save_settings(): void {
 	mlab_smtp_guard( 'mlab_smtp_save_settings' );
-	$errors = mlab_smtp_save_group( 'settings', mlab_smtp_post_input() );
+	$input  = mlab_smtp_post_input();
+	$errors = array_merge( mlab_smtp_save_group( 'settings', $input ), mlab_smtp_save_security_forms( $input ) );
 	if ( $errors ) {
 		mlab_smtp_flash( 'error', implode( ' ', $errors ) );
 	} else {
@@ -295,7 +298,60 @@ function mlab_smtp_handle_test(): void {
  */
 function mlab_smtp_handle_clear_log(): void {
 	mlab_smtp_guard( 'mlab_smtp_clear_log_confirmed' );
-	mlab_smtp_log_clear();
-	mlab_smtp_flash( 'success', __( 'Das Protokoll wurde geleert.', 'mlab-smtp' ) );
+	if ( mlab_smtp_log_clear() ) {
+		mlab_smtp_flash( 'success', __( 'Das Protokoll wurde geleert.', 'mlab-smtp' ) );
+	} else {
+		mlab_smtp_flash( 'error', __( 'Das Protokoll konnte nicht vollständig geleert werden. Bitte versuchen Sie es noch einmal.', 'mlab-smtp' ) );
+	}
 	mlab_smtp_back( array( 'view' => 'log' ) );
+}
+
+/**
+ * Name of the nonce of one manual action on one message.
+ *
+ * @param int    $id        Message id.
+ * @param string $operation retry, resend or delivered.
+ */
+function mlab_smtp_message_nonce_action( int $id, string $operation ): string {
+	return 'mlab_smtp_message_' . $operation . '_' . $id;
+}
+
+/**
+ * Manual action on one message: retry (failed), resend (unclear, a duplicate is possible) or mark as delivered (unclear).
+ * The nonce is bound to the action and the message, so one captured nonce cannot be used for anything else.
+ * Requests with the field «back» (queue and log screens) return to the same page.
+ */
+function mlab_smtp_handle_message_action(): void {
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- The nonce is checked in mlab_smtp_guard() right after the two values are read; it is bound to exactly these values.
+	$do = isset( $_REQUEST['do'] ) ? sanitize_key( wp_unslash( $_REQUEST['do'] ) ) : '';
+	$id = isset( $_REQUEST['id'] ) ? absint( wp_unslash( $_REQUEST['id'] ) ) : 0;
+	$ui = isset( $_REQUEST['back'] );
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
+	if ( $id < 1 || ! in_array( $do, array( 'retry', 'resend', 'delivered' ), true ) ) {
+		wp_die( esc_html__( 'Diese Aktion ist nicht gültig.', 'mlab-smtp' ), '', array( 'response' => 400 ) );
+	}
+	mlab_smtp_guard( mlab_smtp_message_nonce_action( $id, $do ) );
+	$result = mlab_smtp_engine_run_action( $do, $id );
+	if ( is_wp_error( $result ) ) {
+		mlab_smtp_flash( 'error', $result->get_error_message() );
+	} else {
+		mlab_smtp_flash( 'success', $ui ? mlab_smtp_queue_done_text( $do ) : __( 'Die Aktion wurde ausgeführt.', 'mlab-smtp' ) );
+	}
+	mlab_smtp_back( $ui ? mlab_smtp_queue_back_args() : array( 'view' => 'log' ) );
+}
+
+/**
+ * Stores the readable secrets again with the current key and reports the counts.
+ */
+function mlab_smtp_handle_reencrypt(): void {
+	mlab_smtp_guard( 'mlab_smtp_reencrypt' );
+	$result = mlab_smtp_reencrypt_secrets();
+	if ( $result['unreadable'] > 0 ) {
+		/* translators: 1: re-encrypted count, 2: unreadable count */
+		mlab_smtp_flash( 'warning', sprintf( __( '%1$d Zugangsdaten neu verschlüsselt. %2$d sind nicht lesbar und blieben unverändert. Bitte geben Sie diese neu ein.', 'mlab-smtp' ), $result['reencrypted'], $result['unreadable'] ) );
+	} else {
+		/* translators: %d: count */
+		mlab_smtp_flash( 'success', sprintf( __( '%d Zugangsdaten mit dem aktuellen Schlüssel neu verschlüsselt.', 'mlab-smtp' ), $result['reencrypted'] ) );
+	}
+	mlab_smtp_back( array( 'view' => 'settings' ) );
 }

@@ -289,6 +289,7 @@ function mlab_smtp_render_connect_smtp(): void {
 	mlab_smtp_render_preset_select();
 	mlab_smtp_ui_field( 'smtp_host', __( 'Server', 'mlab-smtp' ), array( 'placeholder' => 'mail.ihre-domain.ch' ) );
 	mlab_smtp_ui_segmented( 'smtp_secure', __( 'Verbindung', 'mlab-smtp' ), mlab_smtp_secure_options() );
+	mlab_smtp_render_insecure_note( 'smtp_secure' );
 	mlab_smtp_ui_field(
 		'smtp_port',
 		__( 'Port', 'mlab-smtp' ),

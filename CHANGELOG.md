@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.5.0
+
+Grosser Release: dauerhafte Warteschlange, nachvollziehbare Zustellung, Datenschutz, Sicherheitshärtung, vier Sprachen. Bestehende Einrichtungen funktionieren unverändert weiter (SMTP, Microsoft 365, Google, Resend). Anleitung zum Update und zur Wiederherstellung: `docs/upgrade-and-recovery.md`.
+
+### Zuverlässiger Versand
+- Neu: Eigene Datenbanktabellen für Nachrichten, Versuche, Ereignisse und Empfänger. Das Protokoll liegt nicht mehr in einer Option, ist durchsuchbar, seitenweise und hat begrenzte Aufbewahrung. Das alte Protokoll wird verlustarm und wiederaufnehmbar übernommen (die alte Option bleibt für eine Version erhalten).
+- Neu: Dauerhafte Warteschlange mit atomarer Übernahme, Sperren und Wiederaufnahme nach Abbruch, begrenzten Wiederholungen mit wachsenden Wartezeiten und Zufallsanteil, Beachtung von `Retry-After` und Anbieterlimits, Trennung vorübergehender und dauerhafter Fehler.
+- Neu: Statusmodell: wartend, in Verarbeitung, vom Anbieter angenommen, Zustellung bestätigt, vorübergehend fehlgeschlagen, endgültig fehlgeschlagen, teilweise angenommen, Versandstatus unklar, nicht gesendet (Staging-Schutz).
+- Neu: Unklare Ergebnisse (zum Beispiel Zeitüberschreitung nach dem Senden) gelten nie als «nicht angenommen». Sie werden nicht automatisch erneut gesendet, ausser bei Resend innerhalb des Idempotenz-Fensters. Manuelle Aktionen: erneut versuchen, als angenommen markieren, erneut senden (Doppelversand möglich).
+- Unverändert als Standard: `wp_mail()` sendet synchron und meldet `true` nur, wenn Hauptweg oder Ersatzweg die Mail angenommen haben. Die Warteschlange (`wp_mail()` meldet «angenommen») und die Wiederholung im Hintergrund sind ausdrücklich zuschaltbar, siehe `docs/delivery-modes.md`.
+- Neu: Resend-Webhooks (Signatur und Zeitprüfung, Schutz vor Wiederholung und Doppelverarbeitung, Zuordnung auch bei verspäteten oder umsortierten Ereignissen). Zustellung wird nur als bestätigt angezeigt, wenn der Anbieter sie bestätigt hat.
+
+### Hauptweg und Ersatzweg
+- Neu: Geführter Ablauf in sieben Schritten für den Ersatzweg (Mailserver oder Resend, eigener Backup-Key, «Sending access» wird unterstützt und erklärt, Domainstatus mit dem Key der richtigen Route, Testmail ausschliesslich über den Ersatzweg, Zusammenfassung und Aktivieren).
+- Neu: Bereitschaft statt ausgefüllter Felder: «eingetragen», «geprüft», «getestet», «erneute Prüfung nötig». Eine Änderung an Key, Host, Absender oder Domain macht frühere Ergebnisse ungültig.
+
+### Sicherheit und Datenschutz
+- Neu: Zentrale Maskierung von Secrets und Token in Protokoll, Meldungen, Alarmierung und Supportbericht. Secrets erscheinen weder in Formularen noch in REST-Antworten.
+- Neu: Verschlüsselung mit Schlüssel-Kennung. Optional `MLAB_SMTP_KEY` in der `wp-config.php`, damit die Zugangsdaten nicht von den Salts abhängen. Es wird nie automatisch ein neuer Schlüssel erzeugt. Unlesbare Secrets werden erkannt und zur Neueingabe angeboten, lesbare lassen sich mit dem aktuellen Schlüssel neu verschlüsseln. Fehlt libsodium, gibt es eine verständliche Meldung statt eines Fatal Errors.
+- Neu: Schutz vor Zugriffen auf interne Adressen (SSRF) für den Alarm-Webhook, mit festgeschriebener Adresse und erweiterten IPv6-Bereichen. Unverschlüsseltes SMTP wird deutlich gekennzeichnet. Die TLS-Prüfung wird nie abgeschaltet.
+- Neu: Nonces der Nachrichtenaktionen sind an Aktion und Nachricht gebunden.
+- Neu: Datenschutz: Empfänger, Betreff und Fehlertexte gelten als sensibel. Aufbewahrung 7, 30 oder 90 Tage mit automatischer Bereinigung, Exporter und Eraser für personenbezogene Daten, Textvorschlag für die Datenschutzerklärung. Standardmässig werden weder Inhalte noch Anhänge im Protokoll gespeichert. Wartende Nachrichten liegen verschlüsselt in der Datenbank und werden nach der Annahme gelöscht.
+- Neu: Staging-Schutz: Versand blockieren oder an eine Testadresse umleiten, automatische Erkennung einer Website-Kopie. Auch Nachrichten, die aus einem Produktiv-Klon in der Warteschlange mitkamen, werden nicht gesendet.
+- Behoben: Die Staging-Umleitung nannte die ursprünglichen Empfänger im Klartext in der Mail.
+
+### Betrieb und Oberfläche
+- Neu: Die Übersicht beantwortet auf einen Blick, ob der Versand funktioniert, welcher Hauptweg aktiv ist, ob der Ersatzweg getestet ist, ob Nachrichten warten und was zu tun ist. Neuer Bereich «Warteschlange», Protokoll mit Seiten, Statusfiltern und Detailansicht (Versuche je Weg, Anbieter-Ereignisse).
+- Neu: Alarmierung über einen frei konfigurierbaren Webhook, unabhängig vom Mailweg, mit Testknopf. Maskierter Supportbericht zum Herunterladen.
+- Neu: Gesundheitszeilen für eine stehende Warteschlange (inklusive Hinweis auf `DISABLE_WP_CRON` und System-Cron), unklare und endgültig fehlgeschlagene Nachrichten.
+- Neu: Vollständige Oberflächentexte auf Deutsch, Englisch, Französisch und Italienisch. Die Sprache folgt der WordPress-Sprache des Benutzers, nicht unterstützte Sprachen erhalten Englisch.
+- Hinweise: Mitteilungen anderer Plugins bleiben sichtbar (eingeklappt unter der Seite).
+- Verbessert: Texte behaupten keine Zustellung mehr, wo nur die Annahme belegt ist.
+
+### Für Entwickler
+- Erweiterungspunkte für Routing, Anbieter, Tabs, Berichte und Berechtigungen, siehe `docs/extending.md`. Der Kernpfad enthält keine Lizenzabfrage.
+- Neu: Testumgebung mit echtem WordPress (SQLite und MySQL/MariaDB), Prüfskript `bin/check.sh`, Prüfung und Bau des Release-ZIPs, Plugin Check ohne Befund im eigenen Code, CI.
+
 ## 1.4.0
 
 Ersatzweg über Resend, eigener Menüpunkt und klarere Texte im Assistenten.

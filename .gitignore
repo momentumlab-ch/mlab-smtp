@@ -1,3 +1,10 @@
 .DS_Store
 /vendor/
 mlab-smtp.zip
+/composer.lock
+/tests/env/wordpress/
+/tests/env/.cache/
+/tests/env/vendor/
+/tests/env/.run/
+/tests/env/admin-password.txt
+/dist/

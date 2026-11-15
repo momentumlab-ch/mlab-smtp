@@ -7,19 +7,49 @@
 
 defined( 'ABSPATH' ) || exit;
 
+require_once __DIR__ . '/settings-security.php';
+
 /**
- * Settings tab.
+ * Sections in display order: anchor => array( title, renderer ).
+ *
+ * @return array<string, array{0:string, 1:callable}>
+ */
+function mlab_smtp_settings_sections(): array {
+	return array(
+		'connection' => array( __( 'Verbindung', 'mlab-smtp' ), 'mlab_smtp_render_set_connection' ),
+		'fallback'   => array( __( 'Ersatzweg', 'mlab-smtp' ), 'mlab_smtp_render_set_fallback' ),
+		'delivery'   => array( __( 'Zustellung', 'mlab-smtp' ), 'mlab_smtp_render_set_delivery' ),
+		'webhooks'   => array( __( 'Zustellbestätigung', 'mlab-smtp' ), 'mlab_smtp_render_set_webhooks' ),
+		'sender'     => array( __( 'Absender', 'mlab-smtp' ), 'mlab_smtp_render_set_sender' ),
+		'staging'    => array( __( 'Staging', 'mlab-smtp' ), 'mlab_smtp_render_set_staging' ),
+		'alerts'     => array( __( 'Alarmierung', 'mlab-smtp' ), 'mlab_smtp_render_set_alerts' ),
+		'notify'     => array( __( 'Benachrichtigung', 'mlab-smtp' ), 'mlab_smtp_render_set_notify' ),
+		'log'        => array( __( 'Protokoll', 'mlab-smtp' ), 'mlab_smtp_render_set_log' ),
+		'privacy'    => array( __( 'Support und Datenschutz', 'mlab-smtp' ), 'mlab_smtp_render_set_privacy' ),
+		'encryption' => array( __( 'Verschlüsselung', 'mlab-smtp' ), 'mlab_smtp_render_set_encryption' ),
+		'locked'     => array( __( 'Aus wp-config.php', 'mlab-smtp' ), 'mlab_smtp_render_set_locked' ),
+	);
+}
+
+/**
+ * Settings tab: intro, index with anchor links, the sections and one save bar.
  */
 function mlab_smtp_render_settings(): void {
+	echo '<p class="mlab-muted">' . esc_html__( 'Hier stellen Sie ein, wie Mails versendet, geschützt und überwacht werden. Alles auf dieser Seite wird mit «Änderungen speichern» unten gespeichert. Die einzelnen Knöpfe (testen, bestätigen, herunterladen, neu verschlüsseln) wirken sofort.', 'mlab-smtp' ) . '</p>';
+	echo '<nav class="mlab-index" aria-label="' . esc_attr__( 'Inhalt dieser Seite', 'mlab-smtp' ) . '"><ul>';
+	foreach ( mlab_smtp_settings_sections() as $id => $section ) {
+		echo '<li><a href="#' . esc_attr( 'mlab-s-' . $id ) . '">' . esc_html( $section[0] ) . '</a></li>';
+	}
+	echo '</ul></nav>';
 	mlab_smtp_ui_form_open( 'mlab_smtp_save_settings', 'mlab-settings mlab-stack' );
-	mlab_smtp_render_set_connection();
-	mlab_smtp_render_set_fallback();
-	mlab_smtp_render_set_notify();
-	mlab_smtp_render_set_sender();
-	mlab_smtp_render_set_log();
-	mlab_smtp_render_set_locked();
+	foreach ( mlab_smtp_settings_sections() as $id => $section ) {
+		echo '<div class="mlab-anchor" id="' . esc_attr( 'mlab-s-' . $id ) . '">';
+		call_user_func( $section[1] );
+		echo '</div>';
+	}
 	echo '<div class="mlab-savebar"><button type="submit" class="button button-primary">' . esc_html__( 'Änderungen speichern', 'mlab-smtp' ) . '</button></div>';
 	mlab_smtp_ui_form_close();
+	mlab_smtp_render_set_action_forms();
 }
 
 /**
@@ -46,6 +76,7 @@ function mlab_smtp_render_set_connection(): void {
  */
 function mlab_smtp_render_set_fallback(): void {
 	mlab_smtp_ui_row_open( __( 'Ersatzweg', 'mlab-smtp' ), __( 'Springt ein, wenn die Hauptverbindung ausfällt oder eine Mail ablehnt.', 'mlab-smtp' ) );
+	mlab_smtp_render_fallback_status();
 	echo '<div data-mlab-fields data-group="fallback">';
 	mlab_smtp_ui_switch( 'fallback_enabled', __( 'Ersatzweg verwenden', 'mlab-smtp' ), 'mlab-fallback' );
 	echo '<div class="mlab-fields mlab-fb" id="mlab-fallback">';
@@ -59,6 +90,17 @@ function mlab_smtp_render_set_fallback(): void {
 	mlab_smtp_ui_result_area();
 	echo '</div></div>';
 	mlab_smtp_ui_row_close();
+}
+
+/**
+ * State of the fallback route (four labelled states) and the button into the guided flow.
+ */
+function mlab_smtp_render_fallback_status(): void {
+	$state = mlab_smtp_route_state( 'fallback' );
+	mlab_smtp_ui_hint( $state['level'], $state['label'], $state['text'] );
+	mlab_smtp_render_route_states( $state );
+	$label = $state['eingetragen'] ? __( 'Ersatzweg prüfen und testen', 'mlab-smtp' ) : __( 'Ersatzweg einrichten', 'mlab-smtp' );
+	echo '<p><a class="button' . ( $state['getestet'] && ! $state['veraltet'] ? '' : ' button-primary' ) . '" href="' . esc_url( mlab_smtp_fallback_url( 1 ) ) . '">' . esc_html( $label ) . '</a></p>';
 }
 
 /**
@@ -99,6 +141,7 @@ function mlab_smtp_render_fallback_smtp(): void {
 		__( 'Verschlüsselung', 'mlab-smtp' ),
 		array( 'options' => mlab_smtp_secure_options() )
 	);
+	mlab_smtp_render_insecure_note( 'fb_smtp_secure' );
 	mlab_smtp_ui_switch( 'fb_smtp_auth', __( 'Der Server verlangt Benutzername und Passwort', 'mlab-smtp' ) );
 	mlab_smtp_ui_field( 'fb_smtp_user', __( 'Benutzername', 'mlab-smtp' ) );
 	mlab_smtp_ui_field( 'fb_smtp_pass', __( 'Passwort', 'mlab-smtp' ), array( 'type' => 'password' ) );
@@ -229,5 +272,102 @@ function mlab_smtp_render_set_locked(): void {
 		echo '<li><span class="dashicons dashicons-lock" aria-hidden="true"></span> <code>' . esc_html( 'MLAB_SMTP_' . strtoupper( $key ) ) . '</code> <span class="mlab-muted">' . esc_html__( 'gesetzt', 'mlab-smtp' ) . '</span></li>';
 	}
 	echo '</ul>';
+	mlab_smtp_ui_row_close();
+}
+
+/**
+ * Zustellbestätigung (Resend): webhook addresses, signing secrets, instructions and state.
+ */
+function mlab_smtp_render_set_webhooks(): void {
+	mlab_smtp_ui_row_open( __( 'Zustellbestätigung (Resend)', 'mlab-smtp' ), __( 'Resend meldet zurück, ob eine Mail beim Empfänger angekommen ist. Ohne diese Meldung gilt eine Mail nur als «angenommen».', 'mlab-smtp' ) );
+	echo '<ol class="mlab-plainlist">';
+	foreach ( mlab_smtp_webhook_steps() as $step ) {
+		echo '<li>' . esc_html( $step ) . '</li>';
+	}
+	echo '</ol>';
+	echo '<p class="mlab-muted">' . esc_html__( 'Hauptkonto und Ersatzkonto brauchen je einen eigenen Webhook mit eigener Adresse und eigenem Signing Secret.', 'mlab-smtp' ) . '</p>';
+	$fields = array(
+		'resend'          => array( __( 'Hauptkonto', 'mlab-smtp' ), 'resend_webhook_secret' ),
+		'resend-fallback' => array( __( 'Ersatzkonto', 'mlab-smtp' ), 'fb_resend_webhook_secret' ),
+	);
+	foreach ( $fields as $route => $field ) {
+		echo '<div class="mlab-fields is-open"><strong>' . esc_html( $field[0] ) . '</strong>';
+		mlab_smtp_ui_copy( mlab_smtp_webhook_url( $route ) );
+		mlab_smtp_ui_field(
+			$field[1],
+			__( 'Signing Secret', 'mlab-smtp' ),
+			array(
+				'type'        => 'password',
+				'placeholder' => 'whsec_…',
+			)
+		);
+		$last = mlab_smtp_webhook_last_event( $route );
+		/* translators: %s: time span like "5 Minuten" */
+		$state = $last ? sprintf( __( 'Letztes Ereignis vor %s.', 'mlab-smtp' ), human_time_diff( $last ) ) : __( 'Noch kein Ereignis empfangen.', 'mlab-smtp' );
+		echo '<p class="mlab-muted">' . esc_html( $state ) . '</p></div>';
+	}
+	mlab_smtp_ui_row_close();
+}
+
+/**
+ * Steps in the Resend dashboard.
+ *
+ * @return string[]
+ */
+function mlab_smtp_webhook_steps(): array {
+	return array(
+		__( 'Bei Resend im Menü «Webhooks» öffnen und «Add Webhook» wählen.', 'mlab-smtp' ),
+		__( 'Die Adresse des Kontos unten als «Endpoint URL» einfügen (Haupt- und Ersatzkonto je mit ihrer eigenen Adresse).', 'mlab-smtp' ),
+		__( 'Diese sechs Ereignisse ankreuzen: email.sent, email.delivered, email.delivery_delayed, email.bounced, email.complained, email.failed. Öffnen und Klicks werden nicht gebraucht.', 'mlab-smtp' ),
+		__( 'Webhook speichern, dann auf der Seite des Webhooks das «Signing Secret» (beginnt mit «whsec_») kopieren und hier einfügen.', 'mlab-smtp' ),
+		__( 'Änderungen speichern. Beim nächsten Versand erscheint hier das letzte empfangene Ereignis.', 'mlab-smtp' ),
+	);
+}
+
+/**
+ * Delivery row: sync or queue, background retry, unclear policy, attempts, retention of the content.
+ */
+function mlab_smtp_render_set_delivery(): void {
+	mlab_smtp_ui_row_open( __( 'Zustellung', 'mlab-smtp' ), __( 'Wann eine Mail als versendet gilt und was bei Störungen passiert.', 'mlab-smtp' ) );
+	echo '<div class="mlab-fields is-open">';
+	mlab_smtp_ui_field(
+		'delivery_mode',
+		__( 'Versandart', 'mlab-smtp' ),
+		array(
+			'options' => array(
+				'sync'  => __( 'Sofort senden (Standard)', 'mlab-smtp' ),
+				'queue' => __( 'Über die Warteschlange senden', 'mlab-smtp' ),
+			),
+			'help'    => __( 'Sofort: wp_mail() meldet «gesendet» nur, wenn der Anbieter die Mail angenommen hat. Warteschlange: wp_mail() meldet «gesendet», sobald die Mail sicher gespeichert ist. Das heisst nur «zum Versand angenommen», nicht «versendet»: Der Versand folgt im Hintergrund, Fehler zeigt erst das Protokoll. Mails mit sehr grossen Anhängen (über 10 MB) werden immer sofort gesendet.', 'mlab-smtp' ),
+		)
+	);
+	mlab_smtp_ui_switch( 'retry_in_background', __( 'Im Hintergrund wiederholen (nur bei «Sofort senden»)', 'mlab-smtp' ) );
+	echo '<p class="description">' . esc_html__( 'Schlägt der Versand vorübergehend fehl (Hauptweg und Ersatzweg), legt das Plugin die Mail in die Warteschlange, und wp_mail() meldet «angenommen» statt eines Fehlers. Aus (Standard): wp_mail() meldet den Fehler sofort.', 'mlab-smtp' ) . '</p>';
+	mlab_smtp_ui_switch( 'unclear_failover', __( 'Bei unklarem Ergebnis auf den Ersatzweg wechseln (Sofort senden)', 'mlab-smtp' ) );
+	mlab_smtp_ui_switch( 'queue_unclear_failover', __( 'Bei unklarem Ergebnis auch für Mails aus der Warteschlange auf den Ersatzweg wechseln', 'mlab-smtp' ) );
+	echo '<p class="description">' . esc_html__( 'Unklar heisst: Die Anfrage ging raus, die Antwort fehlt. Der Anbieter kann die Mail trotzdem angenommen haben, ein Wechsel kann dann ein Duplikat erzeugen. Unklare Mails werden nie automatisch erneut gesendet, ausser über Resend mit demselben Idempotenz-Schlüssel innerhalb von 23 Stunden.', 'mlab-smtp' ) . '</p>';
+	mlab_smtp_ui_field(
+		'max_attempts',
+		__( 'Höchstzahl der Versuche', 'mlab-smtp' ),
+		array(
+			'options' => array_combine( array( '2', '3', '4', '5', '6', '8', '10' ), array( '2', '3', '4', '5', '6', '8', '10' ) ),
+			'help'    => __( 'Abstand zwischen den Versuchen: 1 Minute, dann jeweils verdoppelt, höchstens 6 Stunden. Eine Retry-After-Angabe des Anbieters hat Vorrang.', 'mlab-smtp' ),
+		)
+	);
+	mlab_smtp_ui_field(
+		'payload_days',
+		__( 'Inhalt endgültig fehlgeschlagener Mails aufbewahren', 'mlab-smtp' ),
+		array(
+			'options' => array(
+				'1'  => __( '1 Tag', 'mlab-smtp' ),
+				'3'  => __( '3 Tage', 'mlab-smtp' ),
+				'7'  => __( '7 Tage', 'mlab-smtp' ),
+				'14' => __( '14 Tage (Höchstwert)', 'mlab-smtp' ),
+			),
+			'help'    => __( 'Verschlüsselt gespeichert, nur damit sich die Mail manuell wiederholen lässt. Nach der Annahme durch den Anbieter wird der Inhalt sofort gelöscht.', 'mlab-smtp' ),
+		)
+	);
+	echo '</div>';
+	echo '<p class="mlab-muted">' . esc_html__( 'Grenze: Einstellungen, die ein anderes Plugin nur am Mailer-Objekt setzt (zum Beispiel ein DKIM-Schlüssel), gelten nicht für Mails aus der Warteschlange. Die Warteschlange läuft über WP-Cron; ein System-Cron ist zuverlässiger.', 'mlab-smtp' ) . '</p>';
 	mlab_smtp_ui_row_close();
 }

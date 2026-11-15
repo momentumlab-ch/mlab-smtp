@@ -1,6 +1,5 @@
-# Release-Automatik: baut <slug>.zip, sobald main eine Version trägt, die noch kein Release hat.
+# Release-Automatik: prüft (bin/check.sh), baut und verifiziert dist/<slug>.zip, sobald main eine Version trägt, die noch kein Release hat.
 # Läuft auch bei einem Tag v*.*.* und von Hand (Actions > Release > Run workflow).
-# Vorlage aus dem Skill wordpress-development. Ins Projekt unter .github/workflows/release.yml kopieren.
 # Der Slug ist der Repo-Name. Die Hauptdatei heisst <slug>.php, bei Themes style.css.
 name: Release
 
@@ -45,47 +44,43 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: ZIP bauen und prüfen
+      - uses: shivammathur/setup-php@v2
+        if: steps.version.outputs.skip != 'true'
+        with:
+          php-version: '8.3'
+          extensions: sodium, pdo_sqlite, mysqli, mbstring
+          tools: composer:v2
+
+      - name: Abhängigkeiten und Testumgebung
+        if: steps.version.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          composer install --no-interaction --no-progress
+          bash tests/env/setup.sh
+
+      # Alle Prüfungen vor jedem Release-Artefakt: Lint, PHPCS, Version (gegen Tag/Version), Tests, i18n, Plugin Check,
+      # ZIP bauen und prüfen (inklusive Installationstest). Schlägt ein Schritt fehl oder wird einer übersprungen
+      # (MLAB_CHECK_STRICT=1), bricht der Workflow ab und es entsteht weder Release noch Asset.
+      - name: Prüfungen (bin/check.sh)
+        if: steps.version.outputs.skip != 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          MLAB_CHECK_STRICT: '1'
+          MLAB_REQUIRE_LOCALES: '1'
+        run: bash bin/check.sh "$VERSION"
+
+      - name: Verifiziertes ZIP bereitstellen
         if: steps.version.outputs.skip != 'true'
         env:
           SLUG: ${{ github.event.repository.name }}
-          VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
-          STAGE="$RUNNER_TEMP/stage"
-          mkdir -p "$STAGE/$SLUG"
-          tar --exclude-from=.distignore -cf - . | tar -xf - -C "$STAGE/$SLUG"
-
-          if [ -f "$STAGE/$SLUG/readme.txt" ]; then
-            STABLE=$(grep -m1 -i '^Stable tag:' "$STAGE/$SLUG/readme.txt" | sed 's/^[^:]*:[[:space:]]*//; s/[[:space:]]*$//' || true)
-            if [ "$STABLE" != "$VERSION" ]; then
-              echo "::error::Stable tag in readme.txt ($STABLE) passt nicht zur Version ($VERSION)"
-              exit 1
-            fi
-          fi
-
-          CONSTANT=$(grep -m1 -oE "define\( *'[A-Z_]*_VERSION', *'[^']*'" "$STAGE/$SLUG/$SLUG.php" "$STAGE/$SLUG/functions.php" 2>/dev/null | sed "s/.*'\([^']*\)'$/\1/" | head -n 1 || true)
-          if [ -n "$CONSTANT" ] && [ "$CONSTANT" != "$VERSION" ]; then
-            echo "::error::Versionskonstante ($CONSTANT) passt nicht zur Version ($VERSION)"
-            exit 1
-          fi
-
-          (cd "$STAGE" && zip -qr "$GITHUB_WORKSPACE/$SLUG.zip" "$SLUG")
-          unzip -Z1 "$GITHUB_WORKSPACE/$SLUG.zip" > "$RUNNER_TEMP/zip-list.txt"
-          if grep -qE '(^|/)(wp-config[^/]*\.php|\.env[^/]*)$' "$RUNNER_TEMP/zip-list.txt"; then
-            echo "::error::ZIP enthält eine Konfigurations- oder Secret-Datei (wp-config, .env)"
-            exit 1
-          fi
-          TOP=$(cut -d/ -f1 "$RUNNER_TEMP/zip-list.txt" | sort -u)
-          if [ "$TOP" != "$SLUG" ]; then
-            echo "::error::ZIP hat nicht genau einen Ordner oben namens $SLUG: $TOP"
-            exit 1
-          fi
-
-          SIZE=$(stat -c%s "$GITHUB_WORKSPACE/$SLUG.zip")
+          [ -f "dist/$SLUG.zip" ] || { echo "::error::dist/$SLUG.zip fehlt nach bin/check.sh (Repo-Name muss dem Slug entsprechen)."; exit 1; }
+          SIZE=$(stat -c%s "dist/$SLUG.zip")
           if [ "$SIZE" -gt 8388608 ]; then
             echo "::warning::ZIP ist grösser als 8 MB ($SIZE Bytes). Viele Hostings haben dort ein Upload-Limit."
           fi
+          sha256sum "dist/$SLUG.zip"
 
       - name: Release anlegen oder ZIP ergänzen
         if: steps.version.outputs.skip != 'true'
@@ -97,7 +92,7 @@ jobs:
         run: |
           set -euo pipefail
           TAG="v$VERSION"
-          ZIP="$GITHUB_WORKSPACE/$SLUG.zip"
+          ZIP="$GITHUB_WORKSPACE/dist/$SLUG.zip"
           if [ "$EXISTS" = "true" ]; then
             gh release upload "$TAG" "$ZIP" --clobber
             exit 0

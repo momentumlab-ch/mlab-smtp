@@ -17,10 +17,14 @@ defined( 'ABSPATH' ) || exit;
  * the wizard, empty for the default), help_settings (text on the settings page), suggest (function that suggests an
  * address) and panel (function that prints a status block above the sender fields).
  *
+ * @param bool $reset True, um den gemerkten Stand zu verwerfen (Tests, spät angehängte Filter).
  * @return array<string, array<string, mixed>>
  */
-function mlab_smtp_ui_providers(): array {
+function mlab_smtp_ui_providers( bool $reset = false ): array {
 	static $providers = null;
+	if ( $reset ) {
+		$providers = null;
+	}
 	if ( null === $providers ) {
 		$providers = array(
 			'm365'   => array(
@@ -87,6 +91,18 @@ function mlab_smtp_ui_providers(): array {
 				'sender'     => mlab_smtp_ui_sender( array( 'source' => 'smtp_user' ) ),
 			),
 		);
+		/**
+		 * Adds display data of providers that another plugin registered with the filter mlab_smtp_providers. Each entry
+		 * needs name, color, letter, card (text, bullets), connect (function), success and sender (see mlab_smtp_ui_sender()).
+		 *
+		 * @param array $extra Empty by default.
+		 */
+		foreach ( (array) apply_filters( 'mlab_smtp_ui_providers', array() ) as $id => $meta ) {
+			if ( is_string( $id ) && ! isset( $providers[ $id ] ) && is_array( $meta ) && ! array_diff( array( 'name', 'color', 'letter', 'card', 'connect', 'success', 'sender' ), array_keys( $meta ) ) ) {
+				$meta['sender']   = mlab_smtp_ui_sender( (array) $meta['sender'] );
+				$providers[ $id ] = $meta;
+			}
+		}
 	}
 	return $providers;
 }
@@ -201,30 +217,129 @@ function mlab_smtp_ui_pill( string $level, string $label ): void {
 }
 
 /**
- * Level of a log entry: ok when delivered, warn when only the fallback delivered, bad when it failed.
+ * Central wording for the status of a message. Every screen uses it, so «angenommen» is never called «zugestellt».
+ *
+ * @param string $status One of the store statuses.
+ * @return array{label:string, level:string, icon:string, text:string}
+ */
+function mlab_smtp_ui_message_status( string $status ): array {
+	$map = array(
+		'queued'      => array( __( 'Wartet auf Versand', 'mlab-smtp' ), 'info', '…', __( 'Die Mail liegt in der Warteschlange und wird gleich gesendet.', 'mlab-smtp' ) ),
+		'processing'  => array( __( 'Wird gesendet', 'mlab-smtp' ), 'info', '↻', __( 'Die Mail wird gerade an den Anbieter übergeben.', 'mlab-smtp' ) ),
+		'accepted'    => array( __( 'Vom Anbieter angenommen', 'mlab-smtp' ), 'ok', '✓', __( 'Der Anbieter hat die Mail übernommen. Ob sie im Postfach ankam, bestätigt er erst mit einem Zustellbeleg.', 'mlab-smtp' ) ),
+		'delivered'   => array( __( 'Zustellung bestätigt', 'mlab-smtp' ), 'ok', '✓', __( 'Der Anbieter hat die Zustellung ins Postfach des Empfängers bestätigt.', 'mlab-smtp' ) ),
+		'temp_failed' => array( __( 'Wird erneut versucht', 'mlab-smtp' ), 'warn', '↻', __( 'Der letzte Versuch hat nicht geklappt. Das Plugin versucht es automatisch noch einmal.', 'mlab-smtp' ) ),
+		'failed'      => array( __( 'Endgültig fehlgeschlagen', 'mlab-smtp' ), 'bad', '✕', __( 'Die Mail wurde nicht gesendet und wird nicht mehr automatisch versucht.', 'mlab-smtp' ) ),
+		'unclear'     => array( __( 'Versandstatus unklar', 'mlab-smtp' ), 'warn', '?', __( 'Der Anbieter hat möglicherweise angenommen. Das Plugin sendet nicht von selbst erneut, damit nichts doppelt ankommt.', 'mlab-smtp' ) ),
+		'partial'     => array( __( 'Teilweise angenommen', 'mlab-smtp' ), 'warn', '!', __( 'Einzelne Empfänger wurden abgelehnt, die übrigen wurden angenommen.', 'mlab-smtp' ) ),
+		'blocked'     => array( __( 'Nicht gesendet (Staging-Schutz)', 'mlab-smtp' ), 'warn', '–', __( 'Der Staging-Schutz hat den Versand dieser Mail verhindert.', 'mlab-smtp' ) ),
+		'bounced'     => array( __( 'Zurückgewiesen', 'mlab-smtp' ), 'bad', '✕', __( 'Der Mailserver des Empfängers hat die Mail zurückgewiesen.', 'mlab-smtp' ) ),
+		'complained'  => array( __( 'Als Spam gemeldet', 'mlab-smtp' ), 'bad', '✕', __( 'Der Empfänger hat die Mail als unerwünscht gemeldet.', 'mlab-smtp' ) ),
+	);
+	$row = $map[ $status ] ?? array( __( 'Status unbekannt', 'mlab-smtp' ), 'info', 'i', '' );
+	return array(
+		'label' => $row[0],
+		'level' => $row[1],
+		'icon'  => $row[2],
+		'text'  => $row[3],
+	);
+}
+
+/**
+ * Level of a log entry from its status; accepted by the fallback shows as a warning.
  *
  * @param array $entry Log entry.
  */
 function mlab_smtp_ui_entry_level( array $entry ): string {
-	if ( empty( $entry['ok'] ) ) {
-		return 'bad';
+	$level = mlab_smtp_ui_message_status( (string) ( $entry['status'] ?? '' ) )['level'];
+	if ( 'info' === $level && '' === (string) ( $entry['status'] ?? '' ) ) {
+		$level = empty( $entry['ok'] ) ? 'bad' : 'ok';
 	}
-	return empty( $entry['fallback'] ) ? 'ok' : 'warn';
+	return 'ok' === $level && ! empty( $entry['fallback'] ) ? 'warn' : $level;
 }
 
 /**
- * Prints the result pill of a log entry.
+ * Prints the status pill: icon and text, never colour alone.
+ *
+ * @param string $status Store status.
+ */
+function mlab_smtp_ui_status_pill( string $status ): void {
+	$info = mlab_smtp_ui_message_status( $status );
+	mlab_smtp_ui_icon_pill( $info['level'], $info['label'], $info['icon'] );
+}
+
+/**
+ * Prints a pill with an icon in front of the text.
+ *
+ * @param string $level ok, warn, bad, info or neu.
+ * @param string $label Text.
+ * @param string $icon  Icon character; empty for the icon of the level.
+ */
+function mlab_smtp_ui_icon_pill( string $level, string $label, string $icon = '' ): void {
+	echo '<span class="mlab-pill has-icon is-' . esc_attr( $level ) . '"><span aria-hidden="true">' . esc_html( '' !== $icon ? $icon : mlab_smtp_ui_icon( $level ) ) . '</span>' . esc_html( $label ) . '</span>';
+}
+
+/**
+ * Prints the result pill of a log entry: its status and, when the fallback took over, a second pill.
  *
  * @param array $entry Log entry.
  */
 function mlab_smtp_ui_entry_pill( array $entry ): void {
-	$level  = mlab_smtp_ui_entry_level( $entry );
-	$labels = array(
-		'ok'   => __( 'Zugestellt', 'mlab-smtp' ),
-		'warn' => __( 'Ersatzweg', 'mlab-smtp' ),
-		'bad'  => __( 'Fehlgeschlagen', 'mlab-smtp' ),
-	);
-	mlab_smtp_ui_pill( $level, $labels[ $level ] );
+	mlab_smtp_ui_status_pill( (string) ( $entry['status'] ?? ( empty( $entry['ok'] ) ? 'failed' : 'accepted' ) ) );
+	if ( ! empty( $entry['fallback'] ) ) {
+		mlab_smtp_ui_pill( 'warn', __( 'Ersatzweg', 'mlab-smtp' ) );
+	}
+}
+
+/**
+ * Page numbers to show: first, last and the neighbours of the current page; null marks a gap.
+ *
+ * @param int $page  Current page.
+ * @param int $pages Number of pages.
+ * @return array<int, int|null>
+ */
+function mlab_smtp_ui_page_window( int $page, int $pages ): array {
+	$shown = array_unique( array_merge( array( 1, $pages ), range( max( 1, $page - 2 ), min( $pages, $page + 2 ) ) ) );
+	sort( $shown );
+	$out  = array();
+	$prev = 0;
+	foreach ( $shown as $number ) {
+		if ( $prev && $number - $prev > 1 ) {
+			$out[] = null;
+		}
+		$out[] = $number;
+		$prev  = $number;
+	}
+	return $out;
+}
+
+/**
+ * Pagination with total count, previous, next and page numbers. Plain links, no script.
+ *
+ * @param array $result Result of mlab_smtp_store_list().
+ * @param array $args Query arguments of the page (view, filter, status, s).
+ */
+function mlab_smtp_ui_pagination( array $result, array $args ): void {
+	$page  = (int) $result['page'];
+	$pages = (int) $result['pages'];
+	/* translators: %d: number of messages */
+	$total = sprintf( _n( '%d Eintrag', '%d Einträge', (int) $result['total'], 'mlab-smtp' ), (int) $result['total'] );
+	echo '<nav class="mlab-pager" aria-label="' . esc_attr__( 'Seiten', 'mlab-smtp' ) . '"><span class="mlab-muted">' . esc_html( $total ) . '</span>';
+	if ( $pages > 1 ) {
+		$link = static function ( int $to, string $label, string $aria = '' ) use ( $args, $page ): string {
+			$url = mlab_smtp_page_url( array_merge( $args, array( 'paged' => $to ) ) );
+			return '<a class="button" href="' . esc_url( $url ) . '"' . ( $to === $page ? ' aria-current="page"' : '' ) . ( '' !== $aria ? ' aria-label="' . esc_attr( $aria ) . '"' : '' ) . '>' . esc_html( $label ) . '</a>';
+		};
+		echo '<span class="mlab-pager-links">';
+		echo $page > 1 ? $link( $page - 1, __( 'Zurück', 'mlab-smtp' ) ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in the closure.
+		foreach ( mlab_smtp_ui_page_window( $page, $pages ) as $number ) {
+			/* translators: %d: page number */
+			echo null === $number ? '<span aria-hidden="true">…</span>' : $link( $number, (string) $number, sprintf( __( 'Seite %d', 'mlab-smtp' ), $number ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in the closure.
+		}
+		echo $page < $pages ? $link( $page + 1, __( 'Weiter', 'mlab-smtp' ) ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in the closure.
+		echo '</span>';
+	}
+	echo '</nav>';
 }
 
 /**
@@ -477,9 +592,21 @@ function mlab_smtp_ui_row_close(): void {
  * @return array{message:string, detail:string}
  */
 function mlab_smtp_ui_error_texts( string $raw ): array {
+	$raw  = mlab_smtp_redact( $raw );
 	$hint = mlab_smtp_explain_error( $raw );
 	return array(
 		'message' => '' !== $hint ? $hint : $raw,
 		'detail'  => $raw,
 	);
+}
+
+/**
+ * Warning that appears next to the encryption choice while «none» is selected (CSS only, no script needed).
+ *
+ * @param string $field Name of the field: smtp_secure or fb_smtp_secure.
+ */
+function mlab_smtp_render_insecure_note( string $field ): void {
+	echo '<div class="mlab-insecure" data-for="' . esc_attr( $field ) . '" role="alert">';
+	mlab_smtp_ui_hint( 'bad', __( 'Nicht empfohlen: keine Verschlüsselung', 'mlab-smtp' ), mlab_smtp_insecure_text() );
+	echo '</div>';
 }

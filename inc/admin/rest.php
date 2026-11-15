@@ -86,7 +86,7 @@ function mlab_smtp_register_routes(): void {
  * Only administrators may call the routes; the wp_rest nonce is checked by core.
  */
 function mlab_smtp_rest_permission(): bool {
-	return current_user_can( 'manage_options' );
+	return current_user_can( mlab_smtp_capability() );
 }
 
 /**
@@ -144,6 +144,9 @@ function mlab_smtp_run_check( string $route ): array {
 	if ( 'primary' === $route ) {
 		mlab_smtp_wizard_flag( 'verified', true === $result );
 	}
+	if ( mlab_smtp_route_filled( $route ) ) {
+		mlab_smtp_readiness_record( $route, 'check', true === $result );
+	}
 	if ( true === $result ) {
 		return array(
 			'ok'      => true,
@@ -151,7 +154,7 @@ function mlab_smtp_run_check( string $route ): array {
 			'detail'  => '',
 		);
 	}
-	$texts = mlab_smtp_ui_error_texts( $result->get_error_message() );
+	$texts = mlab_smtp_route_error_texts( $result->get_error_message(), $route );
 	return array(
 		'ok'      => false,
 		'message' => $texts['message'],
@@ -192,14 +195,16 @@ function mlab_smtp_run_test_request( string $to ): array {
 	if ( $result['sent'] && 'fallback' === $result['via'] ) {
 		// Delivered, but not by the main route: the setup must not count as tested.
 		mlab_smtp_wizard_flag( 'tested', false );
+		mlab_smtp_readiness_record( 'primary', 'test', false );
 		return array(
 			'ok'      => false,
-			'message' => __( 'Die Testmail wurde nur über den Ersatzweg zugestellt. Der Hauptweg funktioniert nicht. Bitte beheben Sie zuerst den Fehler und senden Sie die Testmail erneut.', 'mlab-smtp' ),
+			'message' => __( 'Die Testmail wurde nur vom Ersatzweg angenommen. Der Hauptweg funktioniert nicht. Bitte beheben Sie zuerst den Fehler und senden Sie die Testmail erneut.', 'mlab-smtp' ),
 			'detail'  => $result['error'],
 		);
 	}
 	if ( $result['sent'] ) {
 		mlab_smtp_wizard_flag( 'tested', true );
+		mlab_smtp_readiness_record( 'primary', 'test', true, $to );
 		return array(
 			'ok'      => true,
 			/* translators: %s: recipient address */
@@ -208,6 +213,7 @@ function mlab_smtp_run_test_request( string $to ): array {
 		);
 	}
 	mlab_smtp_wizard_flag( 'tested', false );
+	mlab_smtp_readiness_record( 'primary', 'test', false );
 	return array(
 		'ok'      => false,
 		'message' => '' !== $result['hint'] ? $result['hint'] : $result['error'],

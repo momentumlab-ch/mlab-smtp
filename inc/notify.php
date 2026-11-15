@@ -135,7 +135,7 @@ function mlab_smtp_notify_flush(): void {
 function mlab_smtp_notify_subject( bool $fallback ): string {
 	$site = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 	/* translators: %s: site name */
-	$format = $fallback ? __( '[%s] E-Mail-Versand: Hauptweg gestört', 'mlab-smtp' ) : __( '[%s] E-Mail-Versand: Mails werden nicht zugestellt', 'mlab-smtp' );
+	$format = $fallback ? __( '[%s] E-Mail-Versand: Hauptweg gestört', 'mlab-smtp' ) : __( '[%s] E-Mail-Versand: Mails werden nicht gesendet', 'mlab-smtp' );
 	return sprintf( $format, $site );
 }
 
@@ -148,7 +148,7 @@ function mlab_smtp_notify_subject( bool $fallback ): string {
 function mlab_smtp_notify_body( string $error, bool $fallback ): string {
 	$intro = $fallback
 		? __( 'Der Hauptweg für den E-Mail-Versand Ihrer Website ist gestört. Der Ersatzweg stellt die Mails derzeit zu.', 'mlab-smtp' )
-		: __( 'Mails Ihrer Website werden zurzeit nicht zugestellt.', 'mlab-smtp' );
+		: __( 'Mails Ihrer Website werden zurzeit nicht gesendet.', 'mlab-smtp' );
 	$hint  = mlab_smtp_explain_error( $error );
 	$lines = array( $intro, '', __( 'Fehler:', 'mlab-smtp' ) . ' ' . $error );
 	if ( '' !== $hint ) {
@@ -172,7 +172,7 @@ function mlab_smtp_daily(): void {
 	if ( 'daily' === mlab_smtp_get( 'notify_mode' ) && $state['failing_since'] ) {
 		mlab_smtp_send_notification(
 			mlab_smtp_notify_subject( (bool) $state['last_fallback'] ),
-			mlab_smtp_notify_body( (string) $state['last_error'], (bool) $state['last_fallback'] ),
+			mlab_smtp_notify_body( mlab_smtp_redact( (string) $state['last_error'] ), (bool) $state['last_fallback'] ),
 			true
 		);
 	}
@@ -235,7 +235,7 @@ function mlab_smtp_notify_expiry(): void {
  */
 function mlab_smtp_expiry_body( int $days ): string {
 	$when = $days < 0
-		? __( 'Das Client-Secret für Microsoft 365 ist abgelaufen. Mails werden nicht mehr zugestellt.', 'mlab-smtp' )
+		? __( 'Das Client-Secret für Microsoft 365 ist abgelaufen. Mails werden nicht mehr gesendet.', 'mlab-smtp' )
 		/* translators: %d: number of days */
 		: sprintf( _n( 'Das Client-Secret für Microsoft 365 läuft in %d Tag ab.', 'Das Client-Secret für Microsoft 365 läuft in %d Tagen ab.', $days, 'mlab-smtp' ), $days );
 	return $when . "\n\n" . __( 'Erstellen Sie in Microsoft Entra ein neues Secret und tragen Sie es samt Ablaufdatum hier ein:', 'mlab-smtp' ) . ' ' . mlab_smtp_page_url( array( 'view' => 'settings' ) );
@@ -254,7 +254,7 @@ function mlab_smtp_is_plugin_screen(): bool {
  * or while the send route has a problem (everywhere).
  */
 function mlab_smtp_admin_notice(): void {
-	if ( ! current_user_can( 'manage_options' ) || mlab_smtp_is_plugin_screen() ) {
+	if ( ! current_user_can( mlab_smtp_capability() ) || mlab_smtp_is_plugin_screen() ) {
 		return;
 	}
 	$status = mlab_smtp_status();

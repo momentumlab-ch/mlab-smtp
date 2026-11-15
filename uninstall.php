@@ -23,6 +23,17 @@ function mlab_smtp_uninstall_user_transients(): array {
 }
 
 /**
+ * Drops the four tables of the current site.
+ */
+function mlab_smtp_uninstall_tables(): void {
+	global $wpdb;
+	foreach ( array( 'messages', 'attempts', 'events', 'recipients' ) as $name ) {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Fixed table names, uninstall cleanup.
+		$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $wpdb->prefix . 'mlab_smtp_' . $name ) );
+	}
+}
+
+/**
  * Removes the data of the current site.
  */
 function mlab_smtp_uninstall_site(): void {
@@ -36,13 +47,19 @@ function mlab_smtp_uninstall_site(): void {
 	foreach ( array_merge( $transients, mlab_smtp_uninstall_user_transients() ) as $transient ) {
 		delete_transient( $transient );
 	}
-	foreach ( array( 'mlab_smtp_token_keys', 'mlab_smtp_options', 'mlab_smtp_log', 'mlab_smtp_state', 'mlab_smtp_db_version' ) as $option ) {
+	foreach ( array( 'mlab_smtp_token_keys', 'mlab_smtp_options', 'mlab_smtp_log', 'mlab_smtp_state', 'mlab_smtp_db_version', 'mlab_smtp_hmac_key', 'mlab_smtp_migration', 'mlab_smtp_migration_lock' ) as $option ) {
 		delete_option( $option );
 	}
-	wp_clear_scheduled_hook( 'mlab_smtp_daily' );
+	foreach ( array( 'mlab_smtp_daily', 'mlab_smtp_process_queue' ) as $hook ) {
+		wp_clear_scheduled_hook( $hook );
+	}
+	mlab_smtp_uninstall_tables();
 	// Remaining transients by prefix (DNS and detection cache, OAuth states, tokens of older versions).
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Uninstall cleanup of prefixed transients.
 	$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '\_transient\_mlab\_smtp\_%' OR option_name LIKE '\_transient\_timeout\_mlab\_smtp\_%'" );
+	// Every option of the plugin has the prefix mlab_smtp_: a list that is kept by hand drifts, so remove by prefix as well.
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Uninstall cleanup of prefixed options.
+	$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'mlab\_smtp\_%'" );
 }
 
 mlab_smtp_uninstall_site();
