@@ -339,7 +339,7 @@ function mlab_smtp_run_fallback_test( string $to ): array {
 
 	/* translators: %s: site name */
 	$subject = sprintf( __( 'Testmail über den Ersatzweg von %s', 'mlab-smtp' ), wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ) );
-	$sent    = wp_mail( $to, $subject, __( 'Diese Nachricht bestätigt, dass der Ersatzweg Mails zustellen kann.', 'mlab-smtp' ) );
+	$sent    = wp_mail( $to, $subject, __( 'Diese Nachricht bestätigt, dass der Ersatzweg Mails versenden kann.', 'mlab-smtp' ) );
 
 	mlab_smtp_flag( 'fallback_only', false );
 	mlab_smtp_flag( 'force', false );

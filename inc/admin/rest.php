@@ -198,7 +198,7 @@ function mlab_smtp_run_test_request( string $to ): array {
 		mlab_smtp_readiness_record( 'primary', 'test', false );
 		return array(
 			'ok'      => false,
-			'message' => __( 'Die Testmail wurde nur über den Ersatzweg zugestellt. Der Hauptweg funktioniert nicht. Bitte beheben Sie zuerst den Fehler und senden Sie die Testmail erneut.', 'mlab-smtp' ),
+			'message' => __( 'Die Testmail wurde nur vom Ersatzweg angenommen. Der Hauptweg funktioniert nicht. Bitte beheben Sie zuerst den Fehler und senden Sie die Testmail erneut.', 'mlab-smtp' ),
 			'detail'  => $result['error'],
 		);
 	}

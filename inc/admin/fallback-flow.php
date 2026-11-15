@@ -485,7 +485,7 @@ function mlab_smtp_fallback_post_test( array $input ): int {
 function mlab_smtp_fallback_post_activate(): int {
 	$state = mlab_smtp_route_state( 'fallback' );
 	if ( ! $state['getestet'] || $state['veraltet'] ) {
-		mlab_smtp_flash( 'error', __( 'Der Ersatzweg lässt sich erst einschalten, wenn eine aktuelle Testmail über den Ersatzweg zugestellt wurde.', 'mlab-smtp' ) );
+		mlab_smtp_flash( 'error', __( 'Der Ersatzweg lässt sich erst einschalten, wenn eine aktuelle Testmail vom Ersatzweg angenommen wurde.', 'mlab-smtp' ) );
 		return 7;
 	}
 	mlab_smtp_store( array( 'fallback_enabled' => 1 ) );

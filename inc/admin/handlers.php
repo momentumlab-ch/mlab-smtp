@@ -246,7 +246,7 @@ function mlab_smtp_wizard_step_test( array $input, string $provider, string $act
 		mlab_smtp_wizard_flag( 'tested', false );
 		mlab_smtp_wizard_flag( 'verified', false );
 		mlab_smtp_draft_provider( '' );
-		mlab_smtp_flash( 'success', __( 'Einrichtung abgeschlossen. Mails werden jetzt zugestellt.', 'mlab-smtp' ) );
+		mlab_smtp_flash( 'success', __( 'Einrichtung abgeschlossen. Mails werden jetzt über den neuen Versandweg gesendet.', 'mlab-smtp' ) );
 		mlab_smtp_back();
 	}
 	if ( 'finish' === $action ) {

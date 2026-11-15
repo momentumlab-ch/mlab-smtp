@@ -172,11 +172,11 @@ function mlab_smtp_route_state_summary( array $state ): array {
 	}
 	if ( $state['getestet'] ) {
 		/* translators: %s: Der Ersatzweg or Der Hauptweg */
-		return mlab_smtp_summary( 'ok', __( 'Getestet', 'mlab-smtp' ), sprintf( __( '%s hat eine Testmail erfolgreich zugestellt.', 'mlab-smtp' ), $name ) );
+		return mlab_smtp_summary( 'ok', __( 'Getestet', 'mlab-smtp' ), sprintf( __( '%s hat eine Testmail erfolgreich angenommen.', 'mlab-smtp' ), $name ) );
 	}
 	if ( $state['geprueft'] ) {
 		/* translators: %s: Der Ersatzweg or Der Hauptweg */
-		return mlab_smtp_summary( 'warn', __( 'Geprüft, nicht getestet', 'mlab-smtp' ), sprintf( __( '%s ist erreichbar, aber es wurde noch keine Testmail erfolgreich zugestellt.', 'mlab-smtp' ), $name ) );
+		return mlab_smtp_summary( 'warn', __( 'Geprüft, nicht getestet', 'mlab-smtp' ), sprintf( __( '%s ist erreichbar, aber es wurde noch keine Testmail erfolgreich angenommen.', 'mlab-smtp' ), $name ) );
 	}
 	/* translators: %s: Der Ersatzweg or Der Hauptweg */
 	return mlab_smtp_summary( 'warn', __( 'Eingetragen, nicht geprüft', 'mlab-smtp' ), sprintf( __( '%s ist eingetragen, aber noch nicht geprüft. Eingetragen heisst nicht, dass er funktioniert.', 'mlab-smtp' ), $name ) );
