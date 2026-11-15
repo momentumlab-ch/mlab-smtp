@@ -57,14 +57,7 @@ function mlab_smtp_with_resend_key( string $name, callable $callback ) {
  * @return true|WP_Error
  */
 function mlab_smtp_send_resend_fallback( $mailer ) {
-	// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Property names are the PHPMailer API.
-	if ( is_email( (string) mlab_smtp_get( 'from_email' ) ) ) {
-		$mailer->From = (string) mlab_smtp_get( 'from_email' );
-		if ( '' !== (string) mlab_smtp_get( 'from_name' ) ) {
-			$mailer->FromName = (string) mlab_smtp_get( 'from_name' );
-		}
-	}
-	// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	mlab_smtp_apply_fallback_sender( $mailer );
 	return mlab_smtp_with_resend_key(
 		'fb_resend_api_key',
 		static function () use ( $mailer ) {

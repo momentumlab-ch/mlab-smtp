@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-foreach ( array( 'components', 'handlers', 'rest', 'overview', 'wizard', 'resend-view', 'queue-view', 'log-view', 'settings-view', 'fallback-flow', 'fallback-actions', 'foreign-notices' ) as $mlab_smtp_admin_file ) {
+foreach ( array( 'components', 'domain-view', 'license-view', 'handlers', 'rest', 'overview', 'wizard', 'resend-view', 'queue-view', 'log-view', 'settings-view', 'fallback-flow', 'fallback-actions', 'foreign-notices' ) as $mlab_smtp_admin_file ) {
 	require_once MLAB_SMTP_DIR . 'inc/admin/' . $mlab_smtp_admin_file . '.php';
 }
 unset( $mlab_smtp_admin_file );

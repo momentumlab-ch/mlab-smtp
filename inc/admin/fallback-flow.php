@@ -212,21 +212,11 @@ function mlab_smtp_render_fb_credentials(): void {
  * Step 4: the sender the fallback really uses.
  */
 function mlab_smtp_render_fb_sender(): void {
-	$email = (string) mlab_smtp_get( 'from_email' );
-	$name  = (string) mlab_smtp_get( 'from_name' );
 	echo '<h2>' . esc_html__( 'Absender des Ersatzwegs', 'mlab-smtp' ) . '</h2>';
-	echo '<p class="mlab-muted">' . esc_html__( 'Der Ersatzweg sendet immer mit der gespeicherten Absender-Adresse, nicht mit der Adresse, die ein anderes Plugin für eine Mail setzt. Nur so passen Absender und Domain zusammen.', 'mlab-smtp' ) . '</p>';
-	$settings = mlab_smtp_page_url( array( 'view' => 'settings' ) );
-	if ( ! is_email( $email ) ) {
-		mlab_smtp_ui_hint( 'bad', __( 'Keine Absender-Adresse gespeichert', 'mlab-smtp' ), __( 'Ohne Absender-Adresse kann der Ersatzweg keine Mail senden. Tragen Sie sie unter «Einstellungen» ein.', 'mlab-smtp' ) );
-		echo '<p><a class="button" href="' . esc_url( $settings ) . '">' . esc_html__( 'Zu den Einstellungen', 'mlab-smtp' ) . '</a></p>';
-		mlab_smtp_render_fb_nav( 4, false );
-		return;
-	}
-	echo '<dl class="mlab-facts"><dt>' . esc_html__( 'Absender-Adresse', 'mlab-smtp' ) . '</dt><dd>' . esc_html( '' !== $name ? $name . ' <' . $email . '>' : $email ) . '</dd>';
-	echo '<dt>' . esc_html__( 'Domain', 'mlab-smtp' ) . '</dt><dd>' . esc_html( mlab_smtp_domain_of( $email ) ) . '</dd></dl>';
-	echo '<p class="mlab-muted">' . esc_html__( 'Ändern Sie die Adresse, muss der Ersatzweg danach erneut geprüft und getestet werden.', 'mlab-smtp' ) . ' <a href="' . esc_url( $settings ) . '">' . esc_html__( 'Absender ändern', 'mlab-smtp' ) . '</a></p>';
-	mlab_smtp_render_fb_nav( 4 );
+	mlab_smtp_fb_form_open( 4 );
+	mlab_smtp_render_fallback_sender_fields();
+	echo '<div class="mlab-foot"><a class="button button-link" href="' . esc_url( mlab_smtp_fallback_url( 3 ) ) . '">' . esc_html__( 'Zurück', 'mlab-smtp' ) . '</a><button type="submit" class="button button-primary">' . esc_html__( 'Weiter', 'mlab-smtp' ) . '</button></div>';
+	mlab_smtp_ui_form_close();
 }
 
 /**
@@ -234,13 +224,10 @@ function mlab_smtp_render_fb_sender(): void {
  */
 function mlab_smtp_render_fb_domain(): void {
 	echo '<h2>' . esc_html__( 'Status der Domain', 'mlab-smtp' ) . '</h2>';
-	if ( 'resend' !== mlab_smtp_fallback_provider() ) {
-		mlab_smtp_ui_hint( 'info', __( 'Der Mailserver entscheidet', 'mlab-smtp' ), __( 'Beim eigenen Mailserver gibt es keinen Domain-Status, den das Plugin abfragen kann. Der Server entscheidet, ob er die Absender-Adresse annimmt. Die Testmail im nächsten Schritt zeigt es.', 'mlab-smtp' ) );
-	} elseif ( 'sending' === mlab_smtp_fallback_resend_scope() ) {
-		mlab_smtp_ui_hint( 'info', __( 'Domain-Status nicht lesbar', 'mlab-smtp' ), mlab_smtp_fallback_sending_text() );
-	} else {
-		mlab_smtp_render_fb_domain_state();
-	}
+	mlab_smtp_render_domain_check( 'fallback', false );
+	mlab_smtp_fb_form_open( 5 );
+	echo '<button type="submit" name="do" value="recheck" class="button">' . esc_html__( 'Nochmals prüfen', 'mlab-smtp' ) . '</button>';
+	mlab_smtp_ui_form_close();
 	mlab_smtp_render_fb_nav( 5 );
 }
 
@@ -251,7 +238,7 @@ function mlab_smtp_render_fb_domain_state(): void {
 	$state = mlab_smtp_with_resend_key(
 		'fb_resend_api_key',
 		static function (): array {
-			return mlab_smtp_resend_domain_state( mlab_smtp_resend_sender_domain(), false, true );
+			return mlab_smtp_resend_domain_state( mlab_smtp_domain_of( mlab_smtp_sender_for_route( 'fallback' )['email'] ), false, true );
 		}
 	);
 	$text  = mlab_smtp_resend_state_text( $state );
@@ -352,6 +339,7 @@ function mlab_smtp_handle_fallback(): void {
 		array(
 			1 => 'mlab_smtp_fallback_post_provider',
 			3 => 'mlab_smtp_fallback_post_credentials',
+			4 => 'mlab_smtp_fallback_post_sender',
 			5 => 'mlab_smtp_fallback_post_domain',
 			6 => 'mlab_smtp_fallback_post_test',
 			7 => 'mlab_smtp_fallback_post_activate',
@@ -447,19 +435,11 @@ function mlab_smtp_flash_fallback_check(): void {
  * @return int Next step.
  */
 function mlab_smtp_fallback_post_domain( array $input, string $action ): int {
-	if ( 'recheck' !== $action || 'resend' !== mlab_smtp_fallback_provider() ) {
+	if ( 'recheck' !== $action ) {
 		return 6;
 	}
-	mlab_smtp_with_resend_key(
-		'fb_resend_api_key',
-		static function (): void {
-			$state = mlab_smtp_resend_domain_state( mlab_smtp_resend_sender_domain(), true );
-			if ( '' !== $state['id'] && 'verified' !== $state['state'] ) {
-				mlab_smtp_resend_verify( $state['id'] );
-			}
-		}
-	);
-	mlab_smtp_flash( 'success', __( 'Resend prüft die DNS-Einträge jetzt. Das dauert meist wenige Minuten. Laden Sie die Seite danach neu oder wählen Sie «Nochmals prüfen» erneut.', 'mlab-smtp' ) );
+	mlab_smtp_domain_report( 'fallback', true );
+	mlab_smtp_flash( 'success', __( 'DNS-Prüfung aktualisiert. DNS-Änderungen können verzögert sichtbar werden.', 'mlab-smtp' ) );
 	return 5;
 }
 
@@ -499,4 +479,19 @@ function mlab_smtp_fallback_post_activate(): int {
 	mlab_smtp_store( array( 'fallback_enabled' => 1 ) );
 	mlab_smtp_flash( 'success', __( 'Der Ersatzweg ist eingeschaltet. Fällt der Hauptweg aus, stellt er die Mails zu.', 'mlab-smtp' ) );
 	return 7;
+}
+
+/**
+ * Saves the independent backup sender without changing the primary mailbox.
+ *
+ * @param array $input Submitted sender fields.
+ * @return int Next step.
+ */
+function mlab_smtp_fallback_post_sender( array $input ): int {
+	$errors = mlab_smtp_save_fields( $input, array( 'fb_from_email', 'fb_from_name', 'fb_reply_to', 'fb_dkim_selector' ) );
+	if ( $errors ) {
+		mlab_smtp_flash( 'error', implode( ' ', $errors ) );
+		return 4;
+	}
+	return 5;
 }

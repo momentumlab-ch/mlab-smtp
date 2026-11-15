@@ -22,8 +22,8 @@ add_action( 'admin_post_mlab_smtp_reencrypt', 'mlab_smtp_handle_reencrypt' );
  * @return array<string, string[]>
  */
 function mlab_smtp_key_groups(): array {
-	$sender   = array( 'from_name', 'from_email', 'reply_to' );
-	$fallback = array( 'fallback_enabled', 'fb_provider', 'fb_resend_api_key', 'fb_smtp_host', 'fb_smtp_port', 'fb_smtp_secure', 'fb_smtp_auth', 'fb_smtp_user', 'fb_smtp_pass' );
+	$sender   = array( 'from_name', 'from_email', 'reply_to', 'dkim_selector' );
+	$fallback = array( 'fb_from_email', 'fb_from_name', 'fb_reply_to', 'fb_dkim_selector', 'fallback_enabled', 'fb_provider', 'fb_resend_api_key', 'fb_smtp_host', 'fb_smtp_port', 'fb_smtp_secure', 'fb_smtp_auth', 'fb_smtp_user', 'fb_smtp_pass' );
 	$groups   = array();
 	foreach ( mlab_smtp_provider_defs() as $id => $def ) {
 		$groups[ $id ] = $def['group'];
@@ -214,13 +214,7 @@ function mlab_smtp_flash_check( string $route ): void {
  * @param string $provider Chosen provider.
  */
 function mlab_smtp_wizard_step_sender( array $input, string $provider ): void {
-	$errors  = mlab_smtp_save_group( 'sender', $input );
-	$blocker = mlab_smtp_provider_def( $provider )['sender_block'] ?? null;
-	if ( ! $errors && $blocker ) {
-		// A sender that the provider would reject makes the test mail fail: stop here with the way out.
-		$block  = call_user_func( $blocker );
-		$errors = null === $block ? array() : array( $block );
-	}
+	$errors = mlab_smtp_save_group( 'sender', $input );
 	if ( $errors ) {
 		mlab_smtp_flash( 'error', implode( ' ', $errors ) );
 	}

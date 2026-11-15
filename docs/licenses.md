@@ -19,3 +19,11 @@ MIT ist GPL-2.0-or-later-kompatibel. Der Lizenztext und der Copyright-Hinweis vo
 
 ## Pflege
 Beim Aktualisieren von `lib/plugin-update-checker` Version und Lizenzdatei prüfen, diese Tabelle anpassen und `bash bin/check.sh` ausführen.
+
+## Public Suffix List
+
+`assets/public-suffix-list.dat` is the Public Suffix List from
+https://publicsuffix.org/list/public_suffix_list.dat (retrieved 2026-11-15),
+licensed under Mozilla Public License 2.0 as stated in its header. Its source
+and copyright notices are included verbatim. Used for DMARC organizational-domain
+inheritance, including multi-label suffixes, wildcards and exceptions.

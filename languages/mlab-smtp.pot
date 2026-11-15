@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MomentumLab SMTP 1.5.2\n"
+"Project-Id-Version: MomentumLab SMTP 1.5.3\n"
 "Report-Msgid-Bugs-To: https://github.com/momentumlab-ch/mlab-smtp/issues\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: MomentumLab\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-15T11:00:08+00:00\n"
+"POT-Creation-Date: 2026-11-15T13:44:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mlab-smtp\n"
@@ -231,12 +231,12 @@ msgid "Status unbekannt"
 msgstr ""
 
 #: inc/admin/components.php:290
-#: inc/admin/fallback-flow.php:90
+#: inc/admin/fallback-flow.php:89
 #: inc/admin/log-view.php:238
 #: inc/admin/overview.php:270
 #: inc/admin/queue-view.php:225
 #: inc/admin/settings-view.php:20
-#: inc/admin/settings-view.php:78
+#: inc/admin/settings-view.php:83
 #: inc/health.php:252
 msgid "Ersatzweg"
 msgstr ""
@@ -254,9 +254,10 @@ msgid "Seiten"
 msgstr ""
 
 #: inc/admin/components.php:334
-#: inc/admin/fallback-flow.php:137
-#: inc/admin/fallback-flow.php:204
-#: inc/admin/fallback-flow.php:325
+#: inc/admin/fallback-flow.php:141
+#: inc/admin/fallback-flow.php:207
+#: inc/admin/fallback-flow.php:218
+#: inc/admin/fallback-flow.php:318
 #: inc/admin/wizard.php:92
 msgid "Zurück"
 msgstr ""
@@ -268,22 +269,23 @@ msgid "Seite %d"
 msgstr ""
 
 #: inc/admin/components.php:339
-#: inc/admin/fallback-flow.php:139
-#: inc/admin/fallback-flow.php:159
-#: inc/admin/fallback-flow.php:204
+#: inc/admin/fallback-flow.php:143
+#: inc/admin/fallback-flow.php:163
+#: inc/admin/fallback-flow.php:207
+#: inc/admin/fallback-flow.php:218
 #: inc/admin/wizard.php:116
 #: inc/admin/wizard.php:154
-#: inc/admin/wizard.php:350
+#: inc/admin/wizard.php:368
 msgid "Weiter"
 msgstr ""
 
 #: inc/admin/components.php:370
-#: inc/admin/page.php:162
+#: inc/admin/page.php:166
 msgid "Technische Meldung"
 msgstr ""
 
 #: inc/admin/components.php:386
-#: inc/admin/page.php:161
+#: inc/admin/page.php:165
 msgid "Kopieren"
 msgstr ""
 
@@ -297,6 +299,141 @@ msgstr ""
 
 #: inc/admin/components.php:610
 msgid "Nicht empfohlen: keine Verschlüsselung"
+msgstr ""
+
+#: inc/admin/domain-view.php:16
+#: inc/admin/fallback-flow.php:215
+msgid "Absender des Ersatzwegs"
+msgstr ""
+
+#: inc/admin/domain-view.php:16
+msgid "Leer = Hauptversand übernehmen. Für den Webhoster zum Beispiel website@send.momentumlab.ch verwenden. Diese Adresse muss beim Hoster erlaubt sein; der SMTP-Servername ist davon unabhängig."
+msgstr ""
+
+#: inc/admin/domain-view.php:19
+msgid "Ersatzweg: Absender-Adresse"
+msgstr ""
+
+#: inc/admin/domain-view.php:25
+msgid "Ersatzweg: Absender-Name"
+msgstr ""
+
+#: inc/admin/domain-view.php:28
+msgid "Ersatzweg: Antwortadresse"
+msgstr ""
+
+#: inc/admin/domain-view.php:31
+msgid "Optional: Antworten an Ihr M365-Postfach leiten. Ein eigener Wert ersetzt auch die Antwortadresse eines Kontaktformulars. Leer lässt dessen Antwortadresse unverändert."
+msgstr ""
+
+#: inc/admin/domain-view.php:34
+#: inc/admin/settings-view.php:251
+#: inc/admin/wizard.php:366
+msgid "DKIM-Selektor (optional)"
+msgstr ""
+
+#: inc/admin/domain-view.php:34
+msgid "Den Selektor erhalten Sie vom Mailanbieter. Ohne Selektor ist DKIM nicht beurteilbar. Ein gefundener Schlüssel beweist noch keine Signatur einer versendeten Mail."
+msgstr ""
+
+#: inc/admin/domain-view.php:36
+msgid "Aktuell wirksamer Absender"
+msgstr ""
+
+#: inc/admin/domain-view.php:47
+msgid "Ersatzversand: DNS-Prüfung"
+msgstr ""
+
+#: inc/admin/domain-view.php:47
+msgid "Hauptversand: DNS-Prüfung"
+msgstr ""
+
+#: inc/admin/domain-view.php:48
+msgid "Nur Hinweise: Diese Prüfung hält den Abschluss nicht auf. Ein Mailanbieter kann unbestätigte Absender trotzdem ablehnen. Nach DNS-Änderungen nochmals prüfen und eine Testmail senden."
+msgstr ""
+
+#: inc/admin/domain-view.php:50
+msgid "Eintrag gefunden"
+msgstr ""
+
+#: inc/admin/domain-view.php:51
+msgid "Vom Anbieter bestätigt"
+msgstr ""
+
+#: inc/admin/domain-view.php:52
+msgid "Nicht beurteilbar"
+msgstr ""
+
+#: inc/admin/domain-view.php:53
+msgid "Eintrag fehlt"
+msgstr ""
+
+#: inc/admin/domain-view.php:54
+msgid "Bitte prüfen"
+msgstr ""
+
+#: inc/admin/domain-view.php:59
+msgid "Was muss ich beim DNS-Anbieter eintragen?"
+msgstr ""
+
+#: inc/admin/domain-view.php:59
+msgid "SPF erlaubt dem Mailanbieter den Versand. Pro Domain darf es nur einen SPF-Eintrag geben; vorhandene Angaben zusammenführen. Ein gefundener Eintrag bestätigt noch nicht die Berechtigung Ihres konkreten Servers."
+msgstr ""
+
+#: inc/admin/domain-view.php:59
+msgid "DKIM: TXT- oder CNAME-Eintrag mit dem Selektor und Wert Ihres Hosters übernehmen. DMARC: Richtlinie unter _dmarc veröffentlichen; bei Subdomains kann die Richtlinie der Organisationsdomain gelten. p=none überwacht nur. MX für das M365-Postfach nicht ändern."
+msgstr ""
+
+#: inc/admin/domain-view.php:59
+msgid "Bei Resend gelten die im Resend-Backend angezeigten DNS-Namen und Werte. Ein Sending-only-Key kann den Domain-Status nicht lesen; das ist kein Nachweis für fehlende DNS-Einträge."
+msgstr ""
+
+#: inc/admin/domain-view.php:61
+msgid "Pro: Technische DNS-Einträge"
+msgstr ""
+
+#: inc/admin/domain-view.php:71
+#: inc/admin/fallback-flow.php:229
+#: inc/admin/fallback-flow.php:258
+#: inc/admin/resend-view.php:62
+msgid "Nochmals prüfen"
+msgstr ""
+
+#: inc/admin/domain-view.php:85
+#: inc/admin/fallback-flow.php:442
+msgid "DNS-Prüfung aktualisiert. DNS-Änderungen können verzögert sichtbar werden."
+msgstr ""
+
+#: inc/admin/fallback-actions.php:24
+msgid "Der Ersatzweg ist in wp-config.php festgelegt. Ändern Sie zuerst die entsprechenden Konstanten."
+msgstr ""
+
+#: inc/admin/fallback-actions.php:44
+msgid "Der Ersatzweg konnte nicht vollständig geändert werden. Bitte versuchen Sie es erneut."
+msgstr ""
+
+#: inc/admin/fallback-actions.php:76
+msgid "Der Ersatzweg wurde entfernt. Hauptversand und Protokolle bleiben erhalten."
+msgstr ""
+
+#: inc/admin/fallback-actions.php:76
+msgid "Der Ersatzweg ist deaktiviert. Seine Konfiguration bleibt gespeichert."
+msgstr ""
+
+#: inc/admin/fallback-actions.php:101
+msgid "Ersatzweg deaktivieren"
+msgstr ""
+
+#: inc/admin/fallback-actions.php:106
+msgid "Ersatzweg entfernen"
+msgstr ""
+
+#: inc/admin/fallback-actions.php:106
+msgid "Entfernt Server, Zugangsdaten und Prüfstatus des Ersatzwegs. Hauptversand und Protokolle bleiben erhalten."
+msgstr ""
+
+#: inc/admin/fallback-actions.php:107
+msgid "Ersatzweg endgültig entfernen"
 msgstr ""
 
 #: inc/admin/fallback-flow.php:24
@@ -314,14 +451,11 @@ msgstr ""
 
 #: inc/admin/fallback-flow.php:27
 #: inc/admin/overview.php:365
-#: inc/admin/settings-view.php:23
-#: inc/admin/settings-view.php:214
 #: inc/admin/wizard.php:56
 msgid "Absender"
 msgstr ""
 
 #: inc/admin/fallback-flow.php:28
-#: inc/admin/fallback-flow.php:224
 msgid "Domain"
 msgstr ""
 
@@ -332,7 +466,7 @@ msgid "Testmail"
 msgstr ""
 
 #: inc/admin/fallback-flow.php:30
-#: inc/admin/fallback-flow.php:319
+#: inc/admin/fallback-flow.php:309
 msgid "Zusammenfassung"
 msgstr ""
 
@@ -340,14 +474,14 @@ msgstr ""
 msgid "Der Key darf nur Mails senden («Sending access»). Das ist die sicherste Einstellung. Weil er die Domain-Liste nicht lesen darf, kann das Plugin den Domain-Status nicht anzeigen. Ob die Domain verifiziert ist, zeigt die Testmail."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:91
+#: inc/admin/fallback-flow.php:90
 msgid "Schliessen"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:92
+#: inc/admin/fallback-flow.php:91
 #: inc/admin/overview.php:218
 #: inc/admin/overview.php:276
-#: inc/admin/settings-view.php:102
+#: inc/admin/settings-view.php:112
 msgid "Ersatzweg einrichten"
 msgstr ""
 
@@ -364,258 +498,206 @@ msgid "Zu Schritt 3"
 msgstr ""
 
 #. translators: 1: current step, 2: number of steps
-#: inc/admin/fallback-flow.php:111
+#: inc/admin/fallback-flow.php:112
 #, php-format
 msgid "Schritt %1$d von %2$d: %3$s"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:149
+#: inc/admin/fallback-flow.php:153
 msgid "Worüber soll der Ersatzweg senden?"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:149
+#: inc/admin/fallback-flow.php:153
 msgid "Der Ersatzweg springt ein, wenn der Hauptweg ausfällt oder eine Mail ablehnt. Er sollte darum unabhängig vom Hauptweg sein."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:151
+#: inc/admin/fallback-flow.php:155
 msgid "Anbieter des Ersatzwegs"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:157
+#: inc/admin/fallback-flow.php:161
 msgid "Resend ist bereits Ihr Hauptweg und steht darum hier nicht zur Wahl."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:159
+#: inc/admin/fallback-flow.php:163
 #: inc/admin/log-view.php:343
 #: inc/admin/overview.php:352
 #: inc/admin/queue-view.php:325
-#: inc/admin/wizard.php:43
+#: inc/admin/wizard.php:42
 msgid "Abbrechen"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:167
+#: inc/admin/fallback-flow.php:171
 msgid "Das brauchen Sie vorab"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:169
+#: inc/admin/fallback-flow.php:173
 msgid "Für Resend brauchen Sie ein Konto, eine bestätigte Domain und einen eigenen API-Key für den Ersatzweg. Verwenden Sie nicht den Key des Hauptwegs: Fällt der Hauptweg aus, soll der Ersatzweg unabhängig davon funktionieren."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:171
+#: inc/admin/fallback-flow.php:175
 msgid "So gehen Sie bei Resend vor"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:173
+#: inc/admin/fallback-flow.php:177
 msgid "Domain bestätigen"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:173
+#: inc/admin/fallback-flow.php:177
 msgid "Öffnen Sie bei Resend «Domains», legen Sie die Domain Ihrer Absender-Adresse an und tragen Sie die DNS-Einträge bei Ihrem Domain-Anbieter ein."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:174
-#: inc/admin/resend-view.php:21
-msgid "API-Key erstellen"
-msgstr ""
-
-#: inc/admin/fallback-flow.php:174
-msgid "Öffnen Sie «API Keys» und erstellen Sie einen neuen Key nur für den Ersatzweg. Mit der Berechtigung «Sending access» genügt er zum Senden und ist am sichersten. «Full access» zeigt zusätzlich den Domain-Status an."
-msgstr ""
-
 #: inc/admin/fallback-flow.php:177
-#: inc/admin/fallback-flow.php:268
+#: inc/admin/fallback-flow.php:258
 #: inc/admin/resend-view.php:62
 msgid "Domains bei Resend öffnen"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:179
+#: inc/admin/fallback-flow.php:178
+#: inc/admin/resend-view.php:21
+msgid "API-Key erstellen"
+msgstr ""
+
+#: inc/admin/fallback-flow.php:178
+msgid "Öffnen Sie «API Keys» und erstellen Sie einen neuen Key nur für den Ersatzweg. Mit der Berechtigung «Sending access» genügt er zum Senden und ist am sichersten. «Full access» zeigt zusätzlich den Domain-Status an."
+msgstr ""
+
+#: inc/admin/fallback-flow.php:178
 msgid "API-Keys bei Resend öffnen"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:181
+#: inc/admin/fallback-flow.php:184
 msgid "Für den eigenen Mailserver brauchen Sie die Mail-Zugangsdaten Ihres Hosters: Server, Port, Benutzername und Passwort. Sie stehen im Kundencenter Ihres Hosters, meist unter «E-Mail-Programm einrichten». Am besten ist ein Postfach bei einem anderen Anbieter als der Hauptweg."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:191
+#: inc/admin/fallback-flow.php:194
 msgid "Zugangsdaten eintragen und prüfen"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:196
+#: inc/admin/fallback-flow.php:199
 msgid "Eigener Key für den Ersatzweg"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:196
+#: inc/admin/fallback-flow.php:199
 msgid "Tragen Sie hier einen eigenen Key ein, nicht den des Hauptwegs. «Sending access» wird unterstützt."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:203
+#: inc/admin/fallback-flow.php:206
 msgid "Speichern und Verbindung prüfen"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:204
+#: inc/admin/fallback-flow.php:207
 #: inc/admin/wizard.php:154
 msgid "Zuerst die Verbindung prüfen"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:214
-msgid "Absender des Ersatzwegs"
-msgstr ""
-
-#: inc/admin/fallback-flow.php:215
-msgid "Der Ersatzweg sendet immer mit der gespeicherten Absender-Adresse, nicht mit der Adresse, die ein anderes Plugin für eine Mail setzt. Nur so passen Absender und Domain zusammen."
-msgstr ""
-
-#: inc/admin/fallback-flow.php:218
-msgid "Keine Absender-Adresse gespeichert"
-msgstr ""
-
-#: inc/admin/fallback-flow.php:218
-msgid "Ohne Absender-Adresse kann der Ersatzweg keine Mail senden. Tragen Sie sie unter «Einstellungen» ein."
-msgstr ""
-
-#: inc/admin/fallback-flow.php:219
-msgid "Zu den Einstellungen"
-msgstr ""
-
-#: inc/admin/fallback-flow.php:223
-#: inc/admin/settings-view.php:219
-#: inc/admin/wizard.php:391
-#: inc/options.php:416
-msgid "Absender-Adresse"
-msgstr ""
-
-#: inc/admin/fallback-flow.php:225
-msgid "Ändern Sie die Adresse, muss der Ersatzweg danach erneut geprüft und getestet werden."
-msgstr ""
-
-#: inc/admin/fallback-flow.php:225
-msgid "Absender ändern"
-msgstr ""
-
-#: inc/admin/fallback-flow.php:233
+#: inc/admin/fallback-flow.php:226
 msgid "Status der Domain"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:235
-msgid "Der Mailserver entscheidet"
-msgstr ""
-
-#: inc/admin/fallback-flow.php:235
-msgid "Beim eigenen Mailserver gibt es keinen Domain-Status, den das Plugin abfragen kann. Der Server entscheidet, ob er die Absender-Adresse annimmt. Die Testmail im nächsten Schritt zeigt es."
-msgstr ""
-
-#: inc/admin/fallback-flow.php:237
-msgid "Domain-Status nicht lesbar"
-msgstr ""
-
-#: inc/admin/fallback-flow.php:256
+#: inc/admin/fallback-flow.php:246
 msgid "Es gibt keinen Domain-Status. Prüfen Sie die Absender-Adresse."
 msgstr ""
 
 #: inc/admin/fallback-flow.php:268
-#: inc/admin/resend-view.php:62
-msgid "Nochmals prüfen"
-msgstr ""
-
-#: inc/admin/fallback-flow.php:278
 msgid "Testmail über den Ersatzweg"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:278
+#: inc/admin/fallback-flow.php:268
 msgid "Diese Testmail geht ausschliesslich über den Ersatzweg. Der Hauptweg wird dabei nicht verwendet. Kommt sie an, ist der Ersatzweg getestet."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:280
-#: inc/admin/settings-view.php:187
-#: inc/admin/wizard.php:418
+#: inc/admin/fallback-flow.php:270
+#: inc/admin/settings-view.php:222
+#: inc/admin/wizard.php:437
 msgid "An"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:281
+#: inc/admin/fallback-flow.php:271
+#: inc/admin/fallback-flow.php:324
 msgid "Testmail über den Ersatzweg senden"
 msgstr ""
 
 #. translators: 1: time, 2: masked recipient
-#: inc/admin/fallback-flow.php:285
+#: inc/admin/fallback-flow.php:275
 #, php-format
 msgid "Letzte erfolgreiche Testmail: %1$s an %2$s."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:297
+#: inc/admin/fallback-flow.php:287
 msgid "Eingetragen"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:298
+#: inc/admin/fallback-flow.php:288
 msgid "Verbindung geprüft"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:299
+#: inc/admin/fallback-flow.php:289
 msgid "Testmail erfolgreich"
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/admin/fallback-flow.php:300
-#: inc/readiness.php:192
+#: inc/admin/fallback-flow.php:290
+#: inc/readiness.php:193
 msgid "Erneute Prüfung nötig"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:306
+#: inc/admin/fallback-flow.php:296
 msgid "Ja"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:306
+#: inc/admin/fallback-flow.php:296
 msgid "Nein"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:322
+#: inc/admin/fallback-flow.php:312
 msgid "Der Ersatzweg ist eingeschaltet."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:322
+#: inc/admin/fallback-flow.php:312
 msgid "Der Ersatzweg ist noch ausgeschaltet."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:327
-msgid "Fertig"
-msgstr ""
-
-#: inc/admin/fallback-flow.php:329
+#: inc/admin/fallback-flow.php:316
 msgid "Zuerst eine Testmail über den Ersatzweg senden"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:329
+#: inc/admin/fallback-flow.php:318
+msgid "Zu den Einstellungen"
+msgstr ""
+
+#: inc/admin/fallback-flow.php:320
+msgid "Fertig"
+msgstr ""
+
+#: inc/admin/fallback-flow.php:322
 msgid "Ersatzweg aktivieren"
 msgstr ""
 
-#: inc/admin/fallback-flow.php:376
+#: inc/admin/fallback-flow.php:372
 msgid "Dieser Anbieter ist als Ersatzweg nicht möglich. Bitte wählen Sie einen eigenen Mailserver oder Resend."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:417
+#: inc/admin/fallback-flow.php:413
 msgid "Bitte prüfen Sie zuerst die Verbindung des Ersatzwegs."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:454
-#: inc/resend.php:683
-msgid "Resend prüft die DNS-Einträge jetzt. Das dauert meist wenige Minuten. Laden Sie die Seite danach neu oder wählen Sie «Nochmals prüfen» erneut."
-msgstr ""
-
-#: inc/admin/fallback-flow.php:467
+#: inc/admin/fallback-flow.php:455
 #: inc/admin/rest.php:190
 msgid "Bitte geben Sie eine gültige E-Mail-Adresse ein."
 msgstr ""
 
 #. translators: %s: recipient address
-#: inc/admin/fallback-flow.php:473
+#: inc/admin/fallback-flow.php:461
 #, php-format
 msgid "Testmail an %s über den Ersatzweg versendet. Bitte prüfen Sie den Posteingang, auch den Spam-Ordner."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:488
+#: inc/admin/fallback-flow.php:476
 msgid "Der Ersatzweg lässt sich erst einschalten, wenn eine aktuelle Testmail vom Ersatzweg angenommen wurde."
 msgstr ""
 
-#: inc/admin/fallback-flow.php:492
+#: inc/admin/fallback-flow.php:480
 msgid "Der Ersatzweg ist eingeschaltet. Fällt der Hauptweg aus, stellt er die Mails zu."
 msgstr ""
 
@@ -639,45 +721,93 @@ msgstr ""
 msgid "Bitte prüfen Sie zuerst die Verbindung."
 msgstr ""
 
-#: inc/admin/handlers.php:249
+#: inc/admin/handlers.php:243
 msgid "Einrichtung abgeschlossen. Mails werden jetzt über den neuen Versandweg gesendet."
 msgstr ""
 
-#: inc/admin/handlers.php:253
+#: inc/admin/handlers.php:247
 msgid "Bitte senden Sie zuerst eine erfolgreiche Testmail."
 msgstr ""
 
-#: inc/admin/handlers.php:281
+#: inc/admin/handlers.php:275
 msgid "Die Einstellungen wurden gespeichert."
 msgstr ""
 
-#: inc/admin/handlers.php:302
+#: inc/admin/handlers.php:296
 msgid "Das Protokoll wurde geleert."
 msgstr ""
 
-#: inc/admin/handlers.php:304
+#: inc/admin/handlers.php:298
 msgid "Das Protokoll konnte nicht vollständig geleert werden. Bitte versuchen Sie es noch einmal."
 msgstr ""
 
-#: inc/admin/handlers.php:331
+#: inc/admin/handlers.php:325
 msgid "Diese Aktion ist nicht gültig."
 msgstr ""
 
-#: inc/admin/handlers.php:338
+#: inc/admin/handlers.php:332
 #: inc/admin/queue-view.php:378
 msgid "Die Aktion wurde ausgeführt."
 msgstr ""
 
 #. translators: 1: re-encrypted count, 2: unreadable count
-#: inc/admin/handlers.php:351
+#: inc/admin/handlers.php:345
 #, php-format
 msgid "%1$d Zugangsdaten neu verschlüsselt. %2$d sind nicht lesbar und blieben unverändert. Bitte geben Sie diese neu ein."
 msgstr ""
 
 #. translators: %d: count
-#: inc/admin/handlers.php:354
+#: inc/admin/handlers.php:348
 #, php-format
 msgid "%d Zugangsdaten mit dem aktuellen Schlüssel neu verschlüsselt."
+msgstr ""
+
+#: inc/admin/license-view.php:21
+msgid "Pro ergänzt die DNS-Diagnose um technische Einträge. Absender, Ersatzversand und grundlegende DNS-Warnungen bleiben ohne Lizenz nutzbar."
+msgstr ""
+
+#: inc/admin/license-view.php:22
+msgid "Pro freigeschaltet"
+msgstr ""
+
+#: inc/admin/license-view.php:22
+msgid "Keine aktuelle Pro-Freischaltung"
+msgstr ""
+
+#: inc/admin/license-view.php:22
+msgid "Produkt im Lizenzserver: mlab-smtp-pro. Bei Serverausfall gilt die letzte Bestätigung höchstens sieben Tage. Mailversand und Ersatzweg sind davon unabhängig."
+msgstr ""
+
+#: inc/admin/license-view.php:24
+msgid "Mit «Lizenz prüfen» werden Lizenzschlüssel und Website-Adresse an Ihren angegebenen Lizenzserver übertragen. Tragen Sie die HTTPS-Basisadresse der WordPress-Installation ein, ohne /wp-json."
+msgstr ""
+
+#: inc/admin/license-view.php:25
+msgid "Lizenzserver-Adresse"
+msgstr ""
+
+#: inc/admin/license-view.php:26
+msgid "Lizenzschlüssel"
+msgstr ""
+
+#: inc/admin/license-view.php:27
+msgid "Lizenz prüfen"
+msgstr ""
+
+#: inc/admin/license-view.php:27
+msgid "Lizenzverbindung entfernen"
+msgstr ""
+
+#: inc/admin/license-view.php:40
+msgid "Die Lizenzverbindung ist in wp-config.php festgelegt."
+msgstr ""
+
+#: inc/admin/license-view.php:54
+msgid "Bitte eine öffentliche HTTPS-Basisadresse ohne Zugangsdaten, Query oder Fragment verwenden."
+msgstr ""
+
+#: inc/admin/license-view.php:60
+msgid "Lizenzprüfung abgeschlossen."
 msgstr ""
 
 #: inc/admin/log-view.php:17
@@ -860,14 +990,14 @@ msgstr ""
 #: inc/admin/overview.php:89
 #: inc/admin/overview.php:142
 #: inc/admin/overview.php:348
-#: inc/admin/wizard.php:417
-#: inc/admin/wizard.php:419
+#: inc/admin/wizard.php:436
+#: inc/admin/wizard.php:438
 msgid "Testmail senden"
 msgstr ""
 
 #: inc/admin/overview.php:84
 #: inc/admin/overview.php:276
-#: inc/admin/settings-view.php:64
+#: inc/admin/settings-view.php:69
 msgid "Einrichtung starten"
 msgstr ""
 
@@ -953,10 +1083,10 @@ msgstr ""
 #: inc/admin/overview.php:144
 #: inc/admin/overview.php:208
 #: inc/admin/resend-view.php:37
-#: inc/admin/settings-view.php:89
-#: inc/admin/wizard.php:241
-#: inc/admin/wizard.php:280
-#: inc/admin/wizard.php:308
+#: inc/admin/settings-view.php:98
+#: inc/admin/wizard.php:250
+#: inc/admin/wizard.php:289
+#: inc/admin/wizard.php:325
 #: inc/health.php:72
 msgid "Verbindung prüfen"
 msgstr ""
@@ -1055,7 +1185,7 @@ msgid "Verwalten"
 msgstr ""
 
 #: inc/admin/overview.php:305
-#: inc/admin/page.php:199
+#: inc/admin/page.php:225
 msgid "Warteschlange"
 msgstr ""
 
@@ -1106,15 +1236,15 @@ msgstr ""
 
 #: inc/admin/overview.php:364
 #: inc/admin/settings-view.php:19
-#: inc/admin/settings-view.php:61
+#: inc/admin/settings-view.php:66
 #: inc/admin/wizard.php:56
-#: inc/admin/wizard.php:291
+#: inc/admin/wizard.php:307
 #: inc/health.php:72
 msgid "Verbindung"
 msgstr ""
 
 #: inc/admin/overview.php:368
-#: inc/admin/wizard.php:42
+#: inc/admin/wizard.php:41
 msgid "Einrichtung"
 msgstr ""
 
@@ -1166,56 +1296,56 @@ msgstr ""
 
 #: inc/admin/page.php:86
 #: inc/admin/page.php:87
-#: inc/admin/page.php:233
+#: inc/admin/page.php:259
 #: inc/privacy.php:81
 msgid "E-Mail-Versand"
 msgstr ""
 
 #: inc/admin/page.php:119
-#: inc/admin/page.php:201
+#: inc/admin/page.php:227
 msgid "Einstellungen"
 msgstr ""
 
-#: inc/admin/page.php:156
+#: inc/admin/page.php:160
 msgid "Wird gespeichert …"
 msgstr ""
 
-#: inc/admin/page.php:157
+#: inc/admin/page.php:161
 msgid "Wird geprüft …"
 msgstr ""
 
-#: inc/admin/page.php:158
+#: inc/admin/page.php:162
 msgid "Wird gesendet …"
 msgstr ""
 
-#: inc/admin/page.php:159
+#: inc/admin/page.php:163
 msgid "Der Server hat nicht geantwortet. Bitte versuchen Sie es erneut."
 msgstr ""
 
-#: inc/admin/page.php:160
+#: inc/admin/page.php:164
 msgid "Kopiert."
 msgstr ""
 
-#: inc/admin/page.php:198
+#: inc/admin/page.php:224
 msgid "Übersicht"
 msgstr ""
 
-#: inc/admin/page.php:200
+#: inc/admin/page.php:226
 #: inc/admin/settings-view.php:27
-#: inc/admin/settings-view.php:243
+#: inc/admin/settings-view.php:279
 msgid "Protokoll"
 msgstr ""
 
-#: inc/admin/page.php:233
+#: inc/admin/page.php:259
 msgid "Sorgt dafür, dass Mails dieser Website zuverlässig ankommen und nicht im Spam landen."
 msgstr ""
 
-#: inc/admin/page.php:239
+#: inc/admin/page.php:267
 msgid "Bereiche"
 msgstr ""
 
-#: inc/admin/page.php:248
-#: inc/admin/settings-security.php:100
+#: inc/admin/page.php:276
+#: inc/admin/settings-security.php:102
 msgid "Hinweis"
 msgid_plural "Hinweise"
 msgstr[0] ""
@@ -1451,328 +1581,333 @@ msgstr ""
 msgid "Testmail an %s versendet. Bitte prüfen Sie den Posteingang. Nicht da? Schauen Sie auch im Spam-Ordner."
 msgstr ""
 
-#: inc/admin/settings-security.php:92
+#: inc/admin/settings-security.php:94
 msgid "Schutz vor ungewollten Mails (Staging)"
 msgstr ""
 
-#: inc/admin/settings-security.php:92
+#: inc/admin/settings-security.php:94
 msgid "Verhindert, dass eine Kopie der Website (Test- oder Entwicklungsumgebung) echten Kunden Mails schickt."
 msgstr ""
 
-#: inc/admin/settings-security.php:94
+#: inc/admin/settings-security.php:96
 msgid "Versand frei"
 msgstr ""
 
-#: inc/admin/settings-security.php:95
+#: inc/admin/settings-security.php:97
 msgid "Versand blockiert"
 msgstr ""
 
-#: inc/admin/settings-security.php:96
+#: inc/admin/settings-security.php:98
 msgid "Mails werden umgeleitet"
 msgstr ""
 
-#: inc/admin/settings-security.php:107
+#: inc/admin/settings-security.php:109
 #: inc/staging.php:463
 msgid "Das ist die produktive Website"
 msgstr ""
 
-#: inc/admin/settings-security.php:121
+#: inc/admin/settings-security.php:123
 msgid "Automatisch erkennen (empfohlen)"
 msgstr ""
 
-#: inc/admin/settings-security.php:122
+#: inc/admin/settings-security.php:124
 msgid "Aus"
 msgstr ""
 
-#: inc/admin/settings-security.php:123
+#: inc/admin/settings-security.php:125
 msgid "Blockieren"
 msgstr ""
 
-#: inc/admin/settings-security.php:124
+#: inc/admin/settings-security.php:126
 msgid "An Testadresse umleiten"
 msgstr ""
 
-#: inc/admin/settings-security.php:127
+#: inc/admin/settings-security.php:129
 msgid "Modus"
 msgstr ""
 
-#: inc/admin/settings-security.php:135
+#: inc/admin/settings-security.php:137
 msgid "Die Konstante MLAB_SMTP_STAGING in der wp-config.php legt den Modus fest. Er lässt sich hier nicht ändern."
 msgstr ""
 
-#: inc/admin/settings-security.php:137
+#: inc/admin/settings-security.php:139
 msgid "Testadresse"
 msgstr ""
 
-#: inc/admin/settings-security.php:139
+#: inc/admin/settings-security.php:141
 msgid "Nur nötig für «An Testadresse umleiten». Dorthin gehen dann alle Mails."
 msgstr ""
 
-#: inc/admin/settings-security.php:148
+#: inc/admin/settings-security.php:150
 msgid "Automatisch erkennen: Sieht die Website aus wie eine Kopie (andere Adresse als bei der Einrichtung oder keine produktive Umgebung), werden Mails blockiert, bis ein Administrator bestätigt."
 msgstr ""
 
-#: inc/admin/settings-security.php:149
+#: inc/admin/settings-security.php:151
 msgid "Aus: Mails werden immer normal versendet."
 msgstr ""
 
-#: inc/admin/settings-security.php:150
+#: inc/admin/settings-security.php:152
 msgid "Blockieren: Es wird nichts versendet. Das Protokoll zeigt «blockiert», und WordPress meldet den Versand als fehlgeschlagen."
 msgstr ""
 
-#: inc/admin/settings-security.php:151
+#: inc/admin/settings-security.php:153
 msgid "An Testadresse umleiten: Alle Mails gehen an die Testadresse. Kopien (Cc, Bcc) entfallen, der Betreff beginnt mit «[Staging]», unten steht die Liste der ursprünglichen Empfänger."
 msgstr ""
 
-#: inc/admin/settings-security.php:164
+#: inc/admin/settings-security.php:166
 msgid "Alarmierung (Webhook)"
 msgstr ""
 
-#: inc/admin/settings-security.php:164
+#: inc/admin/settings-security.php:166
 msgid "Meldet Störungen an eine Adresse Ihrer Wahl, zum Beispiel an Slack, Teams oder einen Überwachungsdienst."
 msgstr ""
 
-#: inc/admin/settings-security.php:166
+#: inc/admin/settings-security.php:168
 msgid "Webhook-Adresse"
 msgstr ""
 
-#: inc/admin/settings-security.php:168
+#: inc/admin/settings-security.php:170
 msgid "Nur https. Leer lassen, um die Alarmierung auszuschalten."
 msgstr ""
 
-#: inc/admin/settings-security.php:169
+#: inc/admin/settings-security.php:171
 msgid "Signatur-Secret (optional)"
 msgstr ""
 
-#: inc/admin/settings-security.php:170
+#: inc/admin/settings-security.php:172
 msgid "gespeichert"
 msgstr ""
 
-#: inc/admin/settings-security.php:171
+#: inc/admin/settings-security.php:173
 msgid "Damit kann der Empfänger prüfen, dass der Alarm von dieser Website kommt (Signatur im Header X-Mlab-Signature). Leer lassen, um ein gespeichertes Secret zu behalten."
 msgstr ""
 
-#: inc/admin/settings-security.php:173
+#: inc/admin/settings-security.php:175
 msgid "Gespeichertes Secret entfernen"
 msgstr ""
 
-#: inc/admin/settings-security.php:178
+#: inc/admin/settings-security.php:180
 msgid "Der Alarm läuft unabhängig vom Mailweg: Er kommt auch an, wenn Hauptweg und Ersatzweg ausgefallen sind. Gesendet werden nur der Name der Website, das Ereignis, die Zeit, eine Anzahl und ein kurzer, bereinigter Text. Nie Empfänger, Betreffe oder Zugangsdaten."
 msgstr ""
 
-#: inc/admin/settings-security.php:188
+#: inc/admin/settings-security.php:190
 msgid "Alarm auslösen bei"
 msgstr ""
 
-#: inc/admin/settings-security.php:203
+#: inc/admin/settings-security.php:205
 msgid "gesendet"
 msgstr ""
 
-#: inc/admin/settings-security.php:203
+#: inc/admin/settings-security.php:205
 msgid "fehlgeschlagen"
 msgstr ""
 
 #. translators: 1: time, 2: result, 3: HTTP code, 4: explanation
-#: inc/admin/settings-security.php:206
+#: inc/admin/settings-security.php:208
 #, php-format
 msgid "Letzter Alarm: %1$s, %2$s%3$s. %4$s"
 msgstr ""
 
-#: inc/admin/settings-security.php:207
+#: inc/admin/settings-security.php:209
 msgid "Letztes Ergebnis"
 msgstr ""
 
-#: inc/admin/settings-security.php:209
+#: inc/admin/settings-security.php:211
 msgid "Es wurde noch kein Alarm gesendet."
 msgstr ""
 
-#: inc/admin/settings-security.php:212
+#: inc/admin/settings-security.php:214
 msgid "Alarm testen"
 msgstr ""
 
-#: inc/admin/settings-security.php:213
+#: inc/admin/settings-security.php:215
 msgid "Zuerst speichern, dann testen. Das Ergebnis erscheint oben auf der Seite."
 msgstr ""
 
-#: inc/admin/settings-security.php:220
+#: inc/admin/settings-security.php:222
 #: inc/admin/settings-view.php:28
 msgid "Support und Datenschutz"
 msgstr ""
 
-#: inc/admin/settings-security.php:220
+#: inc/admin/settings-security.php:222
 msgid "Was für den Support bereitsteht und was das Plugin über Mails speichert."
 msgstr ""
 
-#: inc/admin/settings-security.php:221
+#: inc/admin/settings-security.php:223
 msgid "Supportbericht"
 msgstr ""
 
-#: inc/admin/settings-security.php:222
+#: inc/admin/settings-security.php:224
 msgid "Eine Textdatei mit Versionen, Zustand der Wege, Zahlen und den letzten 20 Protokolleinträgen. Passwörter, Schlüssel und Tokens fehlen, E-Mail-Adressen sind gekürzt, Betreffe und Inhalte fehlen. Die Datei wird beim Klick erzeugt und nirgends gespeichert."
 msgstr ""
 
-#: inc/admin/settings-security.php:223
+#: inc/admin/settings-security.php:225
 msgid "Supportbericht herunterladen"
 msgstr ""
 
-#: inc/admin/settings-security.php:235
+#: inc/admin/settings-security.php:237
 msgid "Datenschutz"
 msgstr ""
 
-#: inc/admin/settings-security.php:236
+#: inc/admin/settings-security.php:238
 msgid "Das Protokoll speichert je Mail Empfänger, Betreff, Status und eine eventuelle Fehlermeldung. Nachrichteninhalt und Anhänge werden standardmässig nicht gespeichert."
 msgstr ""
 
 #. translators: 1: days, 2: next cleanup
-#: inc/admin/settings-security.php:238
+#: inc/admin/settings-security.php:240
 #, php-format
 msgid "Einträge werden nach %1$d Tagen automatisch gelöscht (Einstellung «Protokoll»). Nächste automatische Bereinigung: %2$s."
 msgstr ""
 
 #. translators: 1: days, 2: next cleanup
-#: inc/admin/settings-security.php:238
+#: inc/admin/settings-security.php:240
 msgid "noch nicht geplant"
 msgstr ""
 
 #. translators: %d: days
-#: inc/admin/settings-security.php:241
+#: inc/admin/settings-security.php:243
 #, php-format
 msgid "Mails in der Warteschlange liegen verschlüsselt in der Datenbank, bis der Anbieter sie annimmt. Endgültig fehlgeschlagene Mails behalten ihren Inhalt %d Tage (Einstellung «Zustellung»), dann wird er gelöscht."
 msgstr ""
 
-#: inc/admin/settings-security.php:243
+#: inc/admin/settings-security.php:245
 msgid "Personenbezogene Daten exportieren"
 msgstr ""
 
-#: inc/admin/settings-security.php:243
+#: inc/admin/settings-security.php:245
 msgid "Personenbezogene Daten löschen"
 msgstr ""
 
-#: inc/admin/settings-security.php:243
+#: inc/admin/settings-security.php:245
 msgid "Textvorschlag für die Datenschutzerklärung"
 msgstr ""
 
-#: inc/admin/settings-security.php:254
+#: inc/admin/settings-security.php:256
 #: inc/admin/settings-view.php:29
-#: inc/admin/settings-view.php:141
+#: inc/admin/settings-view.php:158
 msgid "Verschlüsselung"
 msgstr ""
 
-#: inc/admin/settings-security.php:254
+#: inc/admin/settings-security.php:256
 msgid "Passwörter und Schlüssel sind in der Datenbank verschlüsselt gespeichert."
 msgstr ""
 
-#: inc/admin/settings-security.php:256
+#: inc/admin/settings-security.php:258
 msgid "Verschlüsselung verfügbar: ja"
 msgstr ""
 
-#: inc/admin/settings-security.php:256
+#: inc/admin/settings-security.php:258
 msgid "Verschlüsselung verfügbar: nein. Auf diesem Server fehlt libsodium, Zugangsdaten lassen sich nicht speichern."
 msgstr ""
 
-#: inc/admin/settings-security.php:258
+#: inc/admin/settings-security.php:260
 msgid "Konstante MLAB_SMTP_KEY aus der wp-config.php"
 msgstr ""
 
-#: inc/admin/settings-security.php:258
+#: inc/admin/settings-security.php:260
 msgid "Sicherheitsschlüssel (Salts) der Website"
 msgstr ""
 
 #. translators: 1: key source, 2: short key id
-#: inc/admin/settings-security.php:260
+#: inc/admin/settings-security.php:262
 #, php-format
 msgid "Schlüsselquelle: %1$s (Kennung %2$s)"
 msgstr ""
 
 #. translators: 1: readable count, 2: unreadable count
-#: inc/admin/settings-security.php:263
+#: inc/admin/settings-security.php:265
 #, php-format
 msgid "Gespeicherte Zugangsdaten: %1$d lesbar, %2$d nicht lesbar"
 msgstr ""
 
-#: inc/admin/settings-security.php:266
+#: inc/admin/settings-security.php:268
 msgid "Zugangsdaten mit aktuellem Schlüssel neu verschlüsseln"
 msgstr ""
 
-#: inc/admin/settings-security.php:267
+#: inc/admin/settings-security.php:269
 msgid "Lesbare Zugangsdaten werden mit dem aktuellen Schlüssel neu gespeichert. Nicht lesbare bleiben unverändert."
 msgstr ""
 
-#: inc/admin/settings-security.php:267
+#: inc/admin/settings-security.php:269
 msgid "Alle lesbaren Zugangsdaten sind schon mit dem aktuellen Schlüssel verschlüsselt."
 msgstr ""
 
-#: inc/admin/settings-security.php:268
+#: inc/admin/settings-security.php:270
 msgid "Hilfe zu MLAB_SMTP_KEY: Mit dieser Konstante in der wp-config.php wählen Sie einen eigenen Schlüssel, unabhängig von den WordPress-Salts. Ändern Sie sie oder die Salts, ohne den alten Wert aufzubewahren, werden die gespeicherten Zugangsdaten unlesbar und müssen neu eingegeben werden. Das Plugin erzeugt nie von sich aus einen neuen Schlüssel. Die Schritte zur Wiederherstellung stehen in der Datei docs/upgrade-and-recovery.md des Plugins."
 msgstr ""
 
-#: inc/admin/settings-security.php:282
+#: inc/admin/settings-security.php:284
 msgid "Der Schlüssel hat sich geändert."
 msgstr ""
 
-#: inc/admin/settings-security.php:283
+#: inc/admin/settings-security.php:285
 msgid "Die gespeicherten Daten sind beschädigt."
 msgstr ""
 
-#: inc/admin/settings-security.php:284
+#: inc/admin/settings-security.php:286
 msgid "Die Verschlüsselung ist auf diesem Server nicht verfügbar."
 msgstr ""
 
-#: inc/admin/settings-security.php:288
+#: inc/admin/settings-security.php:290
 msgid "Bitte neu eingeben."
 msgstr ""
 
-#: inc/admin/settings-security.php:288
+#: inc/admin/settings-security.php:290
 msgid "Zur Eingabe"
 msgstr ""
 
-#: inc/admin/settings-security.php:300
+#: inc/admin/settings-security.php:302
 msgid "Microsoft 365: Client-Secret"
 msgstr ""
 
-#: inc/admin/settings-security.php:301
+#: inc/admin/settings-security.php:303
 msgid "Google: Client-Secret"
 msgstr ""
 
-#: inc/admin/settings-security.php:302
+#: inc/admin/settings-security.php:304
 msgid "Google: Anmeldung"
 msgstr ""
 
-#: inc/admin/settings-security.php:303
+#: inc/admin/settings-security.php:305
 msgid "Resend: API-Key"
 msgstr ""
 
-#: inc/admin/settings-security.php:304
+#: inc/admin/settings-security.php:306
 msgid "Resend: Signing Secret (Hauptkonto)"
 msgstr ""
 
-#: inc/admin/settings-security.php:305
+#: inc/admin/settings-security.php:307
 msgid "Ersatzweg Resend: API-Key"
 msgstr ""
 
-#: inc/admin/settings-security.php:306
+#: inc/admin/settings-security.php:308
 msgid "Ersatzweg Resend: Signing Secret"
 msgstr ""
 
-#: inc/admin/settings-security.php:307
+#: inc/admin/settings-security.php:309
 msgid "SMTP: Passwort"
 msgstr ""
 
-#: inc/admin/settings-security.php:308
+#: inc/admin/settings-security.php:310
 msgid "Ersatzweg SMTP: Passwort"
 msgstr ""
 
-#: inc/admin/settings-security.php:309
+#: inc/admin/settings-security.php:311
 msgid "Alarmierung: Signatur-Secret"
 msgstr ""
 
 #: inc/admin/settings-view.php:21
-#: inc/admin/settings-view.php:331
+#: inc/admin/settings-view.php:367
 msgid "Zustellung"
 msgstr ""
 
 #: inc/admin/settings-view.php:22
 msgid "Zustellbestätigung"
+msgstr ""
+
+#: inc/admin/settings-view.php:23
+#: inc/admin/settings-view.php:249
+msgid "Hauptversand: Absender"
 msgstr ""
 
 #: inc/admin/settings-view.php:24
@@ -1784,13 +1919,13 @@ msgid "Alarmierung"
 msgstr ""
 
 #: inc/admin/settings-view.php:26
-#: inc/admin/settings-view.php:182
+#: inc/admin/settings-view.php:217
 #: inc/health.php:238
 msgid "Benachrichtigung"
 msgstr ""
 
 #: inc/admin/settings-view.php:30
-#: inc/admin/settings-view.php:269
+#: inc/admin/settings-view.php:305
 msgid "Aus wp-config.php"
 msgstr ""
 
@@ -1806,287 +1941,305 @@ msgstr ""
 msgid "Änderungen speichern"
 msgstr ""
 
-#: inc/admin/settings-view.php:61
+#: inc/admin/settings-view.php:66
 msgid "Über welchen Dienst die Website Mails versendet."
 msgstr ""
 
-#: inc/admin/settings-view.php:63
+#: inc/admin/settings-view.php:68
 msgid "Noch nicht eingerichtet."
 msgstr ""
 
-#: inc/admin/settings-view.php:69
+#: inc/admin/settings-view.php:74
 msgid "Ändern"
 msgstr ""
 
-#: inc/admin/settings-view.php:78
+#: inc/admin/settings-view.php:83
 msgid "Springt ein, wenn die Hauptverbindung ausfällt oder eine Mail ablehnt."
 msgstr ""
 
-#: inc/admin/settings-view.php:81
+#: inc/admin/settings-view.php:90
 msgid "Ersatzweg verwenden"
 msgstr ""
 
-#: inc/admin/settings-view.php:83
+#: inc/admin/settings-view.php:92
 msgid "Ersatzweg über"
 msgstr ""
 
-#: inc/admin/settings-view.php:102
+#: inc/admin/settings-view.php:112
 msgid "Ersatzweg prüfen und testen"
 msgstr ""
 
-#: inc/admin/settings-view.php:127
-#: inc/admin/wizard.php:290
+#: inc/admin/settings-view.php:139
+#: inc/admin/wizard.php:301
 msgid "Server"
 msgstr ""
 
-#: inc/admin/settings-view.php:130
-#: inc/admin/wizard.php:295
-msgid "Port"
-msgstr ""
-
-#: inc/admin/settings-view.php:145
+#: inc/admin/settings-view.php:142
 #: inc/admin/wizard.php:304
-msgid "Der Server verlangt Benutzername und Passwort"
-msgstr ""
-
-#: inc/admin/settings-view.php:146
-#: inc/admin/wizard.php:305
-msgid "Benutzername"
+msgid "Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain."
 msgstr ""
 
 #: inc/admin/settings-view.php:147
-#: inc/admin/wizard.php:306
+#: inc/admin/wizard.php:311
+msgid "Port"
+msgstr ""
+
+#: inc/admin/settings-view.php:163
+#: inc/admin/wizard.php:321
+msgid "Der Server verlangt Benutzername und Passwort"
+msgstr ""
+
+#: inc/admin/settings-view.php:164
+#: inc/admin/wizard.php:322
+msgid "Benutzername"
+msgstr ""
+
+#: inc/admin/settings-view.php:165
+#: inc/admin/wizard.php:323
 msgid "Passwort"
 msgstr ""
 
-#: inc/admin/settings-view.php:156
+#: inc/admin/settings-view.php:174
 msgid "API-Key von Resend"
 msgstr ""
 
-#: inc/admin/settings-view.php:160
+#: inc/admin/settings-view.php:178
 msgid "Beginnt mit «re_». Die Domain Ihrer Absender-Adresse muss bei Resend verifiziert sein, und der Ersatzweg sendet immer mit dieser Adresse."
 msgstr ""
 
-#: inc/admin/settings-view.php:172
+#. translators: %s: usual SMTP port
+#: inc/admin/settings-view.php:195
+#, php-format
+msgid "Üblicher Port: %s. Individuell vorgegebene Ports bleiben beim Wechsel erhalten."
+msgstr ""
+
+#: inc/admin/settings-view.php:207
 msgid "STARTTLS (Port 587, empfohlen)"
 msgstr ""
 
-#: inc/admin/settings-view.php:173
+#: inc/admin/settings-view.php:208
 msgid "SSL/TLS (Port 465)"
 msgstr ""
 
-#: inc/admin/settings-view.php:174
+#: inc/admin/settings-view.php:209
 msgid "Keine (nicht empfohlen)"
 msgstr ""
 
-#: inc/admin/settings-view.php:182
+#: inc/admin/settings-view.php:217
 msgid "Damit Sie erfahren, wenn Mails nicht ankommen."
 msgstr ""
 
-#: inc/admin/settings-view.php:183
+#: inc/admin/settings-view.php:218
 msgid "Bei Fehlern benachrichtigen"
 msgstr ""
 
-#: inc/admin/settings-view.php:191
+#: inc/admin/settings-view.php:226
 msgid "Leer lassen für die Administrator-Adresse der Website. Die Nachricht geht über den Ersatzweg, falls die Hauptverbindung ausfällt."
 msgstr ""
 
-#: inc/admin/settings-view.php:196
+#: inc/admin/settings-view.php:231
 msgid "Wann"
 msgstr ""
 
-#: inc/admin/settings-view.php:199
+#: inc/admin/settings-view.php:234
 msgid "Sofort beim ersten Fehler, danach höchstens 1× pro Stunde"
 msgstr ""
 
-#: inc/admin/settings-view.php:200
+#: inc/admin/settings-view.php:235
 msgid "Tägliche Zusammenfassung"
 msgstr ""
 
-#: inc/admin/settings-view.php:214
+#: inc/admin/settings-view.php:249
 msgid "Name und Adresse, die Empfänger sehen."
 msgstr ""
 
-#: inc/admin/settings-view.php:216
-#: inc/admin/wizard.php:383
+#: inc/admin/settings-view.php:252
+#: inc/admin/wizard.php:402
 msgid "Absender-Name"
 msgstr ""
 
-#: inc/admin/settings-view.php:228
-#: inc/admin/wizard.php:401
+#: inc/admin/settings-view.php:255
+#: inc/admin/wizard.php:410
+#: inc/options.php:423
+#: inc/options.php:425
+msgid "Absender-Adresse"
+msgstr ""
+
+#: inc/admin/settings-view.php:264
+#: inc/admin/wizard.php:420
 msgid "Antworten gehen an (optional)"
 msgstr ""
 
-#: inc/admin/settings-view.php:231
-#: inc/admin/wizard.php:404
+#: inc/admin/settings-view.php:267
+#: inc/admin/wizard.php:423
 msgid "z. B. info@ihre-domain.ch"
 msgstr ""
 
-#: inc/admin/settings-view.php:234
+#: inc/admin/settings-view.php:270
 msgid "Absender auch verwenden, wenn ein anderes Plugin einen eigenen setzt"
 msgstr ""
 
-#: inc/admin/settings-view.php:243
+#: inc/admin/settings-view.php:279
 msgid "Empfänger, Betreff und Ergebnis, nie der Inhalt."
 msgstr ""
 
-#: inc/admin/settings-view.php:244
+#: inc/admin/settings-view.php:280
 msgid "Versand protokollieren"
 msgstr ""
 
-#: inc/admin/settings-view.php:248
+#: inc/admin/settings-view.php:284
 msgid "Aufbewahren"
 msgstr ""
 
-#: inc/admin/settings-view.php:251
-#: inc/admin/settings-view.php:364
+#: inc/admin/settings-view.php:287
+#: inc/admin/settings-view.php:400
 msgid "7 Tage"
 msgstr ""
 
-#: inc/admin/settings-view.php:252
+#: inc/admin/settings-view.php:288
 msgid "30 Tage"
 msgstr ""
 
-#: inc/admin/settings-view.php:253
+#: inc/admin/settings-view.php:289
 msgid "90 Tage"
 msgstr ""
 
-#: inc/admin/settings-view.php:269
+#: inc/admin/settings-view.php:305
 msgid "Diese Werte sind in der Datei gesetzt und lassen sich hier nicht ändern."
 msgstr ""
 
-#: inc/admin/settings-view.php:272
+#: inc/admin/settings-view.php:308
 msgid "gesetzt"
 msgstr ""
 
-#: inc/admin/settings-view.php:282
+#: inc/admin/settings-view.php:318
 msgid "Zustellbestätigung (Resend)"
 msgstr ""
 
-#: inc/admin/settings-view.php:282
+#: inc/admin/settings-view.php:318
 msgid "Resend meldet zurück, ob eine Mail beim Empfänger angekommen ist. Ohne diese Meldung gilt eine Mail nur als «angenommen»."
 msgstr ""
 
-#: inc/admin/settings-view.php:288
+#: inc/admin/settings-view.php:324
 msgid "Hauptkonto und Ersatzkonto brauchen je einen eigenen Webhook mit eigener Adresse und eigenem Signing Secret."
 msgstr ""
 
-#: inc/admin/settings-view.php:290
+#: inc/admin/settings-view.php:326
 msgid "Hauptkonto"
 msgstr ""
 
-#: inc/admin/settings-view.php:291
+#: inc/admin/settings-view.php:327
 msgid "Ersatzkonto"
 msgstr ""
 
-#: inc/admin/settings-view.php:298
+#: inc/admin/settings-view.php:334
 msgid "Signing Secret"
 msgstr ""
 
 #. translators: %s: time span like "5 Minuten"
-#: inc/admin/settings-view.php:306
+#: inc/admin/settings-view.php:342
 #, php-format
 msgid "Letztes Ereignis vor %s."
 msgstr ""
 
 #. translators: %s: time span like "5 Minuten"
-#: inc/admin/settings-view.php:306
+#: inc/admin/settings-view.php:342
 msgid "Noch kein Ereignis empfangen."
 msgstr ""
 
-#: inc/admin/settings-view.php:319
+#: inc/admin/settings-view.php:355
 msgid "Bei Resend im Menü «Webhooks» öffnen und «Add Webhook» wählen."
 msgstr ""
 
-#: inc/admin/settings-view.php:320
+#: inc/admin/settings-view.php:356
 msgid "Die Adresse des Kontos unten als «Endpoint URL» einfügen (Haupt- und Ersatzkonto je mit ihrer eigenen Adresse)."
 msgstr ""
 
-#: inc/admin/settings-view.php:321
+#: inc/admin/settings-view.php:357
 msgid "Diese sechs Ereignisse ankreuzen: email.sent, email.delivered, email.delivery_delayed, email.bounced, email.complained, email.failed. Öffnen und Klicks werden nicht gebraucht."
 msgstr ""
 
-#: inc/admin/settings-view.php:322
+#: inc/admin/settings-view.php:358
 msgid "Webhook speichern, dann auf der Seite des Webhooks das «Signing Secret» (beginnt mit «whsec_») kopieren und hier einfügen."
 msgstr ""
 
-#: inc/admin/settings-view.php:323
+#: inc/admin/settings-view.php:359
 msgid "Änderungen speichern. Beim nächsten Versand erscheint hier das letzte empfangene Ereignis."
 msgstr ""
 
-#: inc/admin/settings-view.php:331
+#: inc/admin/settings-view.php:367
 msgid "Wann eine Mail als versendet gilt und was bei Störungen passiert."
 msgstr ""
 
-#: inc/admin/settings-view.php:335
+#: inc/admin/settings-view.php:371
 msgid "Versandart"
 msgstr ""
 
-#: inc/admin/settings-view.php:338
+#: inc/admin/settings-view.php:374
 msgid "Sofort senden (Standard)"
 msgstr ""
 
-#: inc/admin/settings-view.php:339
+#: inc/admin/settings-view.php:375
 msgid "Über die Warteschlange senden"
 msgstr ""
 
-#: inc/admin/settings-view.php:341
+#: inc/admin/settings-view.php:377
 msgid "Sofort: wp_mail() meldet «gesendet» nur, wenn der Anbieter die Mail angenommen hat. Warteschlange: wp_mail() meldet «gesendet», sobald die Mail sicher gespeichert ist. Das heisst nur «zum Versand angenommen», nicht «versendet»: Der Versand folgt im Hintergrund, Fehler zeigt erst das Protokoll. Mails mit sehr grossen Anhängen (über 10 MB) werden immer sofort gesendet."
 msgstr ""
 
-#: inc/admin/settings-view.php:344
+#: inc/admin/settings-view.php:380
 msgid "Im Hintergrund wiederholen (nur bei «Sofort senden»)"
 msgstr ""
 
-#: inc/admin/settings-view.php:345
+#: inc/admin/settings-view.php:381
 msgid "Schlägt der Versand vorübergehend fehl (Hauptweg und Ersatzweg), legt das Plugin die Mail in die Warteschlange, und wp_mail() meldet «angenommen» statt eines Fehlers. Aus (Standard): wp_mail() meldet den Fehler sofort."
 msgstr ""
 
-#: inc/admin/settings-view.php:346
+#: inc/admin/settings-view.php:382
 msgid "Bei unklarem Ergebnis auf den Ersatzweg wechseln (Sofort senden)"
 msgstr ""
 
-#: inc/admin/settings-view.php:347
+#: inc/admin/settings-view.php:383
 msgid "Bei unklarem Ergebnis auch für Mails aus der Warteschlange auf den Ersatzweg wechseln"
 msgstr ""
 
-#: inc/admin/settings-view.php:348
+#: inc/admin/settings-view.php:384
 msgid "Unklar heisst: Die Anfrage ging raus, die Antwort fehlt. Der Anbieter kann die Mail trotzdem angenommen haben, ein Wechsel kann dann ein Duplikat erzeugen. Unklare Mails werden nie automatisch erneut gesendet, ausser über Resend mit demselben Idempotenz-Schlüssel innerhalb von 23 Stunden."
 msgstr ""
 
-#: inc/admin/settings-view.php:351
+#: inc/admin/settings-view.php:387
 msgid "Höchstzahl der Versuche"
 msgstr ""
 
-#: inc/admin/settings-view.php:354
+#: inc/admin/settings-view.php:390
 msgid "Abstand zwischen den Versuchen: 1 Minute, dann jeweils verdoppelt, höchstens 6 Stunden. Eine Retry-After-Angabe des Anbieters hat Vorrang."
 msgstr ""
 
-#: inc/admin/settings-view.php:359
+#: inc/admin/settings-view.php:395
 msgid "Inhalt endgültig fehlgeschlagener Mails aufbewahren"
 msgstr ""
 
-#: inc/admin/settings-view.php:362
+#: inc/admin/settings-view.php:398
 msgid "1 Tag"
 msgstr ""
 
-#: inc/admin/settings-view.php:363
+#: inc/admin/settings-view.php:399
 msgid "3 Tage"
 msgstr ""
 
-#: inc/admin/settings-view.php:365
+#: inc/admin/settings-view.php:401
 msgid "14 Tage (Höchstwert)"
 msgstr ""
 
-#: inc/admin/settings-view.php:367
+#: inc/admin/settings-view.php:403
 msgid "Verschlüsselt gespeichert, nur damit sich die Mail manuell wiederholen lässt. Nach der Annahme durch den Anbieter wird der Inhalt sofort gelöscht."
 msgstr ""
 
-#: inc/admin/settings-view.php:371
+#: inc/admin/settings-view.php:407
 msgid "Grenze: Einstellungen, die ein anderes Plugin nur am Mailer-Objekt setzt (zum Beispiel ein DKIM-Schlüssel), gelten nicht für Mails aus der Warteschlange. Die Warteschlange läuft über WP-Cron; ein System-Cron ist zuverlässiger."
 msgstr ""
 
-#: inc/admin/wizard.php:44
+#: inc/admin/wizard.php:43
 msgid "E-Mail-Versand einrichten"
 msgstr ""
 
@@ -2128,210 +2281,210 @@ msgstr ""
 msgid "Prüfen Sie zuerst die Verbindung. Erst danach können Sie weiter."
 msgstr ""
 
-#: inc/admin/wizard.php:210
+#: inc/admin/wizard.php:219
 msgid "Mit Microsoft 365 verbinden"
 msgstr ""
 
-#: inc/admin/wizard.php:210
+#: inc/admin/wizard.php:219
 msgid "Legen Sie einmalig in Microsoft Entra eine App an und tragen Sie unten ihre Angaben ein. Die Website meldet sich damit an, ohne Passwort eines Mitarbeiters."
 msgstr ""
 
-#: inc/admin/wizard.php:212
+#: inc/admin/wizard.php:221
 msgid "Vorbereitung in Microsoft Entra"
 msgstr ""
 
-#: inc/admin/wizard.php:214
+#: inc/admin/wizard.php:223
 msgid "App registrieren"
 msgstr ""
 
-#: inc/admin/wizard.php:214
+#: inc/admin/wizard.php:223
 msgid "Entra › App-Registrierungen › Neue Registrierung. Name:"
 msgstr ""
 
-#: inc/admin/wizard.php:215
+#: inc/admin/wizard.php:224
 msgid "Berechtigung hinzufügen"
 msgstr ""
 
-#: inc/admin/wizard.php:215
+#: inc/admin/wizard.php:224
 msgid "API-Berechtigungen › Microsoft Graph › Anwendungsberechtigungen › Mail.Send, dann «Administratorzustimmung erteilen»."
 msgstr ""
 
-#: inc/admin/wizard.php:216
+#: inc/admin/wizard.php:225
 msgid "Geheimen Schlüssel erstellen"
 msgstr ""
 
-#: inc/admin/wizard.php:216
+#: inc/admin/wizard.php:225
 msgid "Zertifikate & Geheimnisse › Neuer geheimer Clientschlüssel. Kopieren Sie den Wert, nicht die ID. Wählen Sie eine Laufzeit von 24 Monaten und tragen Sie das Ablaufdatum unten ein."
 msgstr ""
 
-#: inc/admin/wizard.php:218
+#: inc/admin/wizard.php:227
 msgid "Auf ein Postfach beschränken (empfohlen)"
 msgstr ""
 
-#: inc/admin/wizard.php:219
+#: inc/admin/wizard.php:228
 msgid "Sonst darf die App aus jedem Postfach der Firma senden. Befehl für Exchange Online PowerShell:"
 msgstr ""
 
-#: inc/admin/wizard.php:221
+#: inc/admin/wizard.php:230
 msgid "Ersetzen Sie die beiden Platzhalter durch die Anwendungs-ID und das Absender-Postfach."
 msgstr ""
 
-#: inc/admin/wizard.php:225
+#: inc/admin/wizard.php:234
 msgid "Microsoft Entra öffnen"
 msgstr ""
 
-#: inc/admin/wizard.php:228
+#: inc/admin/wizard.php:237
 msgid "Verzeichnis-ID (Mandant)"
 msgstr ""
 
-#: inc/admin/wizard.php:228
+#: inc/admin/wizard.php:237
 msgid "Steht auf der Übersichtsseite der App."
 msgstr ""
 
-#: inc/admin/wizard.php:229
+#: inc/admin/wizard.php:238
 msgid "Anwendungs-ID"
 msgstr ""
 
-#: inc/admin/wizard.php:230
+#: inc/admin/wizard.php:239
 msgid "Geheimer Schlüssel (Wert)"
 msgstr ""
 
-#: inc/admin/wizard.php:233
+#: inc/admin/wizard.php:242
 msgid "Schlüssel gültig bis"
 msgstr ""
 
-#: inc/admin/wizard.php:236
+#: inc/admin/wizard.php:245
 msgid "Wir erinnern Sie 30 Tage vorher."
 msgstr ""
 
-#: inc/admin/wizard.php:239
+#: inc/admin/wizard.php:248
 msgid "Postfach, aus dem gesendet wird"
 msgstr ""
 
-#: inc/admin/wizard.php:248
+#: inc/admin/wizard.php:257
 msgid "Mit Google verbinden"
 msgstr ""
 
-#: inc/admin/wizard.php:248
+#: inc/admin/wizard.php:257
 msgid "Legen Sie einmalig in der Google Cloud Console einen Zugang an, tragen Sie unten Client-ID und Secret ein und melden Sie sich danach mit Ihrem Google-Konto an."
 msgstr ""
 
-#: inc/admin/wizard.php:250
+#: inc/admin/wizard.php:259
 msgid "Vorbereitung in Google Cloud"
 msgstr ""
 
-#: inc/admin/wizard.php:252
+#: inc/admin/wizard.php:261
 msgid "Gmail API aktivieren"
 msgstr ""
 
-#: inc/admin/wizard.php:252
+#: inc/admin/wizard.php:261
 msgid "APIs & Dienste › Bibliothek › Gmail API › Aktivieren."
 msgstr ""
 
-#: inc/admin/wizard.php:253
+#: inc/admin/wizard.php:262
 msgid "OAuth-Client anlegen"
 msgstr ""
 
-#: inc/admin/wizard.php:253
+#: inc/admin/wizard.php:262
 msgid "Anmeldedaten › OAuth-Client-ID › Typ «Webanwendung». Als Weiterleitungs-URI eintragen:"
 msgstr ""
 
-#: inc/admin/wizard.php:254
+#: inc/admin/wizard.php:263
 msgid "App veröffentlichen"
 msgstr ""
 
-#: inc/admin/wizard.php:254
+#: inc/admin/wizard.php:263
 msgid "OAuth-Zustimmungsbildschirm › «In Produktion». Wichtig: Im Testmodus läuft der Zugriff nach 7 Tagen ab."
 msgstr ""
 
-#: inc/admin/wizard.php:257
+#: inc/admin/wizard.php:266
 msgid "Google Cloud öffnen"
 msgstr ""
 
-#: inc/admin/wizard.php:260
+#: inc/admin/wizard.php:269
 msgid "Client-ID"
 msgstr ""
 
-#: inc/admin/wizard.php:261
+#: inc/admin/wizard.php:270
 msgid "Client-Secret"
 msgstr ""
 
-#: inc/admin/wizard.php:272
+#: inc/admin/wizard.php:281
 msgid "Mit Google anmelden"
 msgstr ""
 
 #. translators: %s: Google account
-#: inc/admin/wizard.php:278
+#: inc/admin/wizard.php:287
 #, php-format
 msgid "Verbunden als %s"
 msgstr ""
 
 #. translators: %s: Google account
-#: inc/admin/wizard.php:278
+#: inc/admin/wizard.php:287
 msgid "Verbunden"
 msgstr ""
 
-#: inc/admin/wizard.php:279
+#: inc/admin/wizard.php:288
 msgid "Anderes Konto"
 msgstr ""
 
-#: inc/admin/wizard.php:287
+#: inc/admin/wizard.php:296
 msgid "Mit Ihrem Mailserver verbinden"
 msgstr ""
 
-#: inc/admin/wizard.php:287
+#: inc/admin/wizard.php:296
 msgid "Wählen Sie unten Ihren Hoster, dann tragen wir Server und Port ein. Benutzername und Passwort finden Sie im Kundencenter Ihres Hosters, meist unter «E-Mail-Programm einrichten»."
 msgstr ""
 
-#: inc/admin/wizard.php:305
+#: inc/admin/wizard.php:322
 msgid "Meist die vollständige Mailadresse."
 msgstr ""
 
-#: inc/admin/wizard.php:316
+#: inc/admin/wizard.php:333
 msgid "Hoster"
 msgstr ""
 
-#: inc/admin/wizard.php:317
+#: inc/admin/wizard.php:334
 msgid "Bitte wählen"
 msgstr ""
 
-#: inc/admin/wizard.php:329
+#: inc/admin/wizard.php:346
 msgid "Füllt Server und Verbindung automatisch aus."
 msgstr ""
 
-#: inc/admin/wizard.php:343
+#: inc/admin/wizard.php:360
 msgid "Von wem kommen die Mails?"
 msgstr ""
 
-#: inc/admin/wizard.php:343
+#: inc/admin/wizard.php:360
 msgid "Name und Adresse sehen Empfänger im Posteingang. Die Vorschau unten zeigt, wie es aussieht."
 msgstr ""
 
-#: inc/admin/wizard.php:349
+#: inc/admin/wizard.php:367
 msgid "Vorschau"
 msgstr ""
 
-#: inc/admin/wizard.php:386
+#: inc/admin/wizard.php:405
 msgid "Übernommen aus dem Namen der Website."
 msgstr ""
 
-#: inc/admin/wizard.php:396
+#: inc/admin/wizard.php:415
 msgid "Muss ein vorhandenes Postfach sein und sollte zur Domain passen, sonst landen Mails im Spam."
 msgstr ""
 
-#: inc/admin/wizard.php:405
+#: inc/admin/wizard.php:424
 msgid "Nützlich, wenn das Absender-Postfach niemand liest."
 msgstr ""
 
-#: inc/admin/wizard.php:417
+#: inc/admin/wizard.php:436
 msgid "Wir senden eine Testmail an die Adresse unten. Kommt sie an, schliessen Sie die Einrichtung ab. Kommt sie nicht an, sagt Ihnen die Meldung, was zu tun ist."
 msgstr ""
 
-#: inc/admin/wizard.php:421
+#: inc/admin/wizard.php:440
 msgid "Einrichtung abschliessen"
 msgstr ""
 
-#: inc/admin/wizard.php:421
+#: inc/admin/wizard.php:440
 msgid "Zuerst eine Testmail senden"
 msgstr ""
 
@@ -2535,6 +2688,11 @@ msgstr ""
 msgid "Der Ersatzweg ist nicht eingerichtet."
 msgstr ""
 
+#: inc/class-mlab-smtp-mailer.php:202
+#: inc/sender.php:38
+msgid "Es ist keine gültige Absender-Adresse für den Ersatzweg hinterlegt."
+msgstr ""
+
 #: inc/db.php:267
 msgid "Die Datenbank von MomentumLab SMTP ist nicht vollständig aktualisiert."
 msgstr ""
@@ -2652,13 +2810,13 @@ msgstr ""
 
 #. translators: %s: file name
 #: inc/engine.php:265
-#: inc/resend.php:202
+#: inc/resend.php:195
 #, php-format
 msgid "Der Anhang «%s» konnte nicht gelesen werden."
 msgstr ""
 
 #: inc/engine.php:301
-#: inc/store.php:1297
+#: inc/store.php:1311
 msgid "Die Nachricht ist für die Warteschlange zu gross."
 msgstr ""
 
@@ -2900,6 +3058,22 @@ msgstr ""
 msgid "Die Nachricht ist zu gross für den Anbieter (Grenze: %s MB). Bitte Anhänge verkleinern oder den Ersatzweg aktivieren."
 msgstr ""
 
+#: inc/licensing.php:21
+msgid "Bitte HTTPS-Adresse des Lizenzservers und Lizenzschlüssel eintragen."
+msgstr ""
+
+#: inc/licensing.php:35
+msgid "Lizenzserver derzeit nicht erreichbar. Der Mailversand läuft unverändert weiter."
+msgstr ""
+
+#: inc/licensing.php:40
+msgid "Lizenz oder Website nicht freigeschaltet. Bitte im Lizenzserver prüfen."
+msgstr ""
+
+#: inc/licensing.php:44
+msgid "Lizenzprüfung momentan nicht möglich. Bitte später erneut prüfen."
+msgstr ""
+
 #: inc/log-migrate.php:189
 msgid "MomentumLab SMTP:"
 msgstr ""
@@ -2982,33 +3156,34 @@ msgstr ""
 msgid "Hinweis ausblenden"
 msgstr ""
 
-#: inc/options.php:288
+#: inc/options.php:295
 msgid "Server und Port dürfen auf einer Multisite nur Netzwerk-Administratoren ändern. Der bisherige Wert bleibt erhalten."
 msgstr ""
 
-#: inc/options.php:378
+#: inc/options.php:385
 msgid "Das ist kein Signing Secret von Resend. Es beginnt mit «whsec_» und steht auf der Seite des Webhooks bei Resend. Der bisherige Wert bleibt erhalten."
 msgstr ""
 
-#: inc/options.php:396
+#: inc/options.php:403
 msgid "Das ist kein Resend-API-Key. Ein Key beginnt mit «re_». Bitte bei Resend unter «API Keys» einen Key erstellen und vollständig kopieren. Der bisherige Wert bleibt erhalten."
 msgstr ""
 
-#: inc/options.php:417
+#: inc/options.php:424
+#: inc/options.php:426
 msgid "Antwortadresse"
 msgstr ""
 
-#: inc/options.php:418
+#: inc/options.php:427
 msgid "Adresse für Benachrichtigungen"
 msgstr ""
 
 #. translators: 1: field name, 2: the entered value
-#: inc/options.php:421
+#: inc/options.php:430
 #, php-format
 msgid "«%2$s» ist keine gültige E-Mail-Adresse (%1$s). Der bisherige Wert bleibt erhalten. Bitte im Format name@beispiel.ch eingeben."
 msgstr ""
 
-#: inc/options.php:439
+#: inc/options.php:448
 msgid "Das Ablaufdatum ist ungültig. Bitte im Format JJJJ-MM-TT eingeben, zum Beispiel 2028-11-13. Der bisherige Wert bleibt erhalten."
 msgstr ""
 
@@ -3063,136 +3238,140 @@ msgstr ""
 msgid "Nur wenn Nachrichten im Hintergrund versendet oder wiederholt werden, liegt die fertige Nachricht samt Anhängen bis zur Annahme durch den Dienst verschlüsselt in der Datenbank und wird danach gelöscht. Auskunft und Löschung erfolgen über die Werkzeuge von WordPress für den Export und das Löschen personenbezogener Daten."
 msgstr ""
 
-#: inc/readiness.php:185
+#: inc/readiness.php:186
 msgid "Der Ersatzweg"
 msgstr ""
 
-#: inc/readiness.php:185
+#: inc/readiness.php:186
 msgid "Der Hauptweg"
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:188
+#: inc/readiness.php:189
 msgid "Nicht eingetragen"
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:188
+#: inc/readiness.php:189
 #, php-format
 msgid "%s ist noch nicht vollständig eingetragen."
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:192
+#: inc/readiness.php:193
 #, php-format
 msgid "Seit der letzten Prüfung hat sich etwas geändert (Zugangsdaten, Absender oder Domain). %s muss erneut geprüft und getestet werden."
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:196
+#: inc/readiness.php:197
 msgid "Getestet"
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:196
+#: inc/readiness.php:197
 #, php-format
 msgid "%s hat eine Testmail erfolgreich angenommen."
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:200
+#: inc/readiness.php:201
 msgid "Geprüft, nicht getestet"
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:200
+#: inc/readiness.php:201
 #, php-format
 msgid "%s ist erreichbar, aber es wurde noch keine Testmail erfolgreich angenommen."
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:203
+#: inc/readiness.php:204
 msgid "Eingetragen, nicht geprüft"
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:203
+#: inc/readiness.php:204
 #, php-format
 msgid "%s ist eingetragen, aber noch nicht geprüft. Eingetragen heisst nicht, dass er funktioniert."
 msgstr ""
 
-#: inc/readiness.php:235
+#: inc/readiness.php:236
 msgid "Ist der Ersatzweg tatsächlich getestet?"
 msgstr ""
 
-#: inc/readiness.php:241
+#: inc/readiness.php:242
 msgid "Der Ersatzweg ist getestet, aber noch nicht eingeschaltet. Fällt der Hauptweg aus, springt er nicht ein."
 msgstr ""
 
-#: inc/resend.php:114
+#: inc/resend.php:107
 msgid "Es ist noch kein Resend-API-Key eingetragen. Bitte im Assistenten unter «Verbinden» den Key eingeben."
 msgstr ""
 
-#: inc/resend.php:120
+#: inc/resend.php:113
 msgid "Die Nachricht enthält Zeichen, die nicht übertragen werden können. Bitte Betreff und Text prüfen."
 msgstr ""
 
 #. translators: %d: largest number of recipients
-#: inc/resend.php:249
+#: inc/resend.php:242
 #, php-format
 msgid "Resend erlaubt höchstens %d Empfänger pro Mail. Bitte die Mail auf mehrere Nachrichten aufteilen."
 msgstr ""
 
-#: inc/resend.php:399
+#: inc/resend.php:392
 msgid "Der Key ist gültig. Er darf nur Mails senden, das ist die sicherste Einstellung. Ob die Absender-Domain verifiziert ist, zeigt die Testmail."
 msgstr ""
 
-#: inc/resend.php:401
+#: inc/resend.php:394
 msgid "Verbunden. Resend hat den API-Key akzeptiert."
 msgstr ""
 
 #. translators: %s: domain
-#: inc/resend.php:616
+#: inc/resend.php:609
 #, php-format
 msgid "Domain %s bei Resend"
 msgstr ""
 
 #. translators: %s: list of domains
-#: inc/resend.php:628
+#: inc/resend.php:621
 #, php-format
 msgid "Verifiziert sind: %s."
 msgstr ""
 
-#: inc/resend.php:644
+#: inc/resend.php:637
 msgid "Die Domain ist verifiziert. Mails können gesendet werden."
 msgstr ""
 
-#: inc/resend.php:645
+#: inc/resend.php:638
 msgid "Die Testadresse von Resend sendet nur an die eigene Adresse Ihres Resend-Kontos. Für Mails an andere Empfänger eine eigene Domain verifizieren."
 msgstr ""
 
-#: inc/resend.php:646
+#: inc/resend.php:639
 msgid "Der Key darf nur senden. Darum lässt sich nicht vorab prüfen, ob die Domain verifiziert ist. Die Testmail zeigt es."
 msgstr ""
 
-#: inc/resend.php:647
+#: inc/resend.php:640
 msgid "Die Domain ist nur teilweise verifiziert. Der Versand klappt meist, prüfen Sie aber die DNS-Einträge unten."
 msgstr ""
 
-#: inc/resend.php:648
+#: inc/resend.php:641
 msgid "Die Domain ist noch nicht verifiziert. Tragen Sie die DNS-Einträge unten bei Ihrem Domain-Anbieter ein und wählen Sie «Nochmals prüfen». Die Prüfung dauert meist wenige Minuten, in Ausnahmen bis zu 72 Stunden."
 msgstr ""
 
-#: inc/resend.php:649
+#: inc/resend.php:642
 msgid "Resend findet die DNS-Einträge der Domain nicht. Prüfen Sie die Einträge unten bei Ihrem Domain-Anbieter und wählen Sie danach «Nochmals prüfen»."
 msgstr ""
 
-#: inc/resend.php:650
+#: inc/resend.php:643
 msgid "Die Domain ist bei Resend nicht angelegt. Legen Sie sie dort unter «Domains» an, tragen Sie die DNS-Einträge ein und wählen Sie «Nochmals prüfen». Oder verwenden Sie eine Absender-Adresse einer verifizierten Domain."
 msgstr ""
 
-#: inc/resend.php:651
+#: inc/resend.php:644
 msgid "Der Domain-Status konnte bei Resend nicht abgerufen werden. Der Versand ist davon nicht betroffen, die Testmail zeigt, ob alles stimmt."
+msgstr ""
+
+#: inc/resend.php:676
+msgid "Resend prüft die DNS-Einträge jetzt. Das dauert meist wenige Minuten. Laden Sie die Seite danach neu oder wählen Sie «Nochmals prüfen» erneut."
 msgstr ""
 
 #: inc/security.php:127
@@ -3333,11 +3512,11 @@ msgstr ""
 msgid "Der Versand wurde unterbrochen, ob der Anbieter die Nachricht angenommen hat, ist unklar."
 msgstr ""
 
-#: inc/store.php:1290
+#: inc/store.php:1304
 msgid "Die Nachricht konnte nicht gespeichert werden."
 msgstr ""
 
-#: inc/store.php:1351
+#: inc/store.php:1365
 msgid "Die gespeicherte Nachricht ist nicht mehr lesbar (Schlüssel geändert)."
 msgstr ""
 
@@ -3377,37 +3556,6 @@ msgstr ""
 msgid "Letzte 20 Protokolleinträge"
 msgstr ""
 
-#: inc/updater.php:54
+#: inc/updater.php:60
 msgid "Updates sind nicht aktiv: In wp-config.php fehlt die Konstante MLAB_SMTP_GITHUB_TOKEN."
-msgstr ""
-
-msgid "Der Ersatzweg ist deaktiviert. Seine Konfiguration bleibt gespeichert."
-msgstr ""
-
-msgid "Der Ersatzweg ist in wp-config.php festgelegt. Ändern Sie zuerst die entsprechenden Konstanten."
-msgstr ""
-
-msgid "Der Ersatzweg konnte nicht vollständig geändert werden. Bitte versuchen Sie es erneut."
-msgstr ""
-
-msgid "Der Ersatzweg wurde entfernt. Hauptversand und Protokolle bleiben erhalten."
-msgstr ""
-
-msgid "Entfernt Server, Zugangsdaten und Prüfstatus des Ersatzwegs. Hauptversand und Protokolle bleiben erhalten."
-msgstr ""
-
-msgid "Ersatzweg deaktivieren"
-msgstr ""
-
-msgid "Ersatzweg endgültig entfernen"
-msgstr ""
-
-msgid "Ersatzweg entfernen"
-msgstr ""
-
-msgid "Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain."
-msgstr ""
-
-#, php-format
-msgid "Üblicher Port: %s. Individuell vorgegebene Ports bleiben beim Wechsel erhalten."
 msgstr ""

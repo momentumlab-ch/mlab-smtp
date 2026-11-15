@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.3
+
+- Added: Separate backup sender address, name and reply address for SMTP and Resend, including a route-specific envelope sender.
+- Added: Independent primary and backup SPF, DKIM and DMARC warnings, help and recheck controls. DNS warnings never block setup completion.
+- Added: DMARC organizational-domain inheritance using the Public Suffix List; DKIM selector and bounded CNAME checks.
+- Added: Opt-in connection to the existing MomentumLab license server using the mlab-smtp-pro product. Pro unlocks technical DNS records; delivery stays independent of licensing.
+- Improved: Resend verification status uses the key and sender domain belonging to each route; restricted keys show unknown status.
+
 ## 1.5.2
 
 - Fixed: Plugin-detail screenshots use a proportional responsive preview with a link to the original image.

@@ -4,7 +4,7 @@ Tags: smtp, email, microsoft 365, gmail, resend
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.5.2
+Stable tag: 1.5.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,6 +54,14 @@ There is no plugin telemetry, opening tracking or click tracking. Configured pro
 = Available languages =
 
 The interface is available in English, German, French and Italian. The screenshot shows the real English interface with demonstration data.
+
+= Optional SMTP Pro licensing =
+
+Only after you connect a license in Settings, the plugin sends the license key and
+website URL to the HTTPS license server you specify. It uses the existing
+MomentumLab catalog API to unlock technical DNS records. The key is encrypted
+locally. Sending emails and using the backup route do not depend on licensing.
+The operator of your configured license server provides its terms and privacy policy.
 
 == Installation ==
 
@@ -160,6 +168,14 @@ In the current GitHub distribution, WordPress contacts GitHub to check the plugi
 [GitHub terms](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service) | [GitHub privacy](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)
 
 == Changelog ==
+
+= 1.5.3 =
+- Added: Separate backup sender address, name and reply address for SMTP and Resend, including a route-specific envelope sender.
+- Added: Independent primary and backup SPF, DKIM and DMARC warnings, help and recheck controls. DNS warnings never block setup completion.
+- Added: DMARC organizational-domain inheritance using the Public Suffix List; DKIM selector and bounded CNAME checks.
+- Added: Opt-in connection to the existing MomentumLab license server using the mlab-smtp-pro product. Pro unlocks technical DNS records; delivery stays independent of licensing.
+- Improved: Resend verification status uses the key and sender domain belonging to each route; restricted keys show unknown status.
+
 
 = 1.5.2 =
 * Improved: Setup errors stay inside the current card and receive focus after a redirect.

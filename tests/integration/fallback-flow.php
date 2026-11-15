@@ -126,7 +126,7 @@ assert_contains( 'Sending access', $flash['message'], 'the check explains the se
 ob_start();
 mlab_smtp_render_fb_domain();
 $html = ob_get_clean();
-assert_contains( 'Domain-Status nicht lesbar', $html, 'step 5 explains that the domain status cannot be read' );
+assert_contains( 'Nicht beurteilbar', $html, 'step 5 explains that the domain status cannot be read' );
 assert_contains( 'Testmail', $html, 'and points to the test mail' );
 assert_true( mlab_smtp_route_state( 'fallback' )['geprueft'], 'the check is stored as passed' );
 
@@ -145,7 +145,7 @@ mlab_smtp_store( array( 'fb_smtp_host' => 'smtp2.invalid' ) );
 assert_true( mlab_smtp_route_state( 'fallback' )['veraltet'], 'a host change makes the SMTP check stale' );
 ob_start();
 mlab_smtp_render_fb_domain();
-assert_contains( 'Der Mailserver entscheidet', (string) ob_get_clean(), 'step 5 for SMTP says that the server decides' );
+assert_contains( 'Nur Hinweise', (string) ob_get_clean(), 'step 5 for SMTP says that the server decides' );
 
 // 8. Aktivieren: nur mit aktuellem Test; setzt fallback_enabled=1.
 ff_reset();
