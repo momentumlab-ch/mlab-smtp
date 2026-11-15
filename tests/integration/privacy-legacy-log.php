@@ -71,10 +71,17 @@ assert_same( 0, (int) mlab_smtp_store_list()['total'], 'migration after clear im
 
 // 5. Keine Erfolgsmeldung, wenn die Kopie nicht bereinigt werden konnte (Sperre gehalten).
 mlab_t_seed( array( mlab_t_legacy( 1 ), mlab_t_legacy( 1 ) ) );
+mlab_t_msg( array( 'status' => 'accepted', 'recipients' => array( 'user@example.test' ) ) );
 assert_true( mlab_smtp_migration_lock( 120 ), 'lock held by a running migration' );
 $e = mlab_smtp_privacy_erase( 'user@example.test', 1 );
 assert_true( $e['items_retained'] && array() !== $e['messages'], 'erasure reports retained data and a message' );
+assert_same( 0, $e['items_removed'], 'a locked migration prevents deletion from the store too' );
+assert_same( 1, count( mlab_smtp_store_ids_by_email( 'user@example.test' ) ), 'data stays findable until the migration lock is released' );
 assert_true( ! mlab_smtp_log_clear(), 'clear reports failure' );
 delete_option( MLAB_SMTP_MIGRATION_LOCK );
+$e = mlab_smtp_privacy_erase( 'user@example.test', 1 );
+assert_true( ! $e['items_retained'], 'erasure succeeds after the migration lock is released' );
+mlab_smtp_migration_run( 100 );
+assert_same( array(), mlab_smtp_store_ids_by_email( 'user@example.test' ), 'subsequent migration cannot restore the erased rows' );
 assert_true( mlab_smtp_log_clear(), 'clear works again once the lock is free' );
 echo "ok\n";

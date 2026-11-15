@@ -121,7 +121,7 @@ function mlab_smtp_privacy_erase( $email, $page = 1 ): array {
 	unset( $page );
 	// The old log copy first: otherwise a migration that is still open could bring the data back.
 	$legacy = mlab_smtp_legacy_log_erase_email( (string) $email );
-	$ids    = mlab_smtp_store_ids_by_email_checked( (string) $email, MLAB_SMTP_PRIVACY_BATCH );
+	$ids    = $legacy['ok'] ? mlab_smtp_store_ids_by_email_checked( (string) $email, MLAB_SMTP_PRIVACY_BATCH ) : null;
 	$result = null === $ids ? array(
 		'ok'      => false,
 		'deleted' => 0,
