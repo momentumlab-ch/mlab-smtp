@@ -180,7 +180,11 @@ function mlab_smtp_render_fallback_resend(): void {
  * @param string $field Encryption field of the main or backup route.
  */
 function mlab_smtp_render_smtp_port_hint( string $field ): void {
-	$ports = array( 'tls' => '587', 'ssl' => '465', 'none' => '25' );
+	$ports = array(
+		'tls'  => '587',
+		'ssl'  => '465',
+		'none' => '25',
+	);
 	/* translators: %s: usual SMTP port */
 	$template = __( 'Üblicher Port: %s. Individuell vorgegebene Ports bleiben beim Wechsel erhalten.', 'mlab-smtp' );
 	$port     = $ports[ (string) mlab_smtp_get( $field ) ] ?? '587';

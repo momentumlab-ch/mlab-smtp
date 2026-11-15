@@ -75,7 +75,13 @@ function mlab_smtp_finish_fallback_action( bool $remove ): void {
 	} else {
 		mlab_smtp_flash( 'success', $remove ? __( 'Der Ersatzweg wurde entfernt. Hauptversand und Protokolle bleiben erhalten.', 'mlab-smtp' ) : __( 'Der Ersatzweg ist deaktiviert. Seine Konfiguration bleibt gespeichert.', 'mlab-smtp' ) );
 	}
-	wp_safe_redirect( mlab_smtp_page_url( array( 'view' => 'settings', 'feedback' => 'fallback' ) ) . '#mlab-s-fallback' );
+	$url = mlab_smtp_page_url(
+		array(
+			'view'     => 'settings',
+			'feedback' => 'fallback',
+		)
+	);
+	wp_safe_redirect( $url . '#mlab-s-fallback' );
 	exit;
 }
 

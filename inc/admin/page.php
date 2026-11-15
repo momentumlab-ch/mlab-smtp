@@ -181,7 +181,11 @@ function mlab_smtp_render_flash( bool $inline = false ): void {
 	}
 	delete_transient( $key );
 	if ( $inline ) {
-		$level = array( 'success' => 'ok', 'warning' => 'warn' )[ $flash['type'] ] ?? 'bad';
+		$levels = array(
+			'success' => 'ok',
+			'warning' => 'warn',
+		);
+		$level  = $levels[ $flash['type'] ] ?? 'bad';
 		echo '<div id="mlab-step-feedback" class="mlab-step-feedback" data-mlab-step-feedback tabindex="-1" role="' . ( 'bad' === $level ? 'alert' : 'status' ) . '">';
 		mlab_smtp_ui_hint(
 			$level,
