@@ -44,6 +44,28 @@ php -d memory_limit=512M tests/env/vendor/wp-cli/wp-cli/php/boot-fs.php --path=t
 
 Zurücksetzen: `rm -rf tests/env/wordpress tests/env/vendor tests/env/.cache tests/env/.run tests/env/admin-password.txt` und `setup.sh` neu ausführen.
 
+## MySQL/MariaDB statt SQLite
+
+Standard ist SQLite. Mit `MLAB_TEST_DB=mysql` läuft dieselbe WordPress-Installation gegen eine echte MySQL-kompatible Datenbank, damit
+`dbDelta`, Indizes, `affected_rows` und Nebenläufigkeit realistisch geprüft werden:
+
+```bash
+apt-get install -y mariadb-server          # nur das Paket, der Systemdienst wird nicht benutzt
+bash tests/env/mysql-start.sh              # eigene Instanz in tests/env/.run/mysql (Unix-Socket, kein TCP), Datenbank mlab_test, Zufallspasswort in tests/env/.run/mysql.php
+MLAB_TEST_DB=mysql bash tests/env/setup.sh # installiert WordPress und aktiviert das Plugin in der MySQL-Datenbank
+MLAB_TEST_DB=mysql php tests/run.php       # ganze Suite auf MySQL (ohne Variable: SQLite)
+MLAB_TEST_DB=mysql bash tests/env/serve.sh # Webserver gegen MySQL
+bash tests/env/mysql-stop.sh [--purge]     # stoppt die Instanz, --purge löscht Datadir und Zugangsdaten
+```
+
+- Beide Modi teilen sich `tests/env/wordpress`. `wp-config.php` wählt die Datenbank zur Laufzeit anhand von `MLAB_TEST_DB`; `wp-content/db.php`
+  ist ein Schalter, der das SQLite-Drop-in (`db.php.sqlite`) im MySQL-Modus nie lädt. `$wpdb` ist dort die normale `wpdb`-Klasse.
+- Eine fremde Datenbank (z. B. CI-Dienst) geben `MLAB_MYSQL_HOST`, `MLAB_MYSQL_NAME`, `MLAB_MYSQL_USER`, `MLAB_MYSQL_PASS` an; `mysql-start.sh` ist dann unnötig.
+- `tests/integration/mysql-claim.php` läuft nur auf MySQL (sonst Hinweis „SKIP“): mehrere PHP-Prozesse (`proc_open`, Datei-Schranke) beanspruchen
+  gleichzeitig dieselben Zeilen (genau ein Gewinner) und fügen gleichzeitig Nachrichten ein (keine Zeile geht verloren).
+- Unterschied, den MySQL sichtbar macht: `UPDATE` meldet geänderte statt gefundene Zeilen. Ein Compare-and-Set, das nichts ändert, liefert 0.
+- Die Zugangsdaten und das Datadir liegen unter `tests/env/.run/` und sind von Git ausgeschlossen.
+
 ## Hinweise
 
 - Als root deaktiviert Composer Plugins. `bin/phpcs.sh` setzt `installed_paths` deshalb selbst, `setup.sh` setzt `COMPOSER_ALLOW_SUPERUSER=1`.

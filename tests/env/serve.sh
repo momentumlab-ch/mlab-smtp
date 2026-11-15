@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 # Startet den PHP-Built-in-Server auf einem freien Port (oder PORT=...). Schreibt URL nach tests/env/.run/url.
+# MLAB_TEST_DB=mysql: Der Server läuft gegen MySQL/MariaDB (wird bei Bedarf über mysql-start.sh gestartet, außer MLAB_MYSQL_HOST ist gesetzt).
 set -euo pipefail
 ENV_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RUN="$ENV_DIR/.run"
 mkdir -p "$RUN"
+if [ "${MLAB_TEST_DB:-sqlite}" = "mysql" ] && [ -z "${MLAB_MYSQL_HOST:-}" ]; then bash "$ENV_DIR/mysql-start.sh" >/dev/null; fi
+export MLAB_TEST_DB="${MLAB_TEST_DB:-sqlite}"
 [ -f "$ENV_DIR/wordpress/wp-config.php" ] || { echo "Zuerst: bash tests/env/setup.sh" >&2; exit 1; }
 if [ -f "$RUN/pid" ] && kill -0 "$(cat "$RUN/pid")" 2>/dev/null; then
 	echo "Läuft bereits: $(cat "$RUN/url")"

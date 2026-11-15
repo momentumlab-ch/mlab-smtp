@@ -30,3 +30,46 @@ jobs:
 
       - name: Unit- und Integrationstests
         run: bash bin/test.sh
+
+  test-mysql:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        db: ['mysql:8.0', 'mariadb:10.11']
+    services:
+      db:
+        image: ${{ matrix.db }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: mlab_test
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: mlab_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized || mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      MLAB_TEST_DB: mysql
+      MLAB_MYSQL_HOST: 127.0.0.1:3306
+      MLAB_MYSQL_NAME: mlab_test
+      MLAB_MYSQL_USER: root
+      MLAB_MYSQL_PASS: root
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: sodium, pdo_sqlite, mysqli, mbstring
+          tools: composer:v2
+
+      - name: Composer install
+        run: composer install --no-interaction --no-progress
+
+      - name: Testumgebung (WordPress + MySQL)
+        run: bash tests/env/setup.sh
+
+      - name: Unit- und Integrationstests auf MySQL (inklusive mysql-claim.php)
+        run: bash bin/test.sh
