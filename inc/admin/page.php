@@ -13,6 +13,7 @@ foreach ( array( 'components', 'handlers', 'rest', 'overview', 'wizard', 'resend
 unset( $mlab_smtp_admin_file );
 
 add_action( 'admin_menu', 'mlab_smtp_add_menu' );
+add_action( 'admin_init', 'mlab_smtp_redirect_old_url' );
 add_action( 'admin_enqueue_scripts', 'mlab_smtp_enqueue_assets' );
 add_filter( 'plugin_action_links_' . plugin_basename( MLAB_SMTP_FILE ), 'mlab_smtp_action_links' );
 
@@ -22,7 +23,7 @@ add_filter( 'plugin_action_links_' . plugin_basename( MLAB_SMTP_FILE ), 'mlab_sm
  * @param array $args Extra query arguments, for example view and step.
  */
 function mlab_smtp_page_url( array $args = array() ): string {
-	return add_query_arg( array_merge( array( 'page' => 'mlab-smtp' ), $args ), admin_url( 'options-general.php' ) );
+	return add_query_arg( array_merge( array( 'page' => 'mlab-smtp' ), $args ), admin_url( 'admin.php' ) );
 }
 
 /**
@@ -78,16 +79,35 @@ function mlab_smtp_query( string $key, string $fallback = '' ): string {
 }
 
 /**
- * Adds the settings page.
+ * Adds the plugin as its own top-level menu entry with a paper plane icon.
  */
 function mlab_smtp_add_menu(): void {
-	add_options_page(
+	add_menu_page(
 		__( 'E-Mail-Versand', 'mlab-smtp' ),
 		__( 'E-Mail-Versand', 'mlab-smtp' ),
 		'manage_options',
 		'mlab-smtp',
-		'mlab_smtp_render_page'
+		'mlab_smtp_render_page',
+		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAyMCI+PHBhdGggZmlsbD0iI2E3YWFhZCIgZD0iTTE4LjYgMS40YTEgMSAwIDAgMC0xLS4yTDEuNSA3LjRhMSAxIDAgMCAwLS4xIDEuOGw1LjQgMi41IDIuNSA1LjRhMSAxIDAgMCAwIDEuOC0uMWw2LjItMTYuMWExIDEgMCAwIDAtLjctMS41ek04LjIgMTEuMyA1IDkuOCAxNS4yIDUuOWwtNyA1LjR6Ii8+PC9zdmc+',
+		76
 	);
+}
+
+/**
+ * Sends old links (Settings > E-Mail-Versand) to the new menu entry, keeping view, step and provider.
+ */
+function mlab_smtp_redirect_old_url(): void {
+	global $pagenow;
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only a redirect, nothing is read or changed.
+	if ( 'options-general.php' !== $pagenow || 'mlab-smtp' !== ( $_GET['page'] ?? '' ) ) {
+		return;
+	}
+	$args = array();
+	foreach ( array( 'view', 'step', 'provider' ) as $key ) {
+		$args[ $key ] = mlab_smtp_query( $key );
+	}
+	wp_safe_redirect( mlab_smtp_page_url( array_filter( $args ) ) );
+	exit;
 }
 
 /**
@@ -107,7 +127,7 @@ function mlab_smtp_action_links( array $links ): array {
  * @param string $hook_suffix Current admin page.
  */
 function mlab_smtp_enqueue_assets( string $hook_suffix ): void {
-	if ( 'settings_page_mlab-smtp' !== $hook_suffix ) {
+	if ( MLAB_SMTP_SCREEN !== $hook_suffix ) {
 		return;
 	}
 	wp_enqueue_style( 'mlab-smtp-admin', MLAB_SMTP_URL . 'assets/css/admin.css', array( 'dashicons' ), MLAB_SMTP_VERSION );

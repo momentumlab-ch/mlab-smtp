@@ -24,6 +24,8 @@ define( 'MLAB_SMTP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MLAB_SMTP_URL', plugin_dir_url( __FILE__ ) );
 // Seconds per network step. Short enough that a dead server fails before the web server gives up (504).
 define( 'MLAB_SMTP_TIMEOUT', 10 );
+// Screen id of the plugin page (own top-level menu).
+define( 'MLAB_SMTP_SCREEN', 'toplevel_page_mlab-smtp' );
 
 foreach ( array( 'providers', 'options', 'crypto', 'http', 'm365', 'google', 'resend', 'state', 'log', 'mailer', 'notify', 'health', 'detect', 'check', 'admin/page', 'updater' ) as $mlab_smtp_module ) {
 	require_once MLAB_SMTP_DIR . 'inc/' . $mlab_smtp_module . '.php';

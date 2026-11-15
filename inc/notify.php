@@ -246,7 +246,7 @@ function mlab_smtp_expiry_body( int $days ): string {
  */
 function mlab_smtp_is_plugin_screen(): bool {
 	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-	return $screen && 'settings_page_mlab-smtp' === $screen->id;
+	return $screen && MLAB_SMTP_SCREEN === $screen->id;
 }
 
 /**
