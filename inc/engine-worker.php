@@ -163,11 +163,11 @@ function mlab_smtp_engine_process( array $row ): string {
 	list( $routes, $until ) = mlab_smtp_engine_active_routes();
 	if ( $unclear_before && ! mlab_smtp_get( 'queue_unclear_failover' ) ) {
 		// A route that was unclear may have delivered: only that route may be tried again (same key), never another one.
-		$known = array_values( array_filter( mlab_smtp_engine_routes(), static fn( $r ): bool => in_array( $r['route'], $unclear_routes, true ) ) );
+		$known = array_values( array_filter( mlab_smtp_engine_routes(), static fn( $r ): bool => in_array( mlab_smtp_engine_pause_key( $r['route'], $r['provider'] ), $unclear_routes, true ) ) );
 		if ( ! $known ) {
 			return mlab_smtp_engine_settle_final( $row, $token, 'unclear', __( 'Der Weg mit dem unklaren Ergebnis ist nicht mehr verfügbar, bitte manuell prüfen.', 'mlab-smtp' ), 'unclear' );
 		}
-		$routes = array_values( array_filter( $routes, static fn( $r ): bool => in_array( $r['route'], $unclear_routes, true ) ) );
+		$routes = array_values( array_filter( $routes, static fn( $r ): bool => in_array( mlab_smtp_engine_pause_key( $r['route'], $r['provider'] ), $unclear_routes, true ) ) );
 		if ( ! $routes && 0 === $until ) {
 			$until = time() + MINUTE_IN_SECONDS;
 		}
@@ -263,12 +263,18 @@ function mlab_smtp_engine_settle( array $row, string $token, array $snapshot, ar
 	if ( $o['ok'] || 'partial' === $o['class'] ) {
 		return mlab_smtp_engine_settle_done( $row, $token, $snapshot, $o );
 	}
+	$all      = mlab_smtp_store_attempts( $id );
+	$attempts = mlab_smtp_engine_generation( $all, (string) $row['uuid'], (int) ( $snapshot['resend'] ?? 0 ) );
+	if ( ! $o['retryable'] || mlab_smtp_engine_rounds( $all ) >= (int) $row['max_attempts'] ) {
+		if ( mlab_smtp_engine_unclear_routes( $attempts ) ) {
+			// An earlier try with this key was unclear and may have delivered: never «failed», a person decides.
+			return mlab_smtp_engine_settle_final( $row, $token, 'unclear', $o['message'] . ' ' . __( 'Ein früherer Versuch war unklar, bitte manuell prüfen.', 'mlab-smtp' ), 'unclear' );
+		}
+	}
 	if ( ! $o['retryable'] ) {
 		return mlab_smtp_engine_settle_final( $row, $token, $o['status'], $o['message'], $o['class'] );
 	}
-	$all      = mlab_smtp_store_attempts( $id );
-	$attempts = mlab_smtp_engine_generation( $all, (string) $row['uuid'], (int) ( $snapshot['resend'] ?? 0 ) );
-	$rounds   = mlab_smtp_engine_rounds( $all );
+	$rounds = mlab_smtp_engine_rounds( $all );
 	if ( $rounds >= (int) $row['max_attempts'] ) {
 		$status = 'unclear' === $o['class'] ? 'unclear' : 'failed';
 		return mlab_smtp_engine_settle_final( $row, $token, $status, $o['message'] . ' ' . __( 'Die Höchstzahl der Versuche ist erreicht.', 'mlab-smtp' ), $o['class'] );
@@ -305,7 +311,7 @@ function mlab_smtp_engine_generation( array $attempts, string $uuid, int $resend
 }
 
 /**
- * Routes (primary, fallback) that had an unclear outcome in the given attempts.
+ * Routes that had an unclear outcome in the given attempts, as route:provider keys (the same key at another provider cannot deduplicate).
  *
  * @param array[] $attempts Attempt rows.
  * @return string[]
@@ -314,7 +320,8 @@ function mlab_smtp_engine_unclear_routes( array $attempts ): array {
 	$routes = array();
 	foreach ( $attempts as $attempt ) {
 		if ( 'unknown' === $attempt['outcome'] ) {
-			$routes[ (string) $attempt['route'] ] = (string) $attempt['route'];
+			$key            = mlab_smtp_engine_pause_key( (string) $attempt['route'], (string) $attempt['provider'] );
+			$routes[ $key ] = $key;
 		}
 	}
 	return array_values( $routes );

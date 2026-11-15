@@ -428,7 +428,8 @@ function mlab_smtp_store_set_status( int $id, string $status, array $fields = ar
 				return true;
 			}
 			// MySQL reports 0 affected rows when nothing changed (same values within one second): that is no failure.
-			return $expected === (string) $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM %i WHERE id = %d', mlab_smtp_table( 'messages' ), $id ) );
+			$current = $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM %i WHERE id = %d', mlab_smtp_table( 'messages' ), $id ) );
+			return null !== $current && $expected === (string) $current; // A failed re-select (null) is no success.
 		}
 	);
 	if ( $ok ) {
@@ -655,12 +656,14 @@ function mlab_smtp_store_sweep_one( int $id, int $now ): string {
 	);
 	$sent     = count( $attempts );
 	$accepted = array_values( array_filter( $attempts, static fn( $a ): bool => 'accepted' === $a['outcome'] ) );
+	$partial  = array_values( array_filter( $attempts, static fn( $a ): bool => 'partial' === $a['outcome'] ) );
 	$queued   = 0 === $sent && 'queued' === $message['mode'] && ! empty( $message['has_payload'] );
 	$text     = '';
-	if ( $accepted ) {
-		$hit = end( $accepted );
-		$set = mlab_smtp_store_status_fields(
-			'accepted',
+	if ( $accepted || $partial ) {
+		$pool = $accepted ? $accepted : $partial;
+		$hit  = (array) end( $pool );
+		$set  = mlab_smtp_store_status_fields(
+			$accepted ? 'accepted' : 'partial',
 			array(
 				'provider_msg_id' => (string) $hit['provider_msg_id'],
 				'via'             => (string) $hit['provider'],
@@ -700,9 +703,43 @@ function mlab_smtp_store_sweep_one( int $id, int $now ): string {
 		mlab_smtp_store_note_sweep( $id, $now );
 	}
 	if ( $won && ! $queued ) {
-		mlab_smtp_store_apply_pending_events( $id ); // An event that arrived while the worker owned the row.
+		mlab_smtp_store_swept( $message, $set );
 	}
 	return $won ? ( $queued ? 'requeued' : (string) $set['status'] ) : '';
+}
+
+/**
+ * Follow-up of a sweep that ended a message: tells the extension points, matches waiting events, applies stored events.
+ *
+ * @param array $message Row before the sweep.
+ * @param array $set     Fields written (status, provider_msg_id).
+ */
+function mlab_smtp_store_swept( array $message, array $set ): void {
+	$id     = (int) $message['id'];
+	$status = (string) $set['status'];
+	if ( function_exists( 'mlab_smtp_engine_changed' ) ) {
+		mlab_smtp_engine_changed( $id, $status, 'processing', 'worker' );
+	}
+	if ( ! empty( $set['provider_msg_id'] ) && function_exists( 'mlab_smtp_webhook_rematch' ) ) {
+		mlab_smtp_webhook_rematch();
+	}
+	if ( in_array( $status, array( 'accepted', 'partial' ), true ) ) {
+		do_action(
+			'accepted' === $status ? 'mlab_smtp_message_accepted' : 'mlab_smtp_message_failed',
+			array(
+				'id'              => $id,
+				'uuid'            => (string) $message['uuid'],
+				'status'          => $status,
+				'class'           => 'accepted' === $status ? 'accepted' : 'partial',
+				'mode'            => (string) $message['mode'],
+				'via'             => (string) ( $set['via'] ?? '' ),
+				'fallback'        => ! empty( $set['fallback'] ),
+				'provider_msg_id' => (string) ( $set['provider_msg_id'] ?? '' ),
+				'error'           => '',
+			)
+		);
+	}
+	mlab_smtp_store_apply_pending_events( $id ); // An event that arrived while the worker owned the row.
 }
 
 /**

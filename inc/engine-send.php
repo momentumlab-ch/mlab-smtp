@@ -468,11 +468,11 @@ function mlab_smtp_engine_row_fields( array $o ): array {
 function mlab_smtp_engine_set_status( int $id, string $status, array $fields, string $source ): bool {
 	$old = mlab_smtp_store_get( $id );
 	$ok  = mlab_smtp_store_set_status( $id, $status, $fields, 0, 'manual' !== $source );
-	if ( $ok ) {
+	if ( $ok && (string) ( $old['status'] ?? '' ) !== $status ) {
 		mlab_smtp_engine_changed( $id, $status, (string) ( $old['status'] ?? '' ), $source );
-		if ( ! empty( $fields['provider_msg_id'] ) && function_exists( 'mlab_smtp_webhook_rematch' ) ) {
-			mlab_smtp_webhook_rematch();
-		}
+	}
+	if ( $ok && ! empty( $fields['provider_msg_id'] ) && function_exists( 'mlab_smtp_webhook_rematch' ) ) {
+		mlab_smtp_webhook_rematch();
 	}
 	return $ok;
 }
@@ -630,7 +630,12 @@ function mlab_smtp_engine_retry_in_background( $mailer, array $msg, array $o ): 
 	if ( $msg['id'] > 0 && true === mlab_smtp_store_set_payload( $msg['id'], $snapshot, 0, array( 'processing' ) ) ) {
 		global $wpdb;
 		// Only while the row is still ours (processing): a swept or changed row stays as it is.
-		$id = mlab_smtp_store_cas( $msg['id'], $fields, $wpdb->prepare( 'AND status = %s', 'processing' ) ) ? $msg['id'] : 0;
+		$won = (bool) mlab_smtp_store_run(
+			static function () use ( $msg, $fields, $wpdb ) {
+				return mlab_smtp_store_cas( $msg['id'], $fields, $wpdb->prepare( 'AND status = %s', 'processing' ) );
+			}
+		);
+		$id  = $won ? $msg['id'] : 0;
 	} else {
 		$id = $msg['id'] > 0 ? 0 : mlab_smtp_engine_store_queued( $mailer, $msg, $snapshot, 'temp_failed', $next );
 	}
