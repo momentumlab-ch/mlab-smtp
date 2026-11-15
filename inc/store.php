@@ -1056,7 +1056,7 @@ function mlab_smtp_store_transactional(): bool {
 		$result = (bool) mlab_smtp_store_run(
 			static function (): bool {
 				global $wpdb;
-				if ( ! preg_match( '/mysql|maria/i', (string) $wpdb->db_server_info() ) ) {
+				if ( ! $wpdb->use_mysqli ) {
 					return true; // The SQLite driver of the test environment wraps transactions itself.
 				}
 				$names = array_map( 'mlab_smtp_table', array( 'messages', 'attempts', 'events', 'recipients' ) );
@@ -1076,7 +1076,7 @@ function mlab_smtp_store_transactional(): bool {
  */
 function mlab_smtp_store_foreign_transaction(): bool {
 	global $wpdb;
-	if ( ! preg_match( '/mysql|maria/i', (string) $wpdb->db_server_info() ) ) {
+	if ( ! $wpdb->use_mysqli ) {
 		return false;
 	}
 	$name = 'mlab_probe_' . bin2hex( random_bytes( 8 ) );
