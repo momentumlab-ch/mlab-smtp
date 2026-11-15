@@ -53,7 +53,7 @@ function mlab_smtp_render_wizard(): void {
  * @param int $step Current step.
  */
 function mlab_smtp_render_stepper( int $step ): void {
-	$labels = array( __( 'Anbieter', 'mlab-smtp' ), __( 'Verbinden', 'mlab-smtp' ), __( 'Absender', 'mlab-smtp' ), __( 'Testen', 'mlab-smtp' ) );
+	$labels = array( __( 'Anbieter', 'mlab-smtp' ), __( 'Verbindung', 'mlab-smtp' ), __( 'Absender', 'mlab-smtp' ), __( 'Testmail', 'mlab-smtp' ) );
 	/* translators: 1: current step, 2: number of steps */
 	echo '<p class="mlab-stepcount">' . esc_html( sprintf( __( 'Schritt %1$d von %2$d', 'mlab-smtp' ), $step, count( $labels ) ) ) . '</p>';
 	echo '<ol class="mlab-stepper">';
@@ -101,7 +101,7 @@ function mlab_smtp_render_step_foot( string $back_url, string $next, string $dis
 function mlab_smtp_render_step_provider( string $provider ): void {
 	$detected = mlab_smtp_detect_provider();
 	$domain   = (string) substr( (string) strrchr( (string) get_option( 'admin_email' ), '@' ), 1 );
-	echo '<h2>' . esc_html__( 'Über welchen Dienst laufen Ihre Firmen-Mails?', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Wählen Sie den Dienst, bei dem Ihr Postfach liegt. So kommen Mails am zuverlässigsten an.', 'mlab-smtp' ) . '</p>';
+	echo '<h2>' . esc_html__( 'Wie soll Ihre Website Mails versenden?', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Wählen Sie den Dienst, über den die Mails verschickt werden. Haben Sie bereits Microsoft 365 oder Google, nehmen Sie diesen: So kommen die Mails am zuverlässigsten an.', 'mlab-smtp' ) . '</p>';
 	if ( ! empty( $detected['provider'] ) && 'smtp' !== $detected['provider'] && '' !== $domain ) {
 		$name = mlab_smtp_ui_providers()[ $detected['provider'] ]['name'] ?? '';
 		/* translators: 1: domain, 2: provider name */
@@ -162,6 +162,9 @@ function mlab_smtp_render_step_connect( string $provider ): void {
  */
 function mlab_smtp_render_check_button( string $label ): void {
 	$done = mlab_smtp_wizard_flag( 'verified' );
+	if ( ! $done ) {
+		echo '<p class="mlab-muted mlab-small mlab-next-hint">' . esc_html__( 'Prüfen Sie zuerst die Verbindung. Erst danach können Sie weiter.', 'mlab-smtp' ) . '</p>';
+	}
 	echo '<div class="mlab-row"><button type="submit" name="do" value="check" class="button' . ( $done ? '' : ' button-primary' ) . '" data-mlab-check data-route="primary">' . mlab_smtp_ui_svg( 'refresh' ) . esc_html( $label ) . '</button></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	mlab_smtp_ui_result_area();
 }
@@ -204,9 +207,9 @@ function mlab_smtp_render_guide_item( string $title, string $text, string $copy 
  */
 function mlab_smtp_render_connect_m365(): void {
 	$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
-	echo '<h2>' . esc_html__( 'Mit Microsoft 365 verbinden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Einmalig in Microsoft Entra eine App anlegen. Die Website meldet sich damit an, ohne Passwort eines Mitarbeiters.', 'mlab-smtp' ) . '</p>';
+	echo '<h2>' . esc_html__( 'Mit Microsoft 365 verbinden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Legen Sie einmalig in Microsoft Entra eine App an und tragen Sie unten ihre Angaben ein. Die Website meldet sich damit an, ohne Passwort eines Mitarbeiters.', 'mlab-smtp' ) . '</p>';
 	mlab_smtp_render_guide(
-		__( 'Anleitung in Microsoft Entra (4 Schritte)', 'mlab-smtp' ),
+		__( 'Vorbereitung in Microsoft Entra', 'mlab-smtp' ),
 		static function () use ( $host ): void {
 			mlab_smtp_render_guide_item( __( 'App registrieren', 'mlab-smtp' ), __( 'Entra › App-Registrierungen › Neue Registrierung. Name:', 'mlab-smtp' ), 'Website ' . $host );
 			mlab_smtp_render_guide_item( __( 'Berechtigung hinzufügen', 'mlab-smtp' ), __( 'API-Berechtigungen › Microsoft Graph › Anwendungsberechtigungen › Mail.Send, dann «Administratorzustimmung erteilen».', 'mlab-smtp' ) );
@@ -242,9 +245,9 @@ function mlab_smtp_render_connect_m365(): void {
  * Step 2 for Google.
  */
 function mlab_smtp_render_connect_google(): void {
-	echo '<h2>' . esc_html__( 'Mit Google verbinden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Einmalig in der Google Cloud Console einen Zugang anlegen, danach mit dem Google-Konto anmelden.', 'mlab-smtp' ) . '</p>';
+	echo '<h2>' . esc_html__( 'Mit Google verbinden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Legen Sie einmalig in der Google Cloud Console einen Zugang an, tragen Sie unten Client-ID und Secret ein und melden Sie sich danach mit Ihrem Google-Konto an.', 'mlab-smtp' ) . '</p>';
 	mlab_smtp_render_guide(
-		__( 'Anleitung in Google Cloud (3 Schritte)', 'mlab-smtp' ),
+		__( 'Vorbereitung in Google Cloud', 'mlab-smtp' ),
 		static function (): void {
 			mlab_smtp_render_guide_item( __( 'Gmail API aktivieren', 'mlab-smtp' ), __( 'APIs & Dienste › Bibliothek › Gmail API › Aktivieren.', 'mlab-smtp' ) );
 			mlab_smtp_render_guide_item( __( 'OAuth-Client anlegen', 'mlab-smtp' ), __( 'Anmeldedaten › OAuth-Client-ID › Typ «Webanwendung». Als Weiterleitungs-URI eintragen:', 'mlab-smtp' ), mlab_smtp_google_redirect_uri() );
@@ -281,7 +284,7 @@ function mlab_smtp_render_google_connection(): void {
  * Step 2 for an own mail server.
  */
 function mlab_smtp_render_connect_smtp(): void {
-	echo '<h2>' . esc_html__( 'Mit Ihrem Mailserver verbinden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Die Angaben finden Sie im Kundencenter Ihres Hosters, meist unter «E-Mail-Programm einrichten».', 'mlab-smtp' ) . '</p>';
+	echo '<h2>' . esc_html__( 'Mit Ihrem Mailserver verbinden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Wählen Sie unten Ihren Hoster, dann tragen wir Server und Port ein. Benutzername und Passwort finden Sie im Kundencenter Ihres Hosters, meist unter «E-Mail-Programm einrichten».', 'mlab-smtp' ) . '</p>';
 	echo '<div class="mlab-fields is-open">';
 	mlab_smtp_render_preset_select();
 	mlab_smtp_ui_field( 'smtp_host', __( 'Server', 'mlab-smtp' ), array( 'placeholder' => 'mail.ihre-domain.ch' ) );
@@ -336,7 +339,7 @@ function mlab_smtp_render_step_sender( string $provider ): void {
 	$name   = (string) mlab_smtp_get( 'from_name' );
 	$name   = '' !== $name ? $name : wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 	mlab_smtp_wizard_form_open( 3, $provider, '', array( 'data-mlab-sender' => '1' ) );
-	echo '<h2>' . esc_html__( 'Absender', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'So erscheinen Mails der Website im Posteingang der Empfänger.', 'mlab-smtp' ) . '</p>';
+	echo '<h2>' . esc_html__( 'Von wem kommen die Mails?', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Name und Adresse sehen Empfänger im Posteingang. Die Vorschau unten zeigt, wie es aussieht.', 'mlab-smtp' ) . '</p>';
 	if ( $sender['panel'] ) {
 		call_user_func( $sender['panel'] );
 	}
@@ -410,7 +413,7 @@ function mlab_smtp_render_sender_fields( string $name, string $email, string $pr
  */
 function mlab_smtp_render_step_test( string $provider ): void {
 	mlab_smtp_wizard_form_open( 4, $provider, '', array( 'data-mlab-test-form' => '1' ) );
-	echo '<h2>' . esc_html__( 'Testmail senden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Erst wenn diese Mail ankommt, ist alles richtig eingerichtet.', 'mlab-smtp' ) . '</p>';
+	echo '<h2>' . esc_html__( 'Testmail senden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Wir senden eine Testmail an die Adresse unten. Kommt sie an, schliessen Sie die Einrichtung ab. Kommt sie nicht an, sagt Ihnen die Meldung, was zu tun ist.', 'mlab-smtp' ) . '</p>';
 	echo '<div class="mlab-fields is-open"><div class="mlab-field"><label for="mlab-wizard-to">' . esc_html__( 'An', 'mlab-smtp' ) . '</label><input type="email" id="mlab-wizard-to" name="to" required value="' . esc_attr( wp_get_current_user()->user_email ) . '"></div></div>';
 	echo '<div class="mlab-row"><button type="submit" name="do" value="test" class="button button-primary" data-mlab-test>' . esc_html__( 'Testmail senden', 'mlab-smtp' ) . '</button></div>';
 	mlab_smtp_ui_result_area();

@@ -16,6 +16,7 @@ Neu: Versand über Resend, mit geführter Einrichtung und Fehleranzeige.
 - Neu: Mitteilungen anderer Plugins erscheinen nicht mehr mitten in der Oberfläche dieses Plugins. Auf der Plugin-Seite liegen sie eingeklappt unterhalb («Mitteilungen anderer Plugins», mit Anzahl und Fehler-Hinweis).
 - Neu: Anbieter-Logos (Microsoft, Google, Mailserver) als Symbole statt Buchstaben.
 - Neu: Eigener Menüpunkt «E-Mail-Versand» mit Papierflieger-Symbol in der Hauptnavigation (vorher unter Einstellungen). Alte Links unter Einstellungen leiten weiter.
+- Verbessert: Texte und Schritte im Assistenten sind klarer. Die Schritte heissen wie die Punkte der Übersicht (Anbieter, Verbindung, Absender, Testmail), die Vorbereitung bei Microsoft, Google und Resend zählt nicht mehr eigene «Schritte», und bei jedem Schritt steht, was zu tun ist.
 - Intern: Alle Versandwege stehen in einer zentralen Registry (`inc/providers.php` für die Logik, `mlab_smtp_ui_providers()` für die Oberfläche). Ein neuer Anbieter braucht dort je einen Eintrag statt Änderungen an einem Dutzend Stellen. Das Verhalten von SMTP, Microsoft 365 und Google ist unverändert.
 - Beim Update ändert sich an bestehenden Einrichtungen nichts.
 

@@ -1548,3 +1548,7 @@
 		transition: none !important;
 	}
 }
+
+.mlab-smtp .mlab-next-hint {
+	margin-top: 16px;
+}
