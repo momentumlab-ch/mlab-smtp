@@ -148,7 +148,13 @@ function mlab_smtp_domain_report( string $route, bool $fresh = false ): array {
 	}
 	if ( 'resend' === $provider ) {
 		// Resend manages SPF on its return-path domain, which need not match the visible From domain.
-		$callback       = static fn(): array => mlab_smtp_resend_domain_state( $domain, $fresh, true );
+		$callback       = static function () use ( $domain, $fresh ): array {
+			$state = mlab_smtp_resend_domain_state( $domain, $fresh, true );
+			if ( $fresh && '' !== $state['id'] && in_array( $state['state'], array( 'pending', 'failed', 'partial' ), true ) ) {
+				mlab_smtp_resend_verify( $state['id'] );
+			}
+			return $state;
+		};
 		$state          = 'fallback' === $route ? mlab_smtp_with_resend_key( 'fb_resend_api_key', $callback ) : $callback();
 		$status         = 'verified' === $state['state'] ? 'provider_verified' : ( in_array( $state['state'], array( 'missing', 'pending', 'failed', 'partial' ), true ) ? 'warning' : 'unknown' );
 		$result['SPF']  = $status;

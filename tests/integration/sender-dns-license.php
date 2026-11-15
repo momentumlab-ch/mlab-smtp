@@ -111,6 +111,25 @@ assert_same( 'unknown', $report['SPF'], 'Resend restricted key gives unknown SPF
 assert_same( 'unknown', $report['DKIM'], 'Resend restricted key gives unknown DKIM' );
 assert_same( 'Bearer re_backup_license_dns_test', mlab_http_requests()[0]['args']['headers']['Authorization'], 'backup DNS uses backup API key' );
 mlab_http_reset();
+// An explicit recheck triggers Resend's asynchronous verification with the backup key.
+$empty_dns = static fn() => array( 'status' => 'ok', 'records' => array() );
+$fixture_keys = array();
+foreach ( array( 'send.example.ch', '_dmarc.send.example.ch', '_dmarc.example.ch' ) as $dns_name ) {
+	$fixture_keys[] = 'pre_transient_mlab_smtp_dns_' . md5( DNS_TXT . '|' . $dns_name );
+	add_filter( end( $fixture_keys ), $empty_dns );
+}
+mlab_http_mock( '#api\.resend\.com/domains#', 200, array( 'data' => array( array( 'id' => 'backup-domain', 'name' => 'send.example.ch', 'status' => 'pending' ) ) ) );
+$before_check = mlab_smtp_readiness_get();
+$report = mlab_smtp_domain_report( 'fallback', true );
+$verifications = array_values( array_filter( mlab_http_requests(), static fn( array $request ): bool => 'POST' === $request['method'] && str_ends_with( $request['url'], '/domains/backup-domain/verify' ) ) );
+assert_same( 1, count( $verifications ), 'explicit Resend recheck starts asynchronous verification' );
+assert_same( 'Bearer re_backup_license_dns_test', $verifications[0]['args']['headers']['Authorization'], 'verification uses backup key' );
+assert_same( 'warning', $report['DKIM'], 'pending verification remains advisory' );
+assert_same( $before_check, mlab_smtp_readiness_get(), 'provider verification does not change setup readiness' );
+foreach ( $fixture_keys as $fixture_key ) {
+	remove_filter( $fixture_key, $empty_dns );
+}
+mlab_http_reset();
 mlab_http_mock( '#api\.resend\.com/emails#', 200, array( 'id' => 'backup-sent' ) );
 $mailer->addAddress( 'recipient@example.com' );
 $mailer->Body = 'Backup message';
