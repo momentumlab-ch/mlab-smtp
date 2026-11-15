@@ -257,7 +257,7 @@ function mlab_smtp_webhook_defer( array $event_ids, int $tries ): void {
 		static function () use ( $event_ids, $delay ) {
 			global $wpdb;
 			$in = implode( ',', array_fill( 0, count( $event_ids ), '%d' ) );
-			return $wpdb->query( $wpdb->prepare( "UPDATE %i SET retry_at = %d, tries = tries + 1 WHERE processed_at IS NULL AND id IN ($in)", array_merge( array( mlab_smtp_table( 'events' ), mlab_smtp_store_now() + $delay ), $event_ids ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Fixed table name, placeholders only.
+			return $wpdb->query( $wpdb->prepare( "UPDATE %i SET retry_at = %d, tries = tries + 1 WHERE processed_at IS NULL AND id IN ($in)", array_merge( array( mlab_smtp_table( 'events' ), mlab_smtp_store_now() + $delay ), $event_ids ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Fixed table name, placeholders only.
 		}
 	);
 }
@@ -350,8 +350,9 @@ function mlab_smtp_webhook_match( string $email_id, string $mlab_id, string $pro
  * True when the message was sent through the route that belongs to the webhook endpoint with provider resend.
  * Rows without attempt rows (older ones) are judged by their fallback flag.
  *
- * @param array  $row      Message row.
- * @param string $provider resend (primary route) or resend-fallback (fallback route).
+ * @param array        $row      Message row.
+ * @param string       $provider resend (primary route) or resend-fallback (fallback route).
+ * @param array[]|null $attempts Attempts of the message (route, provider); read from the store when null.
  */
 function mlab_smtp_webhook_route_fits( array $row, string $provider, ?array $attempts = null ): bool {
 	$route    = 'resend-fallback' === $provider ? 'fallback' : 'primary';
@@ -429,12 +430,12 @@ function mlab_smtp_webhook_normalize_row( array $row ): array {
  * @return array{checked:int, processed:int, matched:int}
  */
 function mlab_smtp_webhook_reprocess( int $limit = 50, float $seconds = 4.0 ): array {
-	$stats = array(
+	$stats   = array(
 		'checked'   => 0,
 		'processed' => 0,
 		'matched'   => 0,
 	);
-	$rows  = mlab_smtp_store_run(
+	$rows    = mlab_smtp_store_run(
 		static function () use ( $limit ) {
 			global $wpdb;
 			return $wpdb->get_results( $wpdb->prepare( 'SELECT id, provider, type, message_id, processed_at, tries, detail FROM %i WHERE processed_at IS NULL AND retry_at <= %d ORDER BY retry_at ASC, id ASC LIMIT %d', mlab_smtp_table( 'events' ), mlab_smtp_store_now(), max( 1, $limit ) ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
@@ -555,7 +556,7 @@ function mlab_smtp_webhook_messages_by_refs( array $uuids, array $emails ): arra
 		},
 		array()
 	);
-	$out = array();
+	$out  = array();
 	foreach ( (array) $rows as $row ) {
 		$out[ (int) $row['id'] ] = $row;
 	}
@@ -580,7 +581,7 @@ function mlab_smtp_webhook_attempts_for( array $message_ids ): array {
 		},
 		array()
 	);
-	$out = array();
+	$out  = array();
 	foreach ( (array) $rows as $row ) {
 		$out[ (int) $row['message_id'] ][] = $row;
 	}

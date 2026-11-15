@@ -450,8 +450,8 @@ function mlab_smtp_store_apply_pending_events( int $id ): bool {
 	if ( ! function_exists( 'mlab_smtp_webhook_types' ) ) {
 		return false;
 	}
-	$types = array_filter( mlab_smtp_webhook_types() );
-	$rows  = (array) mlab_smtp_store_run(
+	$types   = array_filter( mlab_smtp_webhook_types() );
+	$rows    = (array) mlab_smtp_store_run(
 		static function () use ( $id ) {
 			global $wpdb;
 			return $wpdb->get_results( $wpdb->prepare( 'SELECT id, type, processed_at FROM %i WHERE message_id = %d', mlab_smtp_table( 'events' ), $id ), ARRAY_A );
