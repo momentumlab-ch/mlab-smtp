@@ -74,6 +74,14 @@ Das ist gewollt (Staging-Schutz). Im Backend lässt sich der Modus ändern oder 
 
 == Changelog ==
 
+= 1.5.0 =
+* Neu: Dauerhafte Warteschlange mit Wiederholung, Statusmodell und ehrlicher Anzeige (angenommen, Zustellung bestätigt, unklar).
+* Neu: Protokoll in eigenen Datenbanktabellen, Datenschutz-Exporter und -Eraser, Aufbewahrung, Maskierung von Secrets.
+* Neu: Geführter Ersatzweg mit Bereitschaftszuständen, Resend-Webhooks, Staging-Schutz, Alarm-Webhook, Supportbericht.
+* Neu: Oberfläche auf Deutsch, Englisch, Französisch und Italienisch.
+* Sicherheit: Schlüsselverwaltung mit Kennung (`MLAB_SMTP_KEY`), Schutz vor SSRF, Nonces je Aktion und Nachricht.
+* Details und Update-Anleitung: CHANGELOG.md und docs/upgrade-and-recovery.md.
+
 = 1.4.0 =
 * Neu: Der Ersatzweg kann auch Resend sein, nicht nur ein Mailserver.
 * Neu: Eigener Menüpunkt «E-Mail-Versand» mit Symbol in der Hauptnavigation.
