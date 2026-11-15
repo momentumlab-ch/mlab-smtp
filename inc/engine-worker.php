@@ -388,10 +388,6 @@ function mlab_smtp_engine_requeue( int $id, string $from, int $resend = 0 ) {
 	if ( ! is_array( $snapshot ) ) {
 		return new WP_Error( 'mlab_smtp_payload', __( 'Der Inhalt der Nachricht wird nicht mehr aufbewahrt, sie kann nicht erneut gesendet werden.', 'mlab-smtp' ) );
 	}
-	if ( $resend > 0 ) {
-		$snapshot['resend'] = (int) ( $snapshot['resend'] ?? 0 ) + 1;
-		mlab_smtp_store_set_payload( $id, $snapshot );
-	}
 	$set = array(
 		'status'             => 'queued',
 		'mode'               => 'queued',
@@ -403,6 +399,15 @@ function mlab_smtp_engine_requeue( int $id, string $from, int $resend = 0 ) {
 		'locked_until'       => null,
 		'error_class'        => '',
 	);
+	if ( $resend > 0 ) {
+		// Counter (new idempotency key) and payload go into the same compare-and-set: only the request that wins the status change writes them.
+		$snapshot['resend'] = (int) ( $snapshot['resend'] ?? 0 ) + 1;
+		$encoded            = mlab_smtp_store_payload_encode( $snapshot );
+		if ( is_wp_error( $encoded ) ) {
+			return $encoded;
+		}
+		$set['payload'] = $encoded;
+	}
 	if ( ! mlab_smtp_engine_cas_from( $id, $from, $set ) ) {
 		return new WP_Error( 'mlab_smtp_state', __( 'Die Nachricht wurde in der Zwischenzeit geändert.', 'mlab-smtp' ) );
 	}
