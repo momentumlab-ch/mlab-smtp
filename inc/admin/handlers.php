@@ -31,7 +31,7 @@ function mlab_smtp_key_groups(): array {
 		array(
 			'sender'   => $sender,
 			'fallback' => $fallback,
-			'settings' => array_merge( $sender, $fallback, array( 'force_from', 'notify_enabled', 'notify_email', 'notify_mode', 'log_enabled', 'log_retention' ) ),
+			'settings' => array_merge( $sender, $fallback, array( 'resend_webhook_secret', 'fb_resend_webhook_secret', 'force_from', 'notify_enabled', 'notify_email', 'notify_mode', 'log_enabled', 'log_retention' ) ),
 		)
 	);
 }

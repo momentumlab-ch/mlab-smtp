@@ -24,7 +24,7 @@ function same( $a, $b ) { sort( $a ); sort( $b ); return $a === $b; }
 
 // Values of version 1.2.0 + Resend, written down independently of the registry.
 ok( same( array( 'smtp', 'm365', 'google', 'resend' ), mlab_smtp_choices()['provider'] ), 'provider choices' );
-ok( same( array( 'smtp_pass', 'fb_smtp_pass', 'm365_client_secret', 'google_client_secret', 'google_refresh_token', 'resend_api_key', 'fb_resend_api_key' ), mlab_smtp_secret_keys() ), 'secret keys unchanged (+resend, +fallback key)' );
+ok( same( array( 'smtp_pass', 'fb_smtp_pass', 'm365_client_secret', 'google_client_secret', 'google_refresh_token', 'resend_api_key', 'fb_resend_api_key', 'resend_webhook_secret', 'fb_resend_webhook_secret' ), mlab_smtp_secret_keys() ), 'secret keys unchanged (+resend, +fallback key, +webhook secrets)' );
 ok( same( array( 'm365_tenant', 'm365_client_id', 'm365_client_secret', 'google_client_id', 'google_client_secret', 'google_refresh_token', 'resend_api_key', 'fb_resend_api_key' ), mlab_smtp_credential_keys() ), 'credential keys unchanged (+resend, +fallback key)' );
 ok( array( 'smtp_host' ) === mlab_smtp_required_keys( 'smtp' ) && array( 'm365_tenant', 'm365_client_id', 'm365_client_secret' ) === mlab_smtp_required_keys( 'm365' ) && array( 'google_client_id', 'google_client_secret', 'google_refresh_token' ) === mlab_smtp_required_keys( 'google' ) && array( 'resend_api_key' ) === mlab_smtp_required_keys( 'resend' ) && array() === mlab_smtp_required_keys( 'nope' ), 'required keys per provider' );
 $g = mlab_smtp_key_groups();

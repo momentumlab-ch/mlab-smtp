@@ -71,7 +71,7 @@ function mlab_smtp_provider_defs(): array {
 			'api'          => true,
 			'required'     => array( 'resend_api_key' ),
 			'group'        => array( 'resend_api_key' ),
-			'secrets'      => array( 'resend_api_key', 'fb_resend_api_key' ),
+			'secrets'      => array( 'resend_api_key', 'fb_resend_api_key', 'resend_webhook_secret', 'fb_resend_webhook_secret' ),
 			'credentials'  => array( 'resend_api_key', 'fb_resend_api_key' ),
 			'token'        => null,
 			'check'        => 'mlab_smtp_resend_check',

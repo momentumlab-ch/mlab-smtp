@@ -14,6 +14,7 @@ function mlab_smtp_render_settings(): void {
 	mlab_smtp_ui_form_open( 'mlab_smtp_save_settings', 'mlab-settings mlab-stack' );
 	mlab_smtp_render_set_connection();
 	mlab_smtp_render_set_fallback();
+	mlab_smtp_render_set_webhooks();
 	mlab_smtp_render_set_notify();
 	mlab_smtp_render_set_sender();
 	mlab_smtp_render_set_log();
@@ -243,4 +244,53 @@ function mlab_smtp_render_set_locked(): void {
 	}
 	echo '</ul>';
 	mlab_smtp_ui_row_close();
+}
+
+/**
+ * Zustellbestätigung (Resend): webhook addresses, signing secrets, instructions and state.
+ */
+function mlab_smtp_render_set_webhooks(): void {
+	mlab_smtp_ui_row_open( __( 'Zustellbestätigung (Resend)', 'mlab-smtp' ), __( 'Resend meldet zurück, ob eine Mail beim Empfänger angekommen ist. Ohne diese Meldung gilt eine Mail nur als «angenommen».', 'mlab-smtp' ) );
+	echo '<ol class="mlab-steps">';
+	foreach ( mlab_smtp_webhook_steps() as $step ) {
+		echo '<li>' . esc_html( $step ) . '</li>';
+	}
+	echo '</ol>';
+	echo '<p class="mlab-muted">' . esc_html__( 'Hauptkonto und Ersatzkonto brauchen je einen eigenen Webhook mit eigener Adresse und eigenem Signing Secret.', 'mlab-smtp' ) . '</p>';
+	$fields = array(
+		'resend'          => array( __( 'Hauptkonto', 'mlab-smtp' ), 'resend_webhook_secret' ),
+		'resend-fallback' => array( __( 'Ersatzkonto', 'mlab-smtp' ), 'fb_resend_webhook_secret' ),
+	);
+	foreach ( $fields as $route => $field ) {
+		echo '<div class="mlab-fields is-open"><strong>' . esc_html( $field[0] ) . '</strong>';
+		mlab_smtp_ui_copy( mlab_smtp_webhook_url( $route ) );
+		mlab_smtp_ui_field(
+			$field[1],
+			__( 'Signing Secret', 'mlab-smtp' ),
+			array(
+				'type'        => 'password',
+				'placeholder' => 'whsec_…',
+			)
+		);
+		$last = mlab_smtp_webhook_last_event( $route );
+		/* translators: %s: time span like "5 Minuten" */
+		$state = $last ? sprintf( __( 'Letztes Ereignis vor %s.', 'mlab-smtp' ), human_time_diff( $last ) ) : __( 'Noch kein Ereignis empfangen.', 'mlab-smtp' );
+		echo '<p class="mlab-muted">' . esc_html( $state ) . '</p></div>';
+	}
+	mlab_smtp_ui_row_close();
+}
+
+/**
+ * Steps in the Resend dashboard.
+ *
+ * @return string[]
+ */
+function mlab_smtp_webhook_steps(): array {
+	return array(
+		__( 'Bei Resend im Menü «Webhooks» öffnen und «Add Webhook» wählen.', 'mlab-smtp' ),
+		__( 'Die Adresse des Kontos unten als «Endpoint URL» einfügen (Haupt- und Ersatzkonto je mit ihrer eigenen Adresse).', 'mlab-smtp' ),
+		__( 'Diese sechs Ereignisse ankreuzen: email.sent, email.delivered, email.delivery_delayed, email.bounced, email.complained, email.failed. Öffnen und Klicks werden nicht gebraucht.', 'mlab-smtp' ),
+		__( 'Webhook speichern, dann auf der Seite des Webhooks das «Signing Secret» (beginnt mit «whsec_») kopieren und hier einfügen.', 'mlab-smtp' ),
+		__( 'Änderungen speichern. Beim nächsten Versand erscheint hier das letzte empfangene Ereignis.', 'mlab-smtp' ),
+	);
 }

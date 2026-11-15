@@ -57,41 +57,43 @@ function mlab_smtp_choices(): array {
  */
 function mlab_smtp_defaults(): array {
 	return array(
-		'provider'             => '',
-		'setup_done'           => 0,
-		'from_email'           => '',
-		'from_name'            => '',
-		'reply_to'             => '',
-		'force_from'           => 1,
-		'smtp_host'            => '',
-		'smtp_port'            => 587,
-		'smtp_secure'          => 'tls',
-		'smtp_auth'            => 1,
-		'smtp_user'            => '',
-		'smtp_pass'            => '',
-		'm365_tenant'          => '',
-		'm365_client_id'       => '',
-		'm365_client_secret'   => '',
-		'm365_secret_expires'  => '',
-		'google_client_id'     => '',
-		'google_client_secret' => '',
-		'google_refresh_token' => '',
-		'google_account'       => '',
-		'resend_api_key'       => '',
-		'fallback_enabled'     => 0,
-		'fb_provider'          => 'smtp',
-		'fb_resend_api_key'    => '',
-		'fb_smtp_host'         => '',
-		'fb_smtp_port'         => 587,
-		'fb_smtp_secure'       => 'tls',
-		'fb_smtp_auth'         => 1,
-		'fb_smtp_user'         => '',
-		'fb_smtp_pass'         => '',
-		'notify_enabled'       => 1,
-		'notify_email'         => '',
-		'notify_mode'          => 'instant',
-		'log_enabled'          => 1,
-		'log_retention'        => 30,
+		'provider'                 => '',
+		'setup_done'               => 0,
+		'from_email'               => '',
+		'from_name'                => '',
+		'reply_to'                 => '',
+		'force_from'               => 1,
+		'smtp_host'                => '',
+		'smtp_port'                => 587,
+		'smtp_secure'              => 'tls',
+		'smtp_auth'                => 1,
+		'smtp_user'                => '',
+		'smtp_pass'                => '',
+		'm365_tenant'              => '',
+		'm365_client_id'           => '',
+		'm365_client_secret'       => '',
+		'm365_secret_expires'      => '',
+		'google_client_id'         => '',
+		'google_client_secret'     => '',
+		'google_refresh_token'     => '',
+		'google_account'           => '',
+		'resend_api_key'           => '',
+		'fallback_enabled'         => 0,
+		'fb_provider'              => 'smtp',
+		'fb_resend_api_key'        => '',
+		'resend_webhook_secret'    => '',
+		'fb_resend_webhook_secret' => '',
+		'fb_smtp_host'             => '',
+		'fb_smtp_port'             => 587,
+		'fb_smtp_secure'           => 'tls',
+		'fb_smtp_auth'             => 1,
+		'fb_smtp_user'             => '',
+		'fb_smtp_pass'             => '',
+		'notify_enabled'           => 1,
+		'notify_email'             => '',
+		'notify_mode'              => 'instant',
+		'log_enabled'              => 1,
+		'log_retention'            => 30,
 	);
 }
 
@@ -299,6 +301,9 @@ function mlab_smtp_sanitize_field( string $key, $raw, $fallback ) {
 	if ( in_array( $key, array( 'resend_api_key', 'fb_resend_api_key' ), true ) ) {
 		return mlab_smtp_sanitize_resend_key( $raw );
 	}
+	if ( in_array( $key, array( 'resend_webhook_secret', 'fb_resend_webhook_secret' ), true ) ) {
+		return mlab_smtp_sanitize_webhook_secret( $raw );
+	}
 	if ( in_array( $key, mlab_smtp_secret_keys(), true ) ) {
 		// Never trim: passwords may start or end with a space. Empty keeps the stored secret.
 		return '' === $raw ? null : $raw;
@@ -320,6 +325,23 @@ function mlab_smtp_sanitize_field( string $key, $raw, $fallback ) {
 		return mlab_smtp_sanitize_date_field( $raw );
 	}
 	return sanitize_text_field( $raw );
+}
+
+/**
+ * Validates a Resend webhook signing secret (whsec_ plus Base64). An empty field keeps the stored secret.
+ *
+ * @param string $raw Submitted value.
+ * @return string|WP_Error|null Secret, error, or null to keep the stored secret.
+ */
+function mlab_smtp_sanitize_webhook_secret( string $raw ) {
+	$raw = trim( $raw );
+	if ( '' === $raw ) {
+		return null;
+	}
+	if ( 1 === preg_match( '/^whsec_[A-Za-z0-9+\/]{16,}={0,2}$/', $raw ) && false !== base64_decode( substr( $raw, 6 ), true ) ) { // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions -- Format check of a Base64 secret.
+		return $raw;
+	}
+	return new WP_Error( 'mlab_smtp_webhook_secret', __( 'Das ist kein Signing Secret von Resend. Es beginnt mit «whsec_» und steht auf der Seite des Webhooks bei Resend. Der bisherige Wert bleibt erhalten.', 'mlab-smtp' ) );
 }
 
 /**
