@@ -42,6 +42,7 @@ function mlab_smtp_checkbox_keys(): array {
 function mlab_smtp_choices(): array {
 	return array(
 		'provider'       => array_keys( mlab_smtp_provider_defs() ),
+		'fb_provider'    => array_keys( array_filter( mlab_smtp_provider_defs(), static fn( array $def ): bool => null !== $def['fb_required'] ) ),
 		'smtp_secure'    => array( 'tls', 'ssl', 'none' ),
 		'fb_smtp_secure' => array( 'tls', 'ssl', 'none' ),
 		'notify_mode'    => array( 'instant', 'daily' ),
@@ -78,6 +79,8 @@ function mlab_smtp_defaults(): array {
 		'google_account'       => '',
 		'resend_api_key'       => '',
 		'fallback_enabled'     => 0,
+		'fb_provider'          => 'smtp',
+		'fb_resend_api_key'    => '',
 		'fb_smtp_host'         => '',
 		'fb_smtp_port'         => 587,
 		'fb_smtp_secure'       => 'tls',
@@ -284,7 +287,7 @@ function mlab_smtp_host_change_denied( string $key, $value ): bool {
  */
 function mlab_smtp_sanitize_field( string $key, $raw, $fallback ) {
 	$raw = is_scalar( $raw ) ? (string) $raw : '';
-	if ( 'resend_api_key' === $key ) {
+	if ( in_array( $key, array( 'resend_api_key', 'fb_resend_api_key' ), true ) ) {
 		return mlab_smtp_sanitize_resend_key( $raw );
 	}
 	if ( in_array( $key, mlab_smtp_secret_keys(), true ) ) {

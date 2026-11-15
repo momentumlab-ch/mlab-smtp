@@ -18,6 +18,9 @@
  * - spf:          Eintrag, der im SPF der Hauptdomain stehen muss, leer ohne Vorgabe, false wenn der Anbieter den
  *                 SPF-Eintrag der Hauptdomain nicht braucht.
  * - health:       Funktionen, die zusätzliche Zeilen der Gesundheitsprüfung liefern.
+ * - fb_required:   Schlüssel, die der Anbieter als Ersatzweg braucht, null wenn er kein Ersatzweg sein kann.
+ * - fb_check:      Funktion, die den Ersatzweg ohne Versand prüft (true|WP_Error).
+ * - fb_send:       Funktion, die die Nachricht über den Ersatzweg sendet (PHPMailer-Objekt, true|WP_Error), null bei SMTP.
  * - sender_block: Funktion, die den Assistenten im Schritt «Absender» anhält (Text oder null).
  *
  * @package mlab-smtp
@@ -44,6 +47,9 @@ function mlab_smtp_provider_defs(): array {
 			'spf'          => 'include:spf.protection.outlook.com',
 			'health'       => array( 'mlab_smtp_health_secret_expiry' ),
 			'sender_block' => null,
+			'fb_required'  => null,
+			'fb_check'     => null,
+			'fb_send'      => null,
 		),
 		'google' => array(
 			'api'          => true,
@@ -57,19 +63,25 @@ function mlab_smtp_provider_defs(): array {
 			'spf'          => 'include:_spf.google.com',
 			'health'       => array( 'mlab_smtp_health_google' ),
 			'sender_block' => null,
+			'fb_required'  => null,
+			'fb_check'     => null,
+			'fb_send'      => null,
 		),
 		'resend' => array(
 			'api'          => true,
 			'required'     => array( 'resend_api_key' ),
 			'group'        => array( 'resend_api_key' ),
-			'secrets'      => array( 'resend_api_key' ),
-			'credentials'  => array( 'resend_api_key' ),
+			'secrets'      => array( 'resend_api_key', 'fb_resend_api_key' ),
+			'credentials'  => array( 'resend_api_key', 'fb_resend_api_key' ),
 			'token'        => null,
 			'check'        => 'mlab_smtp_resend_check',
 			'send'         => 'mlab_smtp_send_resend',
 			'spf'          => false,
 			'health'       => array( 'mlab_smtp_health_resend' ),
 			'sender_block' => 'mlab_smtp_resend_sender_block',
+			'fb_required'  => array( 'fb_resend_api_key' ),
+			'fb_check'     => 'mlab_smtp_check_fb_resend',
+			'fb_send'      => 'mlab_smtp_send_resend_fallback',
 		),
 		'smtp'   => array(
 			'api'          => false,
@@ -83,6 +95,9 @@ function mlab_smtp_provider_defs(): array {
 			'spf'          => '',
 			'health'       => array(),
 			'sender_block' => null,
+			'fb_required'  => array( 'fb_smtp_host' ),
+			'fb_check'     => 'mlab_smtp_check_fb_smtp',
+			'fb_send'      => null,
 		),
 	);
 }

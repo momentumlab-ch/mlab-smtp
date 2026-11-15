@@ -21,7 +21,7 @@ add_action( 'admin_post_mlab_smtp_clear_log_confirmed', 'mlab_smtp_handle_clear_
  */
 function mlab_smtp_key_groups(): array {
 	$sender   = array( 'from_name', 'from_email', 'reply_to' );
-	$fallback = array( 'fallback_enabled', 'fb_smtp_host', 'fb_smtp_port', 'fb_smtp_secure', 'fb_smtp_auth', 'fb_smtp_user', 'fb_smtp_pass' );
+	$fallback = array( 'fallback_enabled', 'fb_provider', 'fb_resend_api_key', 'fb_smtp_host', 'fb_smtp_port', 'fb_smtp_secure', 'fb_smtp_auth', 'fb_smtp_user', 'fb_smtp_pass' );
 	$groups   = array();
 	foreach ( mlab_smtp_provider_defs() as $id => $def ) {
 		$groups[ $id ] = $def['group'];

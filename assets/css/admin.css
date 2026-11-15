@@ -1552,3 +1552,9 @@
 .mlab-smtp .mlab-next-hint {
 	margin-top: 16px;
 }
+
+/* Fallback: show only the fields of the chosen provider (no JavaScript needed). */
+.mlab-smtp .mlab-fb:has(input[name="fb_provider"][value="smtp"]:checked) [data-fb="resend"],
+.mlab-smtp .mlab-fb:has(input[name="fb_provider"][value="resend"]:checked) [data-fb="smtp"] {
+	display: none;
+}

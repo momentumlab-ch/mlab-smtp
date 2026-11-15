@@ -98,8 +98,7 @@ function mlab_smtp_add_menu(): void {
  */
 function mlab_smtp_redirect_old_url(): void {
 	global $pagenow;
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only a redirect, nothing is read or changed.
-	if ( 'options-general.php' !== $pagenow || 'mlab-smtp' !== ( $_GET['page'] ?? '' ) ) {
+	if ( 'options-general.php' !== $pagenow || 'mlab-smtp' !== mlab_smtp_query( 'page' ) ) {
 		return;
 	}
 	$args = array();
