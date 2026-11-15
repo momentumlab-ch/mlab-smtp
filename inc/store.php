@@ -1070,21 +1070,27 @@ function mlab_smtp_store_transactional(): bool {
 }
 
 /**
- * True when a transaction of another party is already open on this connection (known for MariaDB; MySQL has no way to tell).
+ * Detects an existing MySQL/MariaDB transaction without committing it. SAVEPOINT is a no-op outside a
+ * transaction; RELEASE then fails. Unlike @@in_transaction this works on both supported servers.
+ * SQLite transaction nesting is managed by its driver.
  */
 function mlab_smtp_store_foreign_transaction(): bool {
 	global $wpdb;
-	$value = $wpdb->get_var( 'SELECT @@in_transaction' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Connection state.
-	return '1' === (string) $value;
+	if ( ! preg_match( '/mysql|maria/i', (string) $wpdb->db_server_info() ) ) {
+		return false;
+	}
+	$name = 'mlab_probe_' . bin2hex( random_bytes( 8 ) );
+	if ( false === $wpdb->query( "SAVEPOINT $name" ) ) {
+		return true; // Unknown connection state: do not risk starting a transaction.
+	}
+	return false !== $wpdb->query( "RELEASE SAVEPOINT $name" );
 }
 
 /**
  * Deletes messages with their attempts, events and recipient index rows together. Every statement is checked.
- * With InnoDB the deletion is one transaction: on any error it is rolled back and nothing is removed. Without
- * transaction support (for example MyISAM) it is not atomic, and the result says so. The order is attempts, events,
- * recipient index, messages: a failure before the index is removed can be repeated by e-mail address; a message whose
- * index is already gone is removed by the retention run, which finds messages by status and age.
- * A transaction that someone else already opened is neither committed nor rolled back: it is not used at all.
+ * With InnoDB the deletion is one transaction: on any error it is rolled back and nothing is removed.
+ * Unsupported engines and existing caller transactions are rejected before any deletion, keeping all recipient
+ * indexes available for a later retry. Caller transactions are never committed or rolled back here.
  *
  * @param int[] $ids Message ids.
  * @return array{ok:bool, deleted:int, atomic:bool, error:string}
@@ -1103,7 +1109,15 @@ function mlab_smtp_store_delete_result( array $ids ): array {
 	$result = mlab_smtp_store_run(
 		static function () use ( $ids ): array {
 			global $wpdb;
-			$use_tx = mlab_smtp_store_transactional() && ! mlab_smtp_store_foreign_transaction();
+			if ( ! mlab_smtp_store_transactional() || mlab_smtp_store_foreign_transaction() ) {
+				return array(
+					'ok'      => false,
+					'deleted' => 0,
+					'atomic'  => false,
+					'error'   => 'transaction unavailable',
+				);
+			}
+			$use_tx = true;
 			if ( $use_tx && false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Transaction control.
 				return array(
 					'ok'      => false,

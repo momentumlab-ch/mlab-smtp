@@ -88,3 +88,23 @@ jobs:
         run: |
           ps -eo pid,etime,args | grep -E 'php|mysql' | grep -v grep | cut -c1-200 || true
           mysql -h 127.0.0.1 -uroot -proot -e 'SHOW FULL PROCESSLIST; SELECT * FROM information_schema.innodb_trx\G' 2>&1 | cut -c1-300 | head -60 || true
+
+  release-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: sodium, pdo_sqlite, mysqli, mbstring
+          tools: composer:v2
+      - name: Abhängigkeiten und Testumgebung
+        run: |
+          composer install --no-interaction --no-progress
+          bash tests/env/setup.sh
+      - name: Vollständige Prüfungen ohne Veröffentlichung
+        env:
+          MLAB_CHECK_STRICT: '1'
+          MLAB_REQUIRE_LOCALES: '1'
+        run: bash bin/check.sh 1.5.0

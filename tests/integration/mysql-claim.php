@@ -69,13 +69,34 @@ function mlab_t_run_workers( string $task, int $n, int $param ): array {
 	}
 	touch( "$dir/go" );
 	$results = array();
+	$logs    = array_fill( 0, $n, '' );
+	$deadline = microtime( true ) + 45;
+	foreach ( $procs as list( , $pipes ) ) {
+		stream_set_blocking( $pipes[1], false );
+		stream_set_blocking( $pipes[2], false );
+	}
+	do {
+		$running = false;
+		foreach ( $procs as $i => list( $proc, $pipes ) ) {
+			$logs[ $i ] = substr( $logs[ $i ] . stream_get_contents( $pipes[1] ) . stream_get_contents( $pipes[2] ), -2000 );
+			$running = proc_get_status( $proc )['running'] || $running;
+		}
+		if ( $running ) {
+			usleep( 20000 );
+		}
+	} while ( $running && microtime( true ) < $deadline );
 	foreach ( $procs as $i => list( $proc, $pipes ) ) {
-		$log = stream_get_contents( $pipes[1] ) . stream_get_contents( $pipes[2] );
+		if ( proc_get_status( $proc )['running'] ) {
+			proc_terminate( $proc, 9 );
+			$logs[ $i ] .= ' Worker exceeded the 45-second execution limit.';
+		}
+		fclose( $pipes[1] );
+		fclose( $pipes[2] );
 		proc_close( $proc );
 		$f = "$dir/result-$i.json";
 		$results[ $i ] = is_file( $f ) ? json_decode( (string) file_get_contents( $f ), true ) : null;
 		if ( null === $results[ $i ] ) {
-			echo "Worker $i ohne Ergebnis: " . substr( $log, 0, 500 ) . "\n";
+			echo "Worker $i ohne Ergebnis: " . substr( $logs[ $i ], 0, 500 ) . "\n";
 		}
 		@unlink( $f );
 	}
