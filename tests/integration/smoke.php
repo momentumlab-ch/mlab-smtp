@@ -8,6 +8,8 @@ assert_true( function_exists( 'mlab_smtp_get' ) && defined( 'MLAB_SMTP_VERSION' 
 
 // 2. Optionen inkl. verschlüsseltem Secret.
 delete_option( MLAB_SMTP_OPTION );
+// The test environment is declared 'local', so the staging protection (auto mode) would block every mail.
+mlab_smtp_staging_put( array( 'mode' => 'off' ) );
 assert_true( mlab_smtp_store( array( 'provider' => 'resend', 'setup_done' => 1, 'from_email' => 'noreply@example.ch', 'resend_api_key' => 're_test_1234567890abcdef' ) ), 'store() succeeds' );
 assert_same( 'resend', mlab_smtp_get( 'provider' ), 'provider round-trips through get_option' );
 assert_same( 're_test_1234567890abcdef', mlab_smtp_get( 'resend_api_key' ), 'secret decrypts to the original' );
