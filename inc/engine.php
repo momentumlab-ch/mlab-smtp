@@ -371,7 +371,7 @@ function mlab_smtp_engine_mailer_from_snapshot( array $s ) {
 	mlab_smtp_engine_restore_attachments( $m, (array) ( $s['attachments'] ?? array() ) );
 	$m->MessageID = (string) ( $s['message_id'] ?? '' );
 	if ( apply_filters( 'mlab_smtp_worker_run_phpmailer_init', false, $m ) ) {
-		do_action_ref_array( 'phpmailer_init', array( &$m ) );
+		do_action_ref_array( 'phpmailer_init', array( &$m ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook, so SMTP plugins and filters see the queued mail.
 	}
 	$m->preSend();
 	return $m;

@@ -179,7 +179,7 @@ function mlab_smtp_log_events( int $message_id ): array {
 	return (array) mlab_smtp_store_run(
 		static function () use ( $message_id ) {
 			global $wpdb;
-			return $wpdb->get_results( $wpdb->prepare( 'SELECT type, occurred_at FROM ' . mlab_smtp_table( 'events' ) . ' WHERE message_id = %d ORDER BY occurred_at ASC, id ASC', $message_id ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
+			return $wpdb->get_results( $wpdb->prepare( 'SELECT type, occurred_at FROM %i WHERE message_id = %d ORDER BY occurred_at ASC, id ASC', mlab_smtp_table( 'events' ), $message_id ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
 		},
 		array()
 	);

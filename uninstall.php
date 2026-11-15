@@ -28,8 +28,8 @@ function mlab_smtp_uninstall_user_transients(): array {
 function mlab_smtp_uninstall_tables(): void {
 	global $wpdb;
 	foreach ( array( 'messages', 'attempts', 'events', 'recipients' ) as $name ) {
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Fixed table names, uninstall cleanup.
-		$wpdb->query( "DROP TABLE IF EXISTS `{$wpdb->prefix}mlab_smtp_{$name}`" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Fixed table names, uninstall cleanup.
+		$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $wpdb->prefix . 'mlab_smtp_' . $name ) );
 	}
 }
 

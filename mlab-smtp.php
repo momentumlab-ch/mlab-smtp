@@ -71,5 +71,5 @@ function mlab_smtp_filter_locale( $locale, $domain ) {
  * Loads the plugin translations.
  */
 function mlab_smtp_load_textdomain(): void {
-	load_plugin_textdomain( 'mlab-smtp', false, dirname( plugin_basename( MLAB_SMTP_FILE ) ) . '/languages' );
+	load_plugin_textdomain( 'mlab-smtp', false, dirname( plugin_basename( MLAB_SMTP_FILE ) ) . '/languages' ); // phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Needed outside wordpress.org: the plugin_locale mapping (en/fr/it) only works with an own load.
 }

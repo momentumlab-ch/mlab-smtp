@@ -261,7 +261,7 @@ function mlab_smtp_staging_pre_wp_mail( $pre, $atts = array() ) {
 	// The plugin's own failure listeners would log a second row and count a delivery failure.
 	remove_action( 'wp_mail_failed', 'mlab_smtp_log_failure' );
 	remove_action( 'wp_mail_failed', 'mlab_smtp_state_on_failure' );
-	do_action( 'wp_mail_failed', $error );
+	do_action( 'wp_mail_failed', $error ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook, deliberately fired for other listeners.
 	add_action( 'wp_mail_failed', 'mlab_smtp_log_failure' );
 	add_action( 'wp_mail_failed', 'mlab_smtp_state_on_failure' );
 	return false;

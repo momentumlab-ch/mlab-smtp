@@ -297,7 +297,7 @@ function mlab_smtp_webhook_event_exists( string $provider, string $event_id ): b
 	return (bool) mlab_smtp_store_run(
 		static function () use ( $provider, $event_id ) {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . mlab_smtp_table( 'events' ) . ' WHERE provider = %s AND event_id = %s', $provider, $event_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
+			return $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM %i WHERE provider = %s AND event_id = %s', mlab_smtp_table( 'events' ), $provider, $event_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
 		}
 	);
 }
@@ -312,7 +312,7 @@ function mlab_smtp_webhook_rematch(): int {
 	$rows  = mlab_smtp_store_run(
 		static function () {
 			global $wpdb;
-			return $wpdb->get_results( 'SELECT id, type, detail FROM ' . mlab_smtp_table( 'events' ) . " WHERE message_id IS NULL AND provider IN ('resend','resend-fallback') ORDER BY occurred_at ASC, id ASC LIMIT 200", ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
+			return $wpdb->get_results( $wpdb->prepare( "SELECT id, type, detail FROM %i WHERE message_id IS NULL AND provider IN ('resend','resend-fallback') ORDER BY occurred_at ASC, id ASC LIMIT 200", mlab_smtp_table( 'events' ) ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
 		},
 		array()
 	);
@@ -351,7 +351,7 @@ function mlab_smtp_webhook_purge_orphans(): void {
 	mlab_smtp_store_run(
 		static function () {
 			global $wpdb;
-			return $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . mlab_smtp_table( 'events' ) . " WHERE message_id IS NULL AND provider IN ('resend','resend-fallback') AND received_at < %d", mlab_smtp_store_now() - MLAB_SMTP_WEBHOOK_ORPHAN_TTL ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
+			return $wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE message_id IS NULL AND provider IN ('resend','resend-fallback') AND received_at < %d", mlab_smtp_table( 'events' ), mlab_smtp_store_now() - MLAB_SMTP_WEBHOOK_ORPHAN_TTL ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
 		}
 	);
 }
@@ -367,7 +367,7 @@ function mlab_smtp_webhook_last_event( string $route ): int {
 	return (int) mlab_smtp_store_run(
 		static function () use ( $provider ) {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( 'SELECT MAX(received_at) FROM ' . mlab_smtp_table( 'events' ) . ' WHERE provider = %s', $provider ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
+			return $wpdb->get_var( $wpdb->prepare( 'SELECT MAX(received_at) FROM %i WHERE provider = %s', mlab_smtp_table( 'events' ), $provider ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
 		},
 		0
 	);

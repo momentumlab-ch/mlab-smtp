@@ -180,8 +180,8 @@ function mlab_smtp_store_set_sql( array $fields ): string {
 function mlab_smtp_store_cas( int $id, array $set, string $where = '', int $now = 0 ): bool {
 	global $wpdb;
 	$set['updated_at'] = $now > 0 ? $now : mlab_smtp_store_now();
-	$sql               = $wpdb->prepare( 'UPDATE ' . mlab_smtp_table( 'messages' ) . ' SET ' . mlab_smtp_store_set_sql( $set ) . ' WHERE id = %d', $id ) . ' ' . $where;
-	return 1 === $wpdb->query( $sql );
+	$sql               = $wpdb->prepare( 'UPDATE %i SET ' . mlab_smtp_store_set_sql( $set ) . ' WHERE id = %d', mlab_smtp_table( 'messages' ), $id ) . ' ' . $where;
+	return 1 === $wpdb->query( $sql ); // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery -- $sql is prepared above; the SET list consists of allow-listed columns with prepared values.
 }
 
 /**
@@ -289,7 +289,7 @@ function mlab_smtp_store_add_attempt( int $message_id, array $fields = array() )
 				return false;
 			}
 			$attempt = (int) $wpdb->insert_id;
-			$wpdb->query( $wpdb->prepare( 'UPDATE ' . mlab_smtp_table( 'messages' ) . ' SET attempts = attempts + 1 WHERE id = %d', $message_id ) );
+			$wpdb->query( $wpdb->prepare( 'UPDATE %i SET attempts = attempts + 1 WHERE id = %d', mlab_smtp_table( 'messages' ), $message_id ) );
 			return $attempt;
 		}
 	);
@@ -354,7 +354,7 @@ function mlab_smtp_store_attempts( int $message_id ): array {
 	return (array) mlab_smtp_store_run(
 		static function () use ( $message_id ) {
 			global $wpdb;
-			return $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . mlab_smtp_table( 'attempts' ) . ' WHERE message_id = %d ORDER BY id ASC', $message_id ), ARRAY_A );
+			return $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE message_id = %d ORDER BY id ASC', mlab_smtp_table( 'attempts' ), $message_id ), ARRAY_A );
 		},
 		array()
 	);
@@ -416,7 +416,7 @@ function mlab_smtp_store_set_status( int $id, string $status, array $fields = ar
 			$set   = mlab_smtp_store_status_fields( $status, $fields, $now );
 			$where = '';
 			if ( $keep_events ) {
-				$current = (string) $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM ' . mlab_smtp_table( 'messages' ) . ' WHERE id = %d', $id ) );
+				$current = (string) $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM %i WHERE id = %d', mlab_smtp_table( 'messages' ), $id ) );
 				if ( in_array( $current, array( 'delivered', 'bounced', 'complained' ), true ) && (int) mlab_smtp_store_rank( $current ) > (int) mlab_smtp_store_rank( $status ) ) {
 					unset( $set['status'], $set['completed_at'] );
 					$where = $wpdb->prepare( 'AND status = %s', $current );
@@ -446,7 +446,7 @@ function mlab_smtp_store_apply_pending_events( int $id ): bool {
 	$rows  = (array) mlab_smtp_store_run(
 		static function () use ( $id ) {
 			global $wpdb;
-			return $wpdb->get_col( $wpdb->prepare( 'SELECT DISTINCT type FROM ' . mlab_smtp_table( 'events' ) . ' WHERE message_id = %d', $id ) );
+			return $wpdb->get_col( $wpdb->prepare( 'SELECT DISTINCT type FROM %i WHERE message_id = %d', mlab_smtp_table( 'events' ), $id ) );
 		},
 		array()
 	);
@@ -478,7 +478,7 @@ function mlab_smtp_store_apply_event_status( int $id, string $status, int $now =
 		static function () use ( $id, $status, $new, $now ) {
 			global $wpdb;
 			for ( $i = 0; $i < 3; $i++ ) {
-				$current = (string) $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM ' . mlab_smtp_table( 'messages' ) . ' WHERE id = %d', $id ) );
+				$current = (string) $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM %i WHERE id = %d', mlab_smtp_table( 'messages' ), $id ) );
 				$rank    = mlab_smtp_store_rank( $current );
 				if ( null === $rank || 'processing' === $current || $rank >= $new ) {
 					return false;
@@ -513,7 +513,8 @@ function mlab_smtp_store_claim_batch( int $limit = 10, int $lease = 300, int $no
 			global $wpdb;
 			return $wpdb->get_col(
 				$wpdb->prepare(
-					'SELECT id FROM ' . mlab_smtp_table( 'messages' ) . " WHERE status IN ('queued','temp_failed') AND next_attempt_at <= %d AND (locked_until IS NULL OR locked_until < %d) ORDER BY next_attempt_at ASC, id ASC LIMIT %d",
+					"SELECT id FROM %i WHERE status IN ('queued','temp_failed') AND next_attempt_at <= %d AND (locked_until IS NULL OR locked_until < %d) ORDER BY next_attempt_at ASC, id ASC LIMIT %d",
+					mlab_smtp_table( 'messages' ),
 					$now,
 					$now,
 					max( 1, $limit )
@@ -605,7 +606,8 @@ function mlab_smtp_store_sweep( int $now = 0, int $limit = 100 ): array {
 			global $wpdb;
 			return $wpdb->get_col(
 				$wpdb->prepare(
-					'SELECT id FROM ' . mlab_smtp_table( 'messages' ) . " WHERE status = 'processing' AND ((locked_until IS NOT NULL AND locked_until < %d) OR (locked_until IS NULL AND updated_at < %d)) LIMIT %d",
+					"SELECT id FROM %i WHERE status = 'processing' AND ((locked_until IS NOT NULL AND locked_until < %d) OR (locked_until IS NULL AND updated_at < %d)) LIMIT %d",
+					mlab_smtp_table( 'messages' ),
 					$now,
 					$now - 300,
 					max( 1, $limit )
@@ -640,7 +642,7 @@ function mlab_smtp_store_sweep_one( int $id, int $now ): string {
 	$sent   = (int) mlab_smtp_store_run(
 		static function () use ( $id, $claim ) {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'attempts' ) . ' WHERE message_id = %d AND request_sent_at IS NOT NULL AND finished_at IS NULL AND started_at >= %d', $id, $claim ) );
+			return $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE message_id = %d AND request_sent_at IS NOT NULL AND finished_at IS NULL AND started_at >= %d', mlab_smtp_table( 'attempts' ), $id, $claim ) );
 		},
 		0
 	);
@@ -689,7 +691,7 @@ function mlab_smtp_store_swept_count( int $id ): int {
 	return (int) mlab_smtp_store_run(
 		static function () use ( $id ) {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'attempts' ) . " WHERE message_id = %d AND outcome = 'swept'", $id ) );
+			return $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE message_id = %d AND outcome = 'swept'", mlab_smtp_table( 'attempts' ), $id ) );
 		},
 		0
 	);
@@ -730,7 +732,7 @@ function mlab_smtp_store_get( int $id ): ?array {
 	$row = mlab_smtp_store_run(
 		static function () use ( $id ) {
 			global $wpdb;
-			return $wpdb->get_row( $wpdb->prepare( 'SELECT ' . MLAB_SMTP_STORE_COLUMNS . ' FROM ' . mlab_smtp_table( 'messages' ) . ' WHERE id = %d', $id ), ARRAY_A );
+			return $wpdb->get_row( $wpdb->prepare( 'SELECT ' . MLAB_SMTP_STORE_COLUMNS . ' FROM %i WHERE id = %d', mlab_smtp_table( 'messages' ), $id ), ARRAY_A );
 		},
 		null
 	);
@@ -749,7 +751,7 @@ function mlab_smtp_store_existing_legacy_keys( array $keys ): array {
 		$rows  = (array) mlab_smtp_store_run(
 			static function () use ( $chunk ) {
 				global $wpdb;
-				return $wpdb->get_col( $wpdb->prepare( 'SELECT legacy_key FROM ' . mlab_smtp_table( 'messages' ) . ' WHERE legacy_key IN (' . implode( ',', array_fill( 0, count( $chunk ), '%s' ) ) . ')', $chunk ) );
+				return $wpdb->get_col( $wpdb->prepare( 'SELECT legacy_key FROM %i WHERE legacy_key IN (' . implode( ',', array_fill( 0, count( $chunk ), '%s' ) ) . ')', array_merge( array( mlab_smtp_table( 'messages' ) ), $chunk ) ) );
 			},
 			array()
 		);
@@ -773,7 +775,7 @@ function mlab_smtp_store_find( string $value, string $field = 'uuid' ): ?array {
 	$row = mlab_smtp_store_run(
 		static function () use ( $value, $field ) {
 			global $wpdb;
-			return $wpdb->get_row( $wpdb->prepare( 'SELECT ' . MLAB_SMTP_STORE_COLUMNS . ' FROM ' . mlab_smtp_table( 'messages' ) . " WHERE {$field} = %s ORDER BY id DESC LIMIT 1", $value ), ARRAY_A );
+			return $wpdb->get_row( $wpdb->prepare( 'SELECT ' . MLAB_SMTP_STORE_COLUMNS .  ' FROM %i WHERE %i = %s ORDER BY id DESC LIMIT 1', mlab_smtp_table( 'messages' ), $field, $value ), ARRAY_A );
 		},
 		null
 	);
@@ -804,11 +806,12 @@ function mlab_smtp_store_where( array $args ): string {
 	if ( '' !== (string) ( $args['search'] ?? '' ) ) {
 		$like    = '%' . $wpdb->esc_like( (string) $args['search'] ) . '%';
 		$where[] = $wpdb->prepare(
-			'(recipients LIKE %s OR subject LIKE %s OR last_error LIKE %s OR uuid = %s OR id IN (SELECT message_id FROM ' . mlab_smtp_table( 'recipients' ) . ' WHERE hmac = %s))',
+			'(recipients LIKE %s OR subject LIKE %s OR last_error LIKE %s OR uuid = %s OR id IN (SELECT message_id FROM %i WHERE hmac = %s))',
 			$like,
 			$like,
 			$like,
 			(string) $args['search'],
+			mlab_smtp_table( 'recipients' ),
 			mlab_smtp_store_hmac( (string) $args['search'] )
 		);
 	}
@@ -835,9 +838,10 @@ function mlab_smtp_store_list( array $args = array() ): array {
 			global $wpdb;
 			$where = mlab_smtp_store_where( $args );
 			$table = mlab_smtp_table( 'messages' );
-			$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE {$where}" );
-			$items = $wpdb->get_results(
-				$wpdb->prepare( 'SELECT ' . MLAB_SMTP_STORE_COLUMNS . " FROM {$table} WHERE {$where} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d", $per_page, ( $page - 1 ) * $per_page ),
+			// $where is built by mlab_smtp_store_where(): allow-listed columns, every value prepared.
+			$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE {$where}", $table ) ); // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- See above.
+			$items = $wpdb->get_results( // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where: see above.
+				$wpdb->prepare( 'SELECT ' . MLAB_SMTP_STORE_COLUMNS . " FROM %i WHERE {$where} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d", $table, $per_page, ( $page - 1 ) * $per_page ),
 				ARRAY_A
 			);
 			return array(
@@ -861,7 +865,7 @@ function mlab_smtp_store_counts(): array {
 	$rows   = (array) mlab_smtp_store_run(
 		static function () {
 			global $wpdb;
-			return $wpdb->get_results( 'SELECT status, COUNT(*) AS n FROM ' . mlab_smtp_table( 'messages' ) . ' GROUP BY status', ARRAY_A );
+			return $wpdb->get_results( $wpdb->prepare( 'SELECT status, COUNT(*) AS n FROM %i GROUP BY status', mlab_smtp_table( 'messages' ) ), ARRAY_A );
 		},
 		array()
 	);
@@ -886,7 +890,7 @@ function mlab_smtp_store_ids_by_email( string $email, int $limit = 50, int $offs
 		(array) mlab_smtp_store_run(
 			static function () use ( $hmac, $limit, $offset ) {
 				global $wpdb;
-				return $wpdb->get_col( $wpdb->prepare( 'SELECT DISTINCT message_id FROM ' . mlab_smtp_table( 'recipients' ) . ' WHERE hmac = %s ORDER BY message_id ASC LIMIT %d OFFSET %d', $hmac, max( 1, $limit ), max( 0, $offset ) ) );
+				return $wpdb->get_col( $wpdb->prepare( 'SELECT DISTINCT message_id FROM %i WHERE hmac = %s ORDER BY message_id ASC LIMIT %d OFFSET %d', mlab_smtp_table( 'recipients' ), $hmac, max( 1, $limit ), max( 0, $offset ) ) );
 			},
 			array()
 		)
@@ -909,9 +913,9 @@ function mlab_smtp_store_delete_ids( array $ids ): int {
 			global $wpdb;
 			$in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 			foreach ( array( 'attempts', 'events', 'recipients' ) as $name ) {
-				$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . mlab_smtp_table( $name ) . " WHERE message_id IN ($in)", $ids ) );
+				$wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE message_id IN ($in)", array_merge( array( mlab_smtp_table( $name ) ), $ids ) ) );
 			}
-			return (int) $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . mlab_smtp_table( 'messages' ) . " WHERE id IN ($in)", $ids ) );
+			return (int) $wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE id IN ($in)", array_merge( array( mlab_smtp_table( 'messages' ) ), $ids ) ) );
 		},
 		0
 	);
@@ -930,8 +934,7 @@ function mlab_smtp_store_finished_ids( int $before, int $limit ): array {
 		(array) mlab_smtp_store_run(
 			static function () use ( $before, $limit ) {
 				global $wpdb;
-				$time = $before > 0 ? $wpdb->prepare( 'AND created_at < %d', $before ) : '';
-				return $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM ' . mlab_smtp_table( 'messages' ) . " WHERE status NOT IN ('queued','processing','temp_failed') {$time} ORDER BY id ASC LIMIT %d", max( 1, $limit ) ) );
+				return $wpdb->get_col( $wpdb->prepare( "SELECT id FROM %i WHERE status NOT IN ('queued','processing','temp_failed') AND (%d = 0 OR created_at < %d) ORDER BY id ASC LIMIT %d", mlab_smtp_table( 'messages' ), $before, $before, max( 1, $limit ) ) );
 			},
 			array()
 		)
@@ -972,8 +975,8 @@ function mlab_smtp_store_clear_expired_payloads( int $now = 0 ): void {
 	mlab_smtp_store_run(
 		static function () use ( $now ) {
 			global $wpdb;
-			$wpdb->query( $wpdb->prepare( 'UPDATE ' . mlab_smtp_table( 'messages' ) . ' SET payload = NULL, payload_expires_at = NULL WHERE payload_expires_at IS NOT NULL AND payload_expires_at < %d', $now ) );
-			return $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . mlab_smtp_table( 'events' ) . ' WHERE message_id IS NULL AND received_at < %d', $now - 7 * DAY_IN_SECONDS ) );
+			$wpdb->query( $wpdb->prepare( 'UPDATE %i SET payload = NULL, payload_expires_at = NULL WHERE payload_expires_at IS NOT NULL AND payload_expires_at < %d', mlab_smtp_table( 'messages' ), $now ) );
+			return $wpdb->query( $wpdb->prepare( 'DELETE FROM %i WHERE message_id IS NULL AND received_at < %d', mlab_smtp_table( 'events' ), $now - 7 * DAY_IN_SECONDS ) );
 		}
 	);
 }
@@ -1097,7 +1100,7 @@ function mlab_smtp_store_get_payload( int $id ) {
 	$raw = mlab_smtp_store_run(
 		static function () use ( $id ) {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( 'SELECT payload FROM ' . mlab_smtp_table( 'messages' ) . ' WHERE id = %d', $id ) );
+			return $wpdb->get_var( $wpdb->prepare( 'SELECT payload FROM %i WHERE id = %d', mlab_smtp_table( 'messages' ), $id ) );
 		},
 		null
 	);

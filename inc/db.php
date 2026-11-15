@@ -253,7 +253,7 @@ function mlab_smtp_db_drop_tables( $tables ): array {
 function mlab_smtp_db_drop(): void {
 	global $wpdb;
 	foreach ( mlab_smtp_db_tables() as $table ) {
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Table names are fixed.
-		$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Table names are fixed.
+		$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) );
 	}
 }

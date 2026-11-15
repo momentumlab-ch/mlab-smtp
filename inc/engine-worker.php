@@ -327,7 +327,11 @@ function mlab_smtp_engine_settle_done( array $row, string $token, array $snapsho
 		mlab_smtp_record( true, $o['primary_error'], $o['fallback'] );
 	}
 	mlab_smtp_engine_fire_core_success( $snapshot, (string) $row['uuid'] );
-	do_action( $o['ok'] ? 'mlab_smtp_message_accepted' : 'mlab_smtp_message_failed', mlab_smtp_engine_event( $msg, $o ) );
+	if ( $o['ok'] ) {
+		do_action( 'mlab_smtp_message_accepted', mlab_smtp_engine_event( $msg, $o ) );
+	} else {
+		do_action( 'mlab_smtp_message_failed', mlab_smtp_engine_event( $msg, $o ) );
+	}
 	return $status;
 }
 
@@ -341,7 +345,7 @@ function mlab_smtp_engine_fire_core_success( array $snapshot, string $uuid ): vo
 	$to = array_map( static fn( $pair ): string => (string) $pair[0], (array) ( $snapshot['to'] ?? array() ) );
 	mlab_smtp_flag( 'quiet', true );
 	do_action(
-		'wp_mail_succeeded',
+		'wp_mail_succeeded', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook for listeners of wp_mail().
 		array(
 			'to'           => $to,
 			'subject'      => (string) ( $snapshot['subject'] ?? '' ),
@@ -496,7 +500,7 @@ function mlab_smtp_engine_oldest_wait(): int {
 	$due = (int) mlab_smtp_store_run(
 		static function () {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( 'SELECT MIN(next_attempt_at) FROM ' . mlab_smtp_table( 'messages' ) . " WHERE status IN ('queued','temp_failed') AND next_attempt_at <= %d AND (locked_until IS NULL OR locked_until < %d)", time(), time() ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
+			return $wpdb->get_var( $wpdb->prepare( "SELECT MIN(next_attempt_at) FROM %i WHERE status IN ('queued','temp_failed') AND next_attempt_at <= %d AND (locked_until IS NULL OR locked_until < %d)", mlab_smtp_table( 'messages' ), time(), time() ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
 		},
 		0
 	);

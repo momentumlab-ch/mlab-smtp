@@ -328,7 +328,7 @@ function mlab_smtp_alerts_check_queue(): void {
 	$count = (int) mlab_smtp_store_run(
 		static function () use ( $limit ) {
 			global $wpdb;
-			return $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'messages' ) . " WHERE status IN ('queued','temp_failed') AND next_attempt_at < %d", $limit ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name from the plugin, counter query.
+			return $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE status IN ('queued','temp_failed') AND next_attempt_at < %d", mlab_smtp_table( 'messages' ), $limit ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name from the plugin, counter query.
 		},
 		0
 	);
