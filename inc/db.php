@@ -11,8 +11,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const MLAB_SMTP_SCHEMA_VERSION = '1.5.0.3';
-const MLAB_SMTP_DB_ERROR_OPTION  = 'mlab_smtp_db_error';
+const MLAB_SMTP_SCHEMA_VERSION  = '1.5.0.3';
+const MLAB_SMTP_DB_ERROR_OPTION = 'mlab_smtp_db_error';
 // A failed upgrade is repeated at most this often by the automatic check (an explicit install runs at once).
 const MLAB_SMTP_DB_RETRY_SECONDS = 600;
 
