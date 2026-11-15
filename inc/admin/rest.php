@@ -86,7 +86,7 @@ function mlab_smtp_register_routes(): void {
  * Only administrators may call the routes; the wp_rest nonce is checked by core.
  */
 function mlab_smtp_rest_permission(): bool {
-	return current_user_can( 'manage_options' );
+	return current_user_can( mlab_smtp_capability() );
 }
 
 /**

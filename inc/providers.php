@@ -29,11 +29,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Alle Versandwege. Die Reihenfolge ist die der Anzeige.
+ * Die eingebauten Versandwege. Die Reihenfolge ist die der Anzeige.
  *
  * @return array<string, array<string, mixed>>
  */
-function mlab_smtp_provider_defs(): array {
+function mlab_smtp_core_provider_defs(): array {
 	return array(
 		'm365'   => array(
 			'api'          => true,
@@ -124,4 +124,44 @@ function mlab_smtp_provider_keys( string $field ): array {
 		$keys = array_merge( $keys, $def[ $field ] );
 	}
 	return array_values( array_unique( $keys ) );
+}
+
+/**
+ * Pflichtfelder eines Eintrags der Registry.
+ *
+ * @return string[]
+ */
+function mlab_smtp_provider_def_fields(): array {
+	return array( 'api', 'required', 'group', 'secrets', 'credentials', 'token', 'check', 'send', 'spf', 'health', 'sender_block', 'fb_required', 'fb_check', 'fb_send' );
+}
+
+/**
+ * Alle Versandwege: die eingebauten und die, die ein anderes Plugin über den Filter mlab_smtp_providers ergänzt.
+ * Ein Zusatz darf keinen eingebauten Weg ersetzen, braucht alle Felder und muss seine Funktionen mitbringen
+ * (sie sind aufrufbar). Unvollständige Einträge werden ignoriert, damit ein fehlerhaftes Zusatzplugin den Versand
+ * nicht stört. Das Ergebnis wird für die Anfrage gemerkt.
+ *
+ * @param bool $reset True, um den gemerkten Stand zu verwerfen (Tests).
+ * @return array<string, array<string, mixed>>
+ */
+function mlab_smtp_provider_defs( bool $reset = false ): array {
+	static $defs = null;
+	if ( $reset ) {
+		$defs = null;
+	}
+	if ( null !== $defs ) {
+		return $defs;
+	}
+	$defs = mlab_smtp_core_provider_defs();
+	/**
+	 * Adds providers. Return an array of id => definition with every field of mlab_smtp_core_provider_defs().
+	 *
+	 * @param array $extra Empty by default.
+	 */
+	foreach ( (array) apply_filters( 'mlab_smtp_providers', array() ) as $id => $def ) {
+		if ( is_string( $id ) && '' !== $id && ! isset( $defs[ $id ] ) && is_array( $def ) && ! array_diff( mlab_smtp_provider_def_fields(), array_keys( $def ) ) ) {
+			$defs[ $id ] = $def;
+		}
+	}
+	return $defs;
 }

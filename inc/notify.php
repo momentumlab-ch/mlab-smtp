@@ -254,7 +254,7 @@ function mlab_smtp_is_plugin_screen(): bool {
  * or while the send route has a problem (everywhere).
  */
 function mlab_smtp_admin_notice(): void {
-	if ( ! current_user_can( 'manage_options' ) || mlab_smtp_is_plugin_screen() ) {
+	if ( ! current_user_can( mlab_smtp_capability() ) || mlab_smtp_is_plugin_screen() ) {
 		return;
 	}
 	$status = mlab_smtp_status();

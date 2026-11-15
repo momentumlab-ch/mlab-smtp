@@ -87,6 +87,18 @@ function mlab_smtp_ui_providers(): array {
 				'sender'     => mlab_smtp_ui_sender( array( 'source' => 'smtp_user' ) ),
 			),
 		);
+		/**
+		 * Adds display data of providers that another plugin registered with the filter mlab_smtp_providers. Each entry
+		 * needs name, color, letter, card (text, bullets), connect (function), success and sender (see mlab_smtp_ui_sender()).
+		 *
+		 * @param array $extra Empty by default.
+		 */
+		foreach ( (array) apply_filters( 'mlab_smtp_ui_providers', array() ) as $id => $meta ) {
+			if ( is_string( $id ) && ! isset( $providers[ $id ] ) && is_array( $meta ) && ! array_diff( array( 'name', 'color', 'letter', 'card', 'connect', 'success', 'sender' ), array_keys( $meta ) ) ) {
+				$meta['sender']   = mlab_smtp_ui_sender( (array) $meta['sender'] );
+				$providers[ $id ] = $meta;
+			}
+		}
 	}
 	return $providers;
 }

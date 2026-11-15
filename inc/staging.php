@@ -476,7 +476,7 @@ function mlab_smtp_staging_settings_url(): string {
  * Notice on every admin screen for administrators.
  */
 function mlab_smtp_staging_notice(): void {
-	if ( current_user_can( 'manage_options' ) ) {
+	if ( current_user_can( mlab_smtp_capability() ) ) {
 		mlab_smtp_staging_banner( true );
 	}
 }
@@ -491,7 +491,7 @@ function mlab_smtp_staging_guard( string $action ): void {
 		mlab_smtp_guard( $action );
 		return;
 	}
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( mlab_smtp_capability() ) ) {
 		wp_die( esc_html__( 'Dafür fehlt die Berechtigung.', 'mlab-smtp' ), '', array( 'response' => 403 ) );
 	}
 	check_admin_referer( $action );

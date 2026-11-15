@@ -1,6 +1,7 @@
 <?php
 error_reporting( E_ALL );
 define( 'ABSPATH', '/x/' ); define( 'MLAB_SMTP_SCREEN', 'toplevel_page_mlab-smtp' ); define( 'MLAB_SMTP_FILE', '/x/m.php' );
+function mlab_smtp_capability() { return 'manage_options'; }
 function add_action() {} function add_filter() {} function __( $s ) { return $s; } function plugin_basename() { return 'x'; }
 function add_menu_page() { $GLOBALS['menu'] = func_get_args(); } function admin_url( $p = '' ) { return 'https://s/wp-admin/' . $p; }
 function add_query_arg( $a, $u ) { return $u . '?' . http_build_query( $a ); }

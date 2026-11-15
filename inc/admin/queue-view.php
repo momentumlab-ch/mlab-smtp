@@ -70,7 +70,7 @@ function mlab_smtp_queue_badge_count(): int {
  * Queue tab.
  */
 function mlab_smtp_render_queue(): void {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( mlab_smtp_capability() ) ) {
 		return;
 	}
 	echo '<div class="mlab-stack">';
@@ -277,7 +277,7 @@ function mlab_smtp_render_queue_row( array $row, array $back ): void {
  * @param array $back Query arguments of the page to return to (view plus filter, paged, status, s, entry).
  */
 function mlab_smtp_render_message_actions( array $row, array $back ): void {
-	if ( ! current_user_can( 'manage_options' ) || ! in_array( $row['status'], array( 'failed', 'unclear' ), true ) ) {
+	if ( ! current_user_can( mlab_smtp_capability() ) || ! in_array( $row['status'], array( 'failed', 'unclear' ), true ) ) {
 		return;
 	}
 	$id = (int) $row['id'];

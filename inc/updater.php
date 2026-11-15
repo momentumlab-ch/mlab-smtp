@@ -46,7 +46,7 @@ function mlab_smtp_register_updater(): void {
  * Admin-only hint, shown when a private repo has no token constant.
  */
 function mlab_smtp_missing_token_notice(): void {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( mlab_smtp_capability() ) ) {
 		return;
 	}
 	printf(

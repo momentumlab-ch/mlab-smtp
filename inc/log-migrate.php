@@ -177,7 +177,7 @@ function mlab_smtp_migration_run( int $batch = 100 ): array {
  */
 function mlab_smtp_migration_notice(): void {
 	$state = mlab_smtp_migration_state();
-	if ( $state['done'] || $state['stuck'] < 3 || '' === $state['last_error'] || ! current_user_can( 'manage_options' ) ) {
+	if ( $state['done'] || $state['stuck'] < 3 || '' === $state['last_error'] || ! current_user_can( mlab_smtp_capability() ) ) {
 		return;
 	}
 	printf(

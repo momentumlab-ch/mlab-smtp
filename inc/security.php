@@ -329,3 +329,18 @@ function mlab_smtp_safe_pin_last( ?string $set = null ): string {
 	}
 	return $last;
 }
+
+/**
+ * Capability that allows managing the plugin. «manage_options» by default; a role plugin can narrow or widen it with
+ * the filter mlab_smtp_capability (for example a dedicated «manage_mail» capability for finer roles).
+ * The filter must return a capability name; anything else falls back to «manage_options».
+ */
+function mlab_smtp_capability(): string {
+	/**
+	 * Filters the capability needed for every screen, action and REST route of the plugin.
+	 *
+	 * @param string $capability Default manage_options.
+	 */
+	$capability = apply_filters( 'mlab_smtp_capability', 'manage_options' );
+	return is_string( $capability ) && '' !== $capability ? $capability : 'manage_options';
+}

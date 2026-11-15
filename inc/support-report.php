@@ -214,7 +214,7 @@ function mlab_smtp_support_report_download(): void {
 	if ( function_exists( 'mlab_smtp_guard' ) ) {
 		mlab_smtp_guard( 'mlab_smtp_support_report' );
 	} else {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( mlab_smtp_capability() ) ) {
 			wp_die( esc_html__( 'Dafür fehlt die Berechtigung.', 'mlab-smtp' ), '', array( 'response' => 403 ) );
 		}
 		check_admin_referer( 'mlab_smtp_support_report' );

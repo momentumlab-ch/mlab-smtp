@@ -215,19 +215,44 @@ function mlab_smtp_store( array $changes ): bool {
 		return false;
 	}
 	$options = mlab_smtp_get_all();
-	$changed = false;
+	$names   = mlab_smtp_changed_keys( $options, $changes );
 	foreach ( $changes as $key => $value ) {
-		if ( in_array( $key, mlab_smtp_credential_keys(), true ) && (string) mlab_smtp_get( $key ) !== (string) $value ) {
-			$changed = true;
-		}
 		$options[ $key ] = in_array( $key, mlab_smtp_secret_keys(), true ) ? mlab_smtp_encrypt( (string) $value ) : $value;
 	}
-	if ( $changed ) {
+	if ( array_intersect( $names, mlab_smtp_credential_keys() ) ) {
 		// Before the write: the cached tokens belong to the old credentials.
 		mlab_smtp_clear_tokens();
 	}
 	update_option( MLAB_SMTP_OPTION, $options, false );
+	if ( $names ) {
+		/**
+		 * Fires after settings were saved. Names only, never values (secrets stay secret): the base for a change log.
+		 *
+		 * @param string[] $names   Keys whose value really changed.
+		 * @param int      $user_id User who saved (0 when there is none, for example during a cron run).
+		 */
+		do_action( 'mlab_smtp_settings_changed', $names, get_current_user_id() );
+	}
 	return true;
+}
+
+/**
+ * Keys of a change set whose plain value differs from the stored one. Secrets are compared decrypted.
+ *
+ * @param array $options Stored settings (secrets still encrypted).
+ * @param array $changes Key => new plain value.
+ * @return string[]
+ */
+function mlab_smtp_changed_keys( array $options, array $changes ): array {
+	$names = array();
+	foreach ( $changes as $key => $value ) {
+		$old = (string) ( $options[ $key ] ?? '' );
+		$old = in_array( $key, mlab_smtp_secret_keys(), true ) ? mlab_smtp_decrypt( $old ) : $old;
+		if ( $old !== (string) $value ) {
+			$names[] = (string) $key;
+		}
+	}
+	return $names;
 }
 
 /**

@@ -32,7 +32,7 @@ function mlab_smtp_page_url( array $args = array() ): string {
  * @param string $action Nonce action.
  */
 function mlab_smtp_guard( string $action ): void {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( mlab_smtp_capability() ) ) {
 		wp_die( esc_html__( 'Dafür fehlt die Berechtigung.', 'mlab-smtp' ), '', array( 'response' => 403 ) );
 	}
 	check_admin_referer( $action );
@@ -85,7 +85,7 @@ function mlab_smtp_add_menu(): void {
 	add_menu_page(
 		__( 'E-Mail-Versand', 'mlab-smtp' ),
 		__( 'E-Mail-Versand', 'mlab-smtp' ),
-		'manage_options',
+		mlab_smtp_capability(),
 		'mlab-smtp',
 		'mlab_smtp_render_page',
 		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAyMCI+PHBhdGggZmlsbD0iI2E3YWFhZCIgZD0iTTE4LjYgMS40YTEgMSAwIDAgMC0xLS4yTDEuNSA3LjRhMSAxIDAgMCAwLS4xIDEuOGw1LjQgMi41IDIuNSA1LjRhMSAxIDAgMCAwIDEuOC0uMWw2LjItMTYuMWExIDEgMCAwIDAtLjctMS41ek04LjIgMTEuMyA1IDkuOCAxNS4yIDUuOWwtNyA1LjR6Ii8+PC9zdmc+',
@@ -255,7 +255,7 @@ function mlab_smtp_render_header( string $view ): void {
  * Renders the requested view.
  */
 function mlab_smtp_render_page(): void {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( mlab_smtp_capability() ) ) {
 		return;
 	}
 	$view = mlab_smtp_query( 'view', 'overview' );
