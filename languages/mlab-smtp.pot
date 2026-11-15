@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MomentumLab SMTP 1.4.0\n"
+"Project-Id-Version: MomentumLab SMTP 1.5.0\n"
 "Report-Msgid-Bugs-To: https://github.com/momentumlab-ch/mlab-smtp/issues\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: MomentumLab\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-15T09:50:05+00:00\n"
+"POT-Creation-Date: 2026-11-15T10:12:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mlab-smtp\n"
@@ -34,203 +34,203 @@ msgstr ""
 msgid "https://momentumlab.ch"
 msgstr ""
 
-#: inc/admin/components.php:27
+#: inc/admin/components.php:31
 msgid "Microsoft 365"
 msgstr ""
 
-#: inc/admin/components.php:31
+#: inc/admin/components.php:35
 msgid "Für Firmen mit Microsoft 365 oder Outlook. Kein Passwort auf der Website."
 msgstr ""
 
-#: inc/admin/components.php:32
+#: inc/admin/components.php:36
 msgid "Kein Passwort auf der Website"
 msgstr ""
 
-#: inc/admin/components.php:32
+#: inc/admin/components.php:36
 msgid "Einmalig App in Microsoft anlegen"
 msgstr ""
 
-#: inc/admin/components.php:35
+#: inc/admin/components.php:39
 msgid "Verbunden. Microsoft hat die Zugangsdaten akzeptiert."
 msgstr ""
 
-#: inc/admin/components.php:39
+#: inc/admin/components.php:43
 msgid "Google Workspace"
 msgstr ""
 
-#: inc/admin/components.php:43
+#: inc/admin/components.php:47
 msgid "Für Firmen mit Google Workspace oder Gmail. Anmeldung mit dem Google-Konto."
 msgstr ""
 
-#: inc/admin/components.php:44
+#: inc/admin/components.php:48
 msgid "Anmelden mit Google-Konto"
 msgstr ""
 
-#: inc/admin/components.php:44
+#: inc/admin/components.php:48
 msgid "Einmalig Zugang in Google Cloud anlegen"
 msgstr ""
 
-#: inc/admin/components.php:47
+#: inc/admin/components.php:51
 msgid "Verbunden. Google hat den Zugriff bestätigt."
 msgstr ""
 
-#: inc/admin/components.php:52
+#: inc/admin/components.php:56
 msgid "Das verbundene Google-Konto. Google erlaubt nur dieses oder einen freigegebenen Alias."
 msgstr ""
 
-#: inc/admin/components.php:53
+#: inc/admin/components.php:57
 msgid "Vorgegeben durch das verbundene Google-Konto."
 msgstr ""
 
-#: inc/admin/components.php:58
+#: inc/admin/components.php:62
 msgid "Resend"
 msgstr ""
 
-#: inc/admin/components.php:62
+#: inc/admin/components.php:66
 msgid "Versanddienst für Website-Mails, braucht kein Postfach. Nur ein API-Key nötig."
 msgstr ""
 
-#: inc/admin/components.php:63
+#: inc/admin/components.php:67
 msgid "Nur ein API-Key, keine Anmeldung"
 msgstr ""
 
-#: inc/admin/components.php:63
+#: inc/admin/components.php:67
 msgid "Prüft Ihre Domain und zeigt fehlende DNS-Einträge"
 msgstr ""
 
-#: inc/admin/components.php:67
+#: inc/admin/components.php:71
 msgid "Ersatzweg erreichbar. Resend hat den API-Key akzeptiert."
 msgstr ""
 
-#: inc/admin/components.php:70
+#: inc/admin/components.php:74
 msgid "Die Domain muss bei Resend verifiziert sein. Das Postfach muss nicht existieren, zum Beispiel noreply@ihre-domain.ch."
 msgstr ""
 
-#: inc/admin/components.php:77
+#: inc/admin/components.php:81
 msgid "Eigener Mailserver"
 msgstr ""
 
-#: inc/admin/components.php:81
+#: inc/admin/components.php:85
 msgid "Für den Mailserver Ihres Hosters, z. B. Infomaniak, Hostpoint, cyon."
 msgstr ""
 
-#: inc/admin/components.php:82
+#: inc/admin/components.php:86
 msgid "Server, Benutzer und Passwort"
 msgstr ""
 
-#: inc/admin/components.php:82
+#: inc/admin/components.php:86
 msgid "Funktioniert mit fast jedem Anbieter"
 msgstr ""
 
-#: inc/admin/components.php:85
+#: inc/admin/components.php:89
 msgid "Die Anmeldung am Server war erfolgreich."
 msgstr ""
 
-#: inc/admin/components.php:86
+#: inc/admin/components.php:90
 msgid "Ersatzweg erreichbar. Die Anmeldung am Server war erfolgreich."
 msgstr ""
 
-#: inc/admin/components.php:211
+#: inc/admin/components.php:227
 msgid "Wartet auf Versand"
 msgstr ""
 
-#: inc/admin/components.php:211
+#: inc/admin/components.php:227
 msgid "Die Mail liegt in der Warteschlange und wird gleich gesendet."
 msgstr ""
 
-#: inc/admin/components.php:212
+#: inc/admin/components.php:228
 msgid "Wird gesendet"
 msgstr ""
 
-#: inc/admin/components.php:212
+#: inc/admin/components.php:228
 msgid "Die Mail wird gerade an den Anbieter übergeben."
 msgstr ""
 
-#: inc/admin/components.php:213
+#: inc/admin/components.php:229
 #: inc/admin/log-view.php:18
 msgid "Vom Anbieter angenommen"
 msgstr ""
 
-#: inc/admin/components.php:213
+#: inc/admin/components.php:229
 msgid "Der Anbieter hat die Mail übernommen. Ob sie im Postfach ankam, bestätigt er erst mit einem Zustellbeleg."
 msgstr ""
 
-#: inc/admin/components.php:214
+#: inc/admin/components.php:230
 #: inc/admin/log-view.php:19
 #: inc/admin/log-view.php:197
 msgid "Zustellung bestätigt"
 msgstr ""
 
-#: inc/admin/components.php:214
+#: inc/admin/components.php:230
 msgid "Der Anbieter hat die Zustellung ins Postfach des Empfängers bestätigt."
 msgstr ""
 
-#: inc/admin/components.php:215
+#: inc/admin/components.php:231
 msgid "Wird erneut versucht"
 msgstr ""
 
-#: inc/admin/components.php:215
+#: inc/admin/components.php:231
 msgid "Der letzte Versuch hat nicht geklappt. Das Plugin versucht es automatisch noch einmal."
 msgstr ""
 
-#: inc/admin/components.php:216
+#: inc/admin/components.php:232
 #: inc/admin/overview.php:317
 #: inc/admin/queue-view.php:53
 msgid "Endgültig fehlgeschlagen"
 msgstr ""
 
-#: inc/admin/components.php:216
+#: inc/admin/components.php:232
 msgid "Die Mail wurde nicht gesendet und wird nicht mehr automatisch versucht."
 msgstr ""
 
-#: inc/admin/components.php:217
+#: inc/admin/components.php:233
 #: inc/health.php:339
 msgid "Versandstatus unklar"
 msgstr ""
 
-#: inc/admin/components.php:217
+#: inc/admin/components.php:233
 msgid "Der Anbieter hat möglicherweise angenommen. Das Plugin sendet nicht von selbst erneut, damit nichts doppelt ankommt."
 msgstr ""
 
-#: inc/admin/components.php:218
+#: inc/admin/components.php:234
 msgid "Teilweise angenommen"
 msgstr ""
 
-#: inc/admin/components.php:218
+#: inc/admin/components.php:234
 msgid "Einzelne Empfänger wurden abgelehnt, die übrigen wurden angenommen."
 msgstr ""
 
-#: inc/admin/components.php:219
+#: inc/admin/components.php:235
 msgid "Nicht gesendet (Staging-Schutz)"
 msgstr ""
 
-#: inc/admin/components.php:219
+#: inc/admin/components.php:235
 msgid "Der Staging-Schutz hat den Versand dieser Mail verhindert."
 msgstr ""
 
-#: inc/admin/components.php:220
+#: inc/admin/components.php:236
 #: inc/admin/log-view.php:199
 msgid "Zurückgewiesen"
 msgstr ""
 
-#: inc/admin/components.php:220
+#: inc/admin/components.php:236
 msgid "Der Mailserver des Empfängers hat die Mail zurückgewiesen."
 msgstr ""
 
-#: inc/admin/components.php:221
+#: inc/admin/components.php:237
 #: inc/admin/log-view.php:200
 msgid "Als Spam gemeldet"
 msgstr ""
 
-#: inc/admin/components.php:221
+#: inc/admin/components.php:237
 msgid "Der Empfänger hat die Mail als unerwünscht gemeldet."
 msgstr ""
 
-#: inc/admin/components.php:223
+#: inc/admin/components.php:239
 msgid "Status unbekannt"
 msgstr ""
 
-#: inc/admin/components.php:274
+#: inc/admin/components.php:290
 #: inc/admin/fallback-flow.php:90
 #: inc/admin/log-view.php:238
 #: inc/admin/overview.php:270
@@ -242,18 +242,18 @@ msgid "Ersatzweg"
 msgstr ""
 
 #. translators: %d: number of messages
-#: inc/admin/components.php:310
+#: inc/admin/components.php:326
 #, php-format
 msgid "%d Eintrag"
 msgid_plural "%d Einträge"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/admin/components.php:311
+#: inc/admin/components.php:327
 msgid "Seiten"
 msgstr ""
 
-#: inc/admin/components.php:318
+#: inc/admin/components.php:334
 #: inc/admin/fallback-flow.php:137
 #: inc/admin/fallback-flow.php:204
 #: inc/admin/fallback-flow.php:325
@@ -262,12 +262,12 @@ msgid "Zurück"
 msgstr ""
 
 #. translators: %d: page number
-#: inc/admin/components.php:321
+#: inc/admin/components.php:337
 #, php-format
 msgid "Seite %d"
 msgstr ""
 
-#: inc/admin/components.php:323
+#: inc/admin/components.php:339
 #: inc/admin/fallback-flow.php:139
 #: inc/admin/fallback-flow.php:159
 #: inc/admin/fallback-flow.php:204
@@ -277,25 +277,25 @@ msgstr ""
 msgid "Weiter"
 msgstr ""
 
-#: inc/admin/components.php:354
+#: inc/admin/components.php:370
 #: inc/admin/page.php:162
 msgid "Technische Meldung"
 msgstr ""
 
-#: inc/admin/components.php:370
+#: inc/admin/components.php:386
 #: inc/admin/page.php:161
 msgid "Kopieren"
 msgstr ""
 
-#: inc/admin/components.php:377
+#: inc/admin/components.php:393
 msgid "Gesetzt in wp-config.php"
 msgstr ""
 
-#: inc/admin/components.php:476
+#: inc/admin/components.php:492
 msgid "Gespeichert – leer lassen, um zu behalten"
 msgstr ""
 
-#: inc/admin/components.php:594
+#: inc/admin/components.php:610
 msgid "Nicht empfohlen: keine Verschlüsselung"
 msgstr ""
 
@@ -480,7 +480,7 @@ msgstr ""
 #: inc/admin/fallback-flow.php:223
 #: inc/admin/settings-view.php:219
 #: inc/admin/wizard.php:391
-#: inc/options.php:391
+#: inc/options.php:416
 msgid "Absender-Adresse"
 msgstr ""
 
@@ -909,7 +909,7 @@ msgstr ""
 
 #: inc/admin/overview.php:130
 #: inc/health.php:83
-#: inc/staging.php:418
+#: inc/staging.php:465
 msgid "Einstellungen öffnen"
 msgstr ""
 
@@ -1153,9 +1153,9 @@ msgid "Noch keine Nachrichten."
 msgstr ""
 
 #: inc/admin/page.php:36
-#: inc/alerts.php:383
+#: inc/alerts.php:401
 #: inc/google.php:143
-#: inc/staging.php:448
+#: inc/staging.php:495
 #: inc/support-report.php:218
 msgid "Dafür fehlt die Berechtigung."
 msgstr ""
@@ -1468,7 +1468,7 @@ msgid "Mails werden umgeleitet"
 msgstr ""
 
 #: inc/admin/settings-security.php:107
-#: inc/staging.php:416
+#: inc/staging.php:463
 msgid "Das ist die produktive Website"
 msgstr ""
 
@@ -2349,51 +2349,55 @@ msgstr ""
 msgid "Endgültige Fehler"
 msgstr ""
 
-#: inc/alerts.php:204
+#: inc/alerts.php:73
+msgid "Auf einem Multisite-Netzwerk darf nur ein Netzwerk-Administrator die Adresse des Alarm-Webhooks ändern."
+msgstr ""
+
+#: inc/alerts.php:222
 msgid "Es ist keine Adresse für den Alarm eingetragen."
 msgstr ""
 
 #. translators: %s: error text
-#: inc/alerts.php:219
+#: inc/alerts.php:237
 #, php-format
 msgid "Der Alarm konnte nicht gesendet werden: %s"
 msgstr ""
 
 #. translators: %d: HTTP status code
-#: inc/alerts.php:228
+#: inc/alerts.php:246
 #, php-format
 msgid "Der Alarm wurde zugestellt (HTTP %d)."
 msgstr ""
 
 #. translators: %d: HTTP status code
-#: inc/alerts.php:228
+#: inc/alerts.php:246
 #, php-format
 msgid "Die Gegenstelle hat den Alarm abgelehnt (HTTP %d)."
 msgstr ""
 
-#: inc/alerts.php:247
+#: inc/alerts.php:265
 msgid "Der Test-Alarm konnte nicht gesendet werden."
 msgstr ""
 
 #. translators: %s: error text.
-#: inc/alerts.php:269
+#: inc/alerts.php:287
 #, php-format
 msgid "Der Hauptweg meldet einen Fehler: %s"
 msgstr ""
 
-#: inc/alerts.php:277
+#: inc/alerts.php:295
 msgid "Mails werden zurzeit über den Ersatzweg gesendet."
 msgstr ""
 
-#: inc/alerts.php:303
+#: inc/alerts.php:321
 msgid "Mindestens eine E-Mail konnte endgültig nicht zugestellt werden."
 msgstr ""
 
-#: inc/alerts.php:318
+#: inc/alerts.php:336
 msgid "Die Warteschlange wird nicht abgearbeitet."
 msgstr ""
 
-#: inc/alerts.php:367
+#: inc/alerts.php:385
 msgid "Die Alarmierung ist gespeichert."
 msgstr ""
 
@@ -2557,70 +2561,74 @@ msgstr ""
 msgid "Die gespeicherte Nachricht ist nicht mehr vorhanden."
 msgstr ""
 
-#: inc/engine-worker.php:152
+#: inc/engine-worker.php:145
+msgid "Staging-Schutz: Nachricht stammt aus einer anderen Umgebung und wurde nicht gesendet."
+msgstr ""
+
+#: inc/engine-worker.php:155
 msgid "Der Versand wurde von einer Erweiterung zurückgestellt."
 msgstr ""
 
-#: inc/engine-worker.php:159
+#: inc/engine-worker.php:162
 msgid "Idempotenz-Fenster abgelaufen, bitte manuell prüfen."
 msgstr ""
 
-#: inc/engine-worker.php:168
+#: inc/engine-worker.php:171
 msgid "Der Weg mit dem unklaren Ergebnis ist nicht mehr verfügbar, bitte manuell prüfen."
 msgstr ""
 
-#: inc/engine-worker.php:176
+#: inc/engine-worker.php:179
 msgid "Der Anbieter hat um eine Pause gebeten (Retry-After)."
 msgstr ""
 
-#: inc/engine-worker.php:271
+#: inc/engine-worker.php:274
 msgid "Ein früherer Versuch war unklar, bitte manuell prüfen."
 msgstr ""
 
-#: inc/engine-worker.php:280
+#: inc/engine-worker.php:283
 msgid "Die Höchstzahl der Versuche ist erreicht."
 msgstr ""
 
-#: inc/engine-worker.php:435
-#: inc/engine-worker.php:499
+#: inc/engine-worker.php:438
+#: inc/engine-worker.php:502
 msgid "Die Nachricht hat einen anderen Status, die Aktion ist nicht mehr möglich."
 msgstr ""
 
-#: inc/engine-worker.php:439
+#: inc/engine-worker.php:442
 msgid "Der Inhalt der Nachricht wird nicht mehr aufbewahrt, sie kann nicht erneut gesendet werden."
 msgstr ""
 
-#: inc/engine-worker.php:462
+#: inc/engine-worker.php:465
 msgid "Die Nachricht wurde in der Zwischenzeit geändert."
 msgstr ""
 
-#: inc/engine-worker.php:496
+#: inc/engine-worker.php:499
 msgid "Manuell als zugestellt markiert."
 msgstr ""
 
-#: inc/engine-worker.php:538
+#: inc/engine-worker.php:541
 msgid "Unbekannte Aktion."
 msgstr ""
 
-#: inc/engine-worker.php:601
+#: inc/engine-worker.php:604
 msgid "WP-Cron ist abgeschaltet (DISABLE_WP_CRON). Die Warteschlange läuft nur, wenn ein System-Cron wp-cron.php aufruft."
 msgstr ""
 
-#: inc/engine-worker.php:603
+#: inc/engine-worker.php:606
 msgid "Das Cron-Ereignis der Warteschlange ist nicht geplant. Es wird beim nächsten Seitenaufruf neu angelegt."
 msgstr ""
 
 #. translators: %s: time since the last run
-#: inc/engine-worker.php:607
+#: inc/engine-worker.php:610
 #, php-format
 msgid "Der Worker lief zuletzt vor %s."
 msgstr ""
 
-#: inc/engine-worker.php:608
+#: inc/engine-worker.php:611
 msgid "Der Worker lief noch nie."
 msgstr ""
 
-#: inc/engine-worker.php:610
+#: inc/engine-worker.php:613
 msgid "Empfehlung: einen System-Cron einrichten, der jede Minute «wget -q -O - https://ihre-domain.ch/wp-cron.php?doing_wp_cron» oder «wp cron event run --due-now» aufruft, und WP-Cron mit DISABLE_WP_CRON abschalten."
 msgstr ""
 
@@ -2956,33 +2964,33 @@ msgstr ""
 msgid "Hinweis ausblenden"
 msgstr ""
 
-#: inc/options.php:263
+#: inc/options.php:288
 msgid "Server und Port dürfen auf einer Multisite nur Netzwerk-Administratoren ändern. Der bisherige Wert bleibt erhalten."
 msgstr ""
 
-#: inc/options.php:353
+#: inc/options.php:378
 msgid "Das ist kein Signing Secret von Resend. Es beginnt mit «whsec_» und steht auf der Seite des Webhooks bei Resend. Der bisherige Wert bleibt erhalten."
 msgstr ""
 
-#: inc/options.php:371
+#: inc/options.php:396
 msgid "Das ist kein Resend-API-Key. Ein Key beginnt mit «re_». Bitte bei Resend unter «API Keys» einen Key erstellen und vollständig kopieren. Der bisherige Wert bleibt erhalten."
 msgstr ""
 
-#: inc/options.php:392
+#: inc/options.php:417
 msgid "Antwortadresse"
 msgstr ""
 
-#: inc/options.php:393
+#: inc/options.php:418
 msgid "Adresse für Benachrichtigungen"
 msgstr ""
 
 #. translators: 1: field name, 2: the entered value
-#: inc/options.php:396
+#: inc/options.php:421
 #, php-format
 msgid "«%2$s» ist keine gültige E-Mail-Adresse (%1$s). Der bisherige Wert bleibt erhalten. Bitte im Format name@beispiel.ch eingeben."
 msgstr ""
 
-#: inc/options.php:414
+#: inc/options.php:439
 msgid "Das Ablaufdatum ist ungültig. Bitte im Format JJJJ-MM-TT eingeben, zum Beispiel 2028-11-13. Der bisherige Wert bleibt erhalten."
 msgstr ""
 
@@ -3169,96 +3177,100 @@ msgstr ""
 msgid "Auf diesem Server ist die Verschlüsselung (libsodium) nicht verfügbar. Zugangsdaten werden deshalb nicht gespeichert. Bitte beim Hoster die PHP-Erweiterung «sodium» aktivieren lassen."
 msgstr ""
 
-#: inc/security.php:207
+#: inc/security.php:229
 msgid "Das ist keine gültige Adresse. Bitte mit https:// beginnen, zum Beispiel https://alarm.beispiel.ch/hook."
 msgstr ""
 
-#: inc/security.php:210
+#: inc/security.php:232
 msgid "Aus Sicherheitsgründen sind nur Adressen mit https:// erlaubt."
 msgstr ""
 
-#: inc/security.php:213
+#: inc/security.php:235
 msgid "Die Adresse darf keinen Benutzernamen und kein Passwort enthalten."
 msgstr ""
 
-#: inc/security.php:217
+#: inc/security.php:239
 msgid "Dieser Port ist nicht erlaubt. Erlaubt sind 443 und 8443."
 msgstr ""
 
-#: inc/security.php:225
+#: inc/security.php:247
 msgid "Der Servername lässt sich nicht auflösen. Bitte Schreibweise prüfen."
 msgstr ""
 
-#: inc/security.php:229
+#: inc/security.php:251
 msgid "Die Adresse zeigt auf ein internes Netz. Aus Sicherheitsgründen sind nur öffentlich erreichbare Server erlaubt."
 msgstr ""
 
-#: inc/staging.php:103
+#: inc/security.php:288
+msgid "Der Servername hat sich während der Prüfung geändert. Die Anfrage wurde nicht gesendet."
+msgstr ""
+
+#: inc/staging.php:129
 msgid "Dieser Modus ist unbekannt."
 msgstr ""
 
-#: inc/staging.php:106
+#: inc/staging.php:132
 msgid "Die Testadresse ist keine gültige E-Mail-Adresse."
 msgstr ""
 
-#: inc/staging.php:109
+#: inc/staging.php:135
 msgid "Zum Umleiten wird eine gültige Testadresse gebraucht."
 msgstr ""
 
-#: inc/staging.php:145
+#: inc/staging.php:171
 msgid "Die Adresse der Website hat sich seit der Einrichtung geändert. Das sieht nach einer Kopie aus."
 msgstr ""
 
 #. translators: %s: environment type such as staging
-#: inc/staging.php:154
+#: inc/staging.php:180
 #, php-format
 msgid "WordPress meldet die Umgebung «%s» und nicht «production»."
 msgstr ""
 
-#: inc/staging.php:190
+#: inc/staging.php:216
 msgid "Pfad oder Datenbank des Servers haben sich geändert. Mails werden weiter versendet. Bitte prüfen, ob das gewollt ist."
 msgstr ""
 
-#: inc/staging.php:214
+#: inc/staging.php:240
 msgid "Es ist keine gültige Testadresse eingetragen. "
 msgstr ""
 
-#: inc/staging.php:216
+#: inc/staging.php:242
 msgid "Es werden keine E-Mails versendet, bis ein Administrator bestätigt, dass dies die produktive Website ist, oder das Umleiten wählt."
 msgstr ""
 
 #. translators: %s: test address
-#: inc/staging.php:220
+#: inc/staging.php:246
 #, php-format
 msgid "Alle E-Mails gehen an die Testadresse %s. Kopien (Cc, Bcc) entfallen."
 msgstr ""
 
-#: inc/staging.php:222
+#: inc/staging.php:248
 msgid "Der Versand ist nicht eingeschränkt."
 msgstr ""
 
-#: inc/staging.php:254
+#: inc/staging.php:280
 msgid "Der Versand ist durch den Staging-Schutz blockiert. Es wurde nichts gesendet."
 msgstr ""
 
-#: inc/staging.php:312
-#: inc/staging.php:313
+#: inc/staging.php:338
+#: inc/staging.php:339
 msgid "Staging-Umleitung. Ursprüngliche Empfänger:"
 msgstr ""
 
-#: inc/staging.php:393
+#: inc/staging.php:440
 msgid "E-Mail-Versand blockiert (Staging-Schutz)."
 msgstr ""
 
-#: inc/staging.php:393
+#: inc/staging.php:440
 msgid "E-Mails werden umgeleitet (Staging-Schutz)."
 msgstr ""
 
-#: inc/staging.php:468
+#: inc/staging.php:515
 msgid "Bestätigt. Der Versand ist freigegeben."
 msgstr ""
 
-#: inc/staging.php:482
+#: inc/staging.php:529
 msgid "Der Staging-Schutz ist gespeichert."
 msgstr ""
 
