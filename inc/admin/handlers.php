@@ -11,6 +11,7 @@ add_action( 'admin_post_mlab_smtp_wizard', 'mlab_smtp_handle_wizard' );
 add_action( 'admin_post_mlab_smtp_save_settings', 'mlab_smtp_handle_save_settings' );
 add_action( 'admin_post_mlab_smtp_test', 'mlab_smtp_handle_test' );
 add_action( 'admin_post_mlab_smtp_clear_log_confirmed', 'mlab_smtp_handle_clear_log' );
+add_action( 'admin_post_mlab_smtp_message_action', 'mlab_smtp_handle_message_action' );
 
 /**
  * Setting keys the UI may save, grouped by form section. Every save names its group explicitly.
@@ -31,7 +32,7 @@ function mlab_smtp_key_groups(): array {
 		array(
 			'sender'   => $sender,
 			'fallback' => $fallback,
-			'settings' => array_merge( $sender, $fallback, array( 'resend_webhook_secret', 'fb_resend_webhook_secret', 'force_from', 'notify_enabled', 'notify_email', 'notify_mode', 'log_enabled', 'log_retention' ) ),
+			'settings' => array_merge( $sender, $fallback, array( 'resend_webhook_secret', 'fb_resend_webhook_secret', 'force_from', 'notify_enabled', 'notify_email', 'notify_mode', 'log_enabled', 'log_retention', 'delivery_mode', 'retry_in_background', 'unclear_failover', 'queue_unclear_failover', 'max_attempts', 'payload_days' ) ),
 		)
 	);
 }
@@ -297,5 +298,23 @@ function mlab_smtp_handle_clear_log(): void {
 	mlab_smtp_guard( 'mlab_smtp_clear_log_confirmed' );
 	mlab_smtp_log_clear();
 	mlab_smtp_flash( 'success', __( 'Das Protokoll wurde geleert.', 'mlab-smtp' ) );
+	mlab_smtp_back( array( 'view' => 'log' ) );
+}
+
+/**
+ * Manual action on one message: retry (failed), resend (unclear, a duplicate is possible) or mark as delivered (unclear).
+ */
+function mlab_smtp_handle_message_action(): void {
+	mlab_smtp_guard( 'mlab_smtp_message_action' );
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce checked in mlab_smtp_guard().
+	$do = isset( $_REQUEST['do'] ) ? sanitize_key( wp_unslash( $_REQUEST['do'] ) ) : '';
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce checked in mlab_smtp_guard().
+	$id     = isset( $_REQUEST['id'] ) ? absint( wp_unslash( $_REQUEST['id'] ) ) : 0;
+	$result = mlab_smtp_engine_run_action( $do, $id );
+	if ( is_wp_error( $result ) ) {
+		mlab_smtp_flash( 'error', $result->get_error_message() );
+	} else {
+		mlab_smtp_flash( 'success', __( 'Die Aktion wurde ausgeführt.', 'mlab-smtp' ) );
+	}
 	mlab_smtp_back( array( 'view' => 'log' ) );
 }

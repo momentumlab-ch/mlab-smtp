@@ -17,6 +17,7 @@ function mlab_smtp_render_settings(): void {
 	mlab_smtp_render_set_webhooks();
 	mlab_smtp_render_set_notify();
 	mlab_smtp_render_set_sender();
+	mlab_smtp_render_set_delivery();
 	mlab_smtp_render_set_log();
 	mlab_smtp_render_set_locked();
 	echo '<div class="mlab-savebar"><button type="submit" class="button button-primary">' . esc_html__( 'Änderungen speichern', 'mlab-smtp' ) . '</button></div>';
@@ -293,4 +294,52 @@ function mlab_smtp_webhook_steps(): array {
 		__( 'Webhook speichern, dann auf der Seite des Webhooks das «Signing Secret» (beginnt mit «whsec_») kopieren und hier einfügen.', 'mlab-smtp' ),
 		__( 'Änderungen speichern. Beim nächsten Versand erscheint hier das letzte empfangene Ereignis.', 'mlab-smtp' ),
 	);
+}
+
+/**
+ * Delivery row: sync or queue, background retry, unclear policy, attempts, retention of the content.
+ */
+function mlab_smtp_render_set_delivery(): void {
+	mlab_smtp_ui_row_open( __( 'Zustellung', 'mlab-smtp' ), __( 'Wann eine Mail als versendet gilt und was bei Störungen passiert.', 'mlab-smtp' ) );
+	echo '<div class="mlab-fields is-open">';
+	mlab_smtp_ui_field(
+		'delivery_mode',
+		__( 'Versandart', 'mlab-smtp' ),
+		array(
+			'options' => array(
+				'sync'  => __( 'Sofort senden (Standard)', 'mlab-smtp' ),
+				'queue' => __( 'Über die Warteschlange senden', 'mlab-smtp' ),
+			),
+			'help'    => __( 'Sofort: wp_mail() meldet «gesendet» nur, wenn der Anbieter die Mail angenommen hat. Warteschlange: wp_mail() meldet «gesendet», sobald die Mail sicher gespeichert ist. Das heisst nur «zum Versand angenommen», nicht «versendet»: Der Versand folgt im Hintergrund, Fehler zeigt erst das Protokoll. Mails mit sehr grossen Anhängen (über 10 MB) werden immer sofort gesendet.', 'mlab-smtp' ),
+		)
+	);
+	mlab_smtp_ui_switch( 'retry_in_background', __( 'Im Hintergrund wiederholen (nur bei «Sofort senden»)', 'mlab-smtp' ) );
+	echo '<p class="description">' . esc_html__( 'Schlägt der Versand vorübergehend fehl (Hauptweg und Ersatzweg), legt das Plugin die Mail in die Warteschlange, und wp_mail() meldet «angenommen» statt eines Fehlers. Aus (Standard): wp_mail() meldet den Fehler sofort.', 'mlab-smtp' ) . '</p>';
+	mlab_smtp_ui_switch( 'unclear_failover', __( 'Bei unklarem Ergebnis auf den Ersatzweg wechseln (Sofort senden)', 'mlab-smtp' ) );
+	mlab_smtp_ui_switch( 'queue_unclear_failover', __( 'Bei unklarem Ergebnis auch für Mails aus der Warteschlange auf den Ersatzweg wechseln', 'mlab-smtp' ) );
+	echo '<p class="description">' . esc_html__( 'Unklar heisst: Die Anfrage ging raus, die Antwort fehlt. Der Anbieter kann die Mail trotzdem angenommen haben, ein Wechsel kann dann ein Duplikat erzeugen. Unklare Mails werden nie automatisch erneut gesendet, ausser über Resend mit demselben Idempotenz-Schlüssel innerhalb von 23 Stunden.', 'mlab-smtp' ) . '</p>';
+	mlab_smtp_ui_field(
+		'max_attempts',
+		__( 'Höchstzahl der Versuche', 'mlab-smtp' ),
+		array(
+			'options' => array_combine( array( '2', '3', '4', '5', '6', '8', '10' ), array( '2', '3', '4', '5', '6', '8', '10' ) ),
+			'help'    => __( 'Abstand zwischen den Versuchen: 1 Minute, dann jeweils verdoppelt, höchstens 6 Stunden. Eine Retry-After-Angabe des Anbieters hat Vorrang.', 'mlab-smtp' ),
+		)
+	);
+	mlab_smtp_ui_field(
+		'payload_days',
+		__( 'Inhalt endgültig fehlgeschlagener Mails aufbewahren', 'mlab-smtp' ),
+		array(
+			'options' => array(
+				'1'  => __( '1 Tag', 'mlab-smtp' ),
+				'3'  => __( '3 Tage', 'mlab-smtp' ),
+				'7'  => __( '7 Tage', 'mlab-smtp' ),
+				'14' => __( '14 Tage (Höchstwert)', 'mlab-smtp' ),
+			),
+			'help'    => __( 'Verschlüsselt gespeichert, nur damit sich die Mail manuell wiederholen lässt. Nach der Annahme durch den Anbieter wird der Inhalt sofort gelöscht.', 'mlab-smtp' ),
+		)
+	);
+	echo '</div>';
+	echo '<p class="mlab-muted">' . esc_html__( 'Grenze: Einstellungen, die ein anderes Plugin nur am Mailer-Objekt setzt (zum Beispiel ein DKIM-Schlüssel), gelten nicht für Mails aus der Warteschlange. Die Warteschlange läuft über WP-Cron; ein System-Cron ist zuverlässiger.', 'mlab-smtp' ) . '</p>';
+	mlab_smtp_ui_row_close();
 }

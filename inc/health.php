@@ -44,7 +44,8 @@ function mlab_smtp_health_checks(): array {
 	if ( false !== ( $def['spf'] ?? '' ) ) {
 		$checks[] = mlab_smtp_health_spf();
 	}
-	array_push( $checks, mlab_smtp_health_dmarc(), mlab_smtp_health_notify(), mlab_smtp_health_fallback(), mlab_smtp_health_fallback_security() );
+	mlab_smtp_health_engine( true );
+	array_push( $checks, mlab_smtp_health_dmarc(), mlab_smtp_health_notify(), mlab_smtp_health_fallback(), mlab_smtp_health_fallback_security(), mlab_smtp_health_queue(), mlab_smtp_health_unclear(), mlab_smtp_health_failed() );
 	return array_values( array_filter( $checks ) );
 }
 
@@ -289,4 +290,66 @@ function mlab_smtp_health_fallback_security(): ?array {
 		return null;
 	}
 	return mlab_smtp_health_row( 'bad', __( 'Ersatzweg ohne Verschlüsselung', 'mlab-smtp' ), mlab_smtp_insecure_text(), __( 'Ersatzweg ändern', 'mlab-smtp' ), mlab_smtp_health_settings_url() );
+}
+
+/**
+ * Summary of the delivery engine, once per list of checks. Null when the tables are not available.
+ *
+ * @param bool $fresh True to read it again.
+ */
+function mlab_smtp_health_engine( bool $fresh = false ): ?array {
+	static $summary = false;
+	if ( $fresh || false === $summary ) {
+		$summary = function_exists( 'mlab_smtp_engine_summary' ) && mlab_smtp_engine_store_ready() ? mlab_smtp_engine_summary() : null;
+	}
+	return $summary;
+}
+
+/**
+ * Check: the queue does not move (the oldest due message waited more than 10 minutes). Shows the cron state.
+ *
+ * @return array|null Row, null when nothing is stuck.
+ */
+function mlab_smtp_health_queue(): ?array {
+	$sum = mlab_smtp_health_engine();
+	if ( ! $sum || ! $sum['stale'] ) {
+		return null;
+	}
+	$text = sprintf(
+		/* translators: 1: minutes, 2: cron explanation */
+		__( 'Die älteste fällige Nachricht wartet seit %1$d Minuten. %2$s', 'mlab-smtp' ),
+		(int) floor( $sum['oldest_wait'] / MINUTE_IN_SECONDS ),
+		$sum['cron_text']
+	);
+	return mlab_smtp_health_row( 'warn', __( 'Warteschlange staut sich', 'mlab-smtp' ), $text, __( 'Protokoll öffnen', 'mlab-smtp' ), mlab_smtp_page_url( array( 'view' => 'log' ) ) );
+}
+
+/**
+ * Check: messages whose delivery status is unclear.
+ *
+ * @return array|null Row, null when there are none.
+ */
+function mlab_smtp_health_unclear(): ?array {
+	$count = (int) ( mlab_smtp_health_engine()['unclear'] ?? 0 );
+	if ( $count < 1 ) {
+		return null;
+	}
+	/* translators: %d: number of messages */
+	$text = sprintf( _n( '%d Nachricht hat einen unklaren Versandstatus: Der Anbieter hat möglicherweise angenommen. Sie wird nicht automatisch erneut gesendet.', '%d Nachrichten haben einen unklaren Versandstatus: Der Anbieter hat möglicherweise angenommen. Sie werden nicht automatisch erneut gesendet.', $count, 'mlab-smtp' ), $count );
+	return mlab_smtp_health_row( 'warn', __( 'Versandstatus unklar', 'mlab-smtp' ), $text, __( 'Protokoll öffnen', 'mlab-smtp' ), mlab_smtp_page_url( array( 'view' => 'log' ) ) );
+}
+
+/**
+ * Check: messages that failed for good.
+ *
+ * @return array|null Row, null when there are none.
+ */
+function mlab_smtp_health_failed(): ?array {
+	$count = (int) ( mlab_smtp_health_engine()['failed'] ?? 0 );
+	if ( $count < 1 ) {
+		return null;
+	}
+	/* translators: %d: number of messages */
+	$text = sprintf( _n( '%d Nachricht konnte endgültig nicht zugestellt werden.', '%d Nachrichten konnten endgültig nicht zugestellt werden.', $count, 'mlab-smtp' ), $count );
+	return mlab_smtp_health_row( 'warn', __( 'Endgültige Fehler', 'mlab-smtp' ), $text, __( 'Protokoll öffnen', 'mlab-smtp' ), mlab_smtp_page_url( array( 'view' => 'log' ) ) );
 }
