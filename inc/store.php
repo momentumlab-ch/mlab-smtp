@@ -450,7 +450,7 @@ function mlab_smtp_store_apply_pending_events( int $id ): bool {
 		},
 		array()
 	);
-	$best = '';
+	$best  = '';
 	foreach ( $rows as $type ) {
 		$status = $types[ $type ] ?? '';
 		if ( '' !== $status && (int) mlab_smtp_store_rank( $status ) > (int) mlab_smtp_store_rank( $best ) ) {
@@ -636,8 +636,8 @@ function mlab_smtp_store_sweep_one( int $id, int $now ): string {
 		return '';
 	}
 	// Only attempts of the current claim count (unfinished, started since the claim): earlier rounds are settled already.
-	$claim = (int) $message['updated_at'];
-	$sent  = (int) mlab_smtp_store_run(
+	$claim  = (int) $message['updated_at'];
+	$sent   = (int) mlab_smtp_store_run(
 		static function () use ( $id, $claim ) {
 			global $wpdb;
 			return $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'attempts' ) . ' WHERE message_id = %d AND request_sent_at IS NOT NULL AND finished_at IS NULL AND started_at >= %d', $id, $claim ) );
@@ -649,7 +649,14 @@ function mlab_smtp_store_sweep_one( int $id, int $now ): string {
 	if ( $queued && mlab_smtp_store_swept_count( $id ) >= max( 1, (int) $message['max_attempts'] ) ) {
 		$queued = false; // The worker died again and again before any request: stop, a person decides.
 		$text   = __( 'Der Worker wurde wiederholt vor dem Senden unterbrochen, die Nachricht wird nicht weiter versucht.', 'mlab-smtp' );
-		$set    = mlab_smtp_store_status_fields( 'failed', array( 'error_class' => 'permanent', 'last_error' => $text ), $now );
+		$set    = mlab_smtp_store_status_fields(
+			'failed',
+			array(
+				'error_class' => 'permanent',
+				'last_error'  => $text,
+			),
+			$now
+		);
 	} elseif ( $queued ) {
 		$set = array(
 			'status'       => 'queued',
