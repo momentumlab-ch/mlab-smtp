@@ -118,11 +118,14 @@ function mlab_smtp_log_clear(): bool {
 	if ( ! mlab_smtp_legacy_log_clear() ) {
 		return false;
 	}
-	$ids = mlab_smtp_store_finished_ids( 0, 500 );
-	while ( $ids && mlab_smtp_store_delete_ids( $ids ) > 0 ) {
-		$ids = mlab_smtp_store_finished_ids( 0, 500 );
+	$ids = mlab_smtp_store_finished_ids_checked( 0, 500 );
+	while ( $ids ) {
+		if ( ! mlab_smtp_store_delete_result( $ids )['ok'] ) {
+			return false;
+		}
+		$ids = mlab_smtp_store_finished_ids_checked( 0, 500 );
 	}
-	return array() === mlab_smtp_store_finished_ids( 0, 1 );
+	return array() === $ids;
 }
 
 /**

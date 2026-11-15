@@ -992,41 +992,145 @@ function mlab_smtp_store_counts(): array {
  * @return int[]
  */
 function mlab_smtp_store_ids_by_email( string $email, int $limit = 50, int $offset = 0 ): array {
-	$hmac = mlab_smtp_store_hmac( $email );
-	return array_map(
-		'intval',
-		(array) mlab_smtp_store_run(
-			static function () use ( $hmac, $limit, $offset ) {
-				global $wpdb;
-				return $wpdb->get_col( $wpdb->prepare( 'SELECT DISTINCT message_id FROM %i WHERE hmac = %s ORDER BY message_id ASC LIMIT %d OFFSET %d', mlab_smtp_table( 'recipients' ), $hmac, max( 1, $limit ), max( 0, $offset ) ) );
-			},
-			array()
-		)
-	);
+	return (array) mlab_smtp_store_ids_by_email_checked( $email, $limit, $offset );
 }
 
 /**
- * Deletes messages with their attempts, events and recipient index rows.
+ * Like mlab_smtp_store_ids_by_email(), but null when the lookup failed (an empty list means: nothing found).
+ *
+ * @param string $email  Address.
+ * @param int    $limit  Maximum number of ids.
+ * @param int    $offset Offset.
+ * @return int[]|null
+ */
+function mlab_smtp_store_ids_by_email_checked( string $email, int $limit = 50, int $offset = 0 ): ?array {
+	$hmac = mlab_smtp_store_hmac( $email );
+	$ids  = mlab_smtp_store_run(
+		static function () use ( $hmac, $limit, $offset ) {
+			global $wpdb;
+			$col = $wpdb->get_col( $wpdb->prepare( 'SELECT DISTINCT message_id FROM %i WHERE hmac = %s ORDER BY message_id ASC LIMIT %d OFFSET %d', mlab_smtp_table( 'recipients' ), $hmac, max( 1, $limit ), max( 0, $offset ) ) );
+			return '' === (string) $wpdb->last_error ? $col : null;
+		},
+		null
+	);
+	return is_array( $ids ) ? array_map( 'intval', $ids ) : null;
+}
+
+/**
+ * Deletes messages with their attempts, events and recipient index rows. Returns only the number; use
+ * mlab_smtp_store_delete_result() to tell a failure from «nothing to delete».
  *
  * @param int[] $ids Message ids.
- * @return int Number of deleted messages.
+ * @return int Number of deleted messages (0 on failure).
  */
 function mlab_smtp_store_delete_ids( array $ids ): int {
-	$ids = array_values( array_filter( array_map( 'intval', $ids ) ) );
-	if ( ! $ids ) {
-		return 0;
+	return mlab_smtp_store_delete_result( $ids )['deleted'];
+}
+
+/**
+ * True when every table of the store can take part in a transaction (InnoDB). Checked once per request.
+ */
+function mlab_smtp_store_transactional(): bool {
+	/**
+	 * Lets a test or a special setup declare that transactions are not available for the store tables.
+	 *
+	 * @param bool|null $supported Null to detect.
+	 */
+	$forced = apply_filters( 'mlab_smtp_store_transactional', null );
+	if ( null !== $forced ) {
+		return (bool) $forced;
 	}
-	return (int) mlab_smtp_store_run(
-		static function () use ( $ids ) {
-			global $wpdb;
-			$in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-			foreach ( array( 'attempts', 'events', 'recipients' ) as $name ) {
-				$wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE message_id IN ($in)", array_merge( array( mlab_smtp_table( $name ) ), $ids ) ) );
+	static $result = null;
+	if ( null === $result ) {
+		$result = (bool) mlab_smtp_store_run(
+			static function (): bool {
+				global $wpdb;
+				if ( ! preg_match( '/mysql|maria/i', (string) $wpdb->db_server_info() ) ) {
+					return true; // The SQLite driver of the test environment wraps transactions itself.
+				}
+				$names = array_map( 'mlab_smtp_table', array( 'messages', 'attempts', 'events', 'recipients' ) );
+				$in    = implode( ',', array_fill( 0, count( $names ), '%s' ) );
+				$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND ENGINE = 'InnoDB' AND TABLE_NAME IN ($in)", $names ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders only.
+				return (int) $count === count( $names );
 			}
-			return (int) $wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE id IN ($in)", array_merge( array( mlab_smtp_table( 'messages' ) ), $ids ) ) );
-		},
-		0
+		);
+	}
+	return $result;
+}
+
+/**
+ * True when a transaction of another party is already open on this connection (known for MariaDB; MySQL has no way to tell).
+ */
+function mlab_smtp_store_foreign_transaction(): bool {
+	global $wpdb;
+	$value = $wpdb->get_var( 'SELECT @@in_transaction' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Connection state.
+	return '1' === (string) $value;
+}
+
+/**
+ * Deletes messages with their attempts, events and recipient index rows together. Every statement is checked.
+ * With InnoDB the deletion is one transaction: on any error it is rolled back and nothing is removed. Without
+ * transaction support (for example MyISAM) it is not atomic, and the result says so. The order is attempts, events,
+ * recipient index, messages: a failure before the index is removed can be repeated by e-mail address; a message whose
+ * index is already gone is removed by the retention run, which finds messages by status and age.
+ * A transaction that someone else already opened is neither committed nor rolled back: it is not used at all.
+ *
+ * @param int[] $ids Message ids.
+ * @return array{ok:bool, deleted:int, atomic:bool, error:string}
+ */
+function mlab_smtp_store_delete_result( array $ids ): array {
+	$ids  = array_values( array_filter( array_map( 'intval', $ids ) ) );
+	$fail = array(
+		'ok'      => false,
+		'deleted' => 0,
+		'atomic'  => false,
+		'error'   => 'not ready',
 	);
+	if ( ! $ids ) {
+		return array_merge( $fail, array( 'ok' => true ) );
+	}
+	$result = mlab_smtp_store_run(
+		static function () use ( $ids ): array {
+			global $wpdb;
+			$use_tx = mlab_smtp_store_transactional() && ! mlab_smtp_store_foreign_transaction();
+			if ( $use_tx && false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Transaction control.
+				return array(
+					'ok'      => false,
+					'deleted' => 0,
+					'atomic'  => false,
+					'error'   => 'begin failed',
+				);
+			}
+			$in      = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+			$deleted = 0;
+			$error   = '';
+			foreach ( array( 'attempts', 'events', 'recipients', 'messages' ) as $name ) {
+				$column = 'messages' === $name ? 'id' : 'message_id';
+				$count  = $wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE $column IN ($in)", array_merge( array( mlab_smtp_table( $name ) ), $ids ) ) );
+				if ( false === $count ) {
+					$error = $name;
+					break;
+				}
+				$deleted = 'messages' === $name ? (int) $count : $deleted;
+			}
+			if ( $use_tx ) {
+				if ( '' === $error && false === $wpdb->query( 'COMMIT' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Transaction control.
+					$error = 'commit';
+				}
+				if ( '' !== $error ) {
+					$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Transaction control.
+				}
+			}
+			return array(
+				'ok'      => '' === $error,
+				'deleted' => '' === $error || ! $use_tx ? $deleted : 0,
+				'atomic'  => $use_tx,
+				'error'   => $error,
+			);
+		},
+		$fail
+	);
+	return is_array( $result ) ? $result : $fail;
 }
 
 /**
@@ -1037,16 +1141,26 @@ function mlab_smtp_store_delete_ids( array $ids ): int {
  * @return int[]
  */
 function mlab_smtp_store_finished_ids( int $before, int $limit ): array {
-	return array_map(
-		'intval',
-		(array) mlab_smtp_store_run(
-			static function () use ( $before, $limit ) {
-				global $wpdb;
-				return $wpdb->get_col( $wpdb->prepare( "SELECT id FROM %i WHERE status NOT IN ('queued','processing','temp_failed') AND (%d = 0 OR created_at < %d) ORDER BY id ASC LIMIT %d", mlab_smtp_table( 'messages' ), $before, $before, max( 1, $limit ) ) );
-			},
-			array()
-		)
+	return (array) mlab_smtp_store_finished_ids_checked( $before, $limit );
+}
+
+/**
+ * Like mlab_smtp_store_finished_ids(), but null when the lookup failed (an empty list means: nothing to delete).
+ *
+ * @param int $before Created before this time (0 = all).
+ * @param int $limit  Maximum number of ids.
+ * @return int[]|null
+ */
+function mlab_smtp_store_finished_ids_checked( int $before, int $limit ): ?array {
+	$ids = mlab_smtp_store_run(
+		static function () use ( $before, $limit ) {
+			global $wpdb;
+			$col = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM %i WHERE status NOT IN ('queued','processing','temp_failed') AND (%d = 0 OR created_at < %d) ORDER BY id ASC LIMIT %d", mlab_smtp_table( 'messages' ), $before, $before, max( 1, $limit ) ) );
+			return '' === (string) $wpdb->last_error ? $col : null;
+		},
+		null
 	);
+	return is_array( $ids ) ? array_map( 'intval', $ids ) : null;
 }
 
 /**
@@ -1060,11 +1174,15 @@ function mlab_smtp_store_finished_ids( int $before, int $limit ): array {
 function mlab_smtp_store_purge( int $before, int $batch = 500, int $max_batches = 20 ): int {
 	$deleted = 0;
 	for ( $i = 0; $i < $max_batches; $i++ ) {
-		$ids = mlab_smtp_store_finished_ids( $before, $batch );
+		$ids = mlab_smtp_store_finished_ids_checked( $before, $batch );
 		if ( ! $ids ) {
 			break;
 		}
-		$deleted += mlab_smtp_store_delete_ids( $ids );
+		$result   = mlab_smtp_store_delete_result( $ids );
+		$deleted += $result['deleted'];
+		if ( ! $result['ok'] ) {
+			break; // The same rows would fail again within this call; the next daily run tries again.
+		}
 		if ( count( $ids ) < $batch ) {
 			break;
 		}

@@ -121,14 +121,17 @@ function mlab_smtp_privacy_erase( $email, $page = 1 ): array {
 	unset( $page );
 	// The old log copy first: otherwise a migration that is still open could bring the data back.
 	$legacy  = mlab_smtp_legacy_log_erase_email( (string) $email );
-	$ids     = mlab_smtp_store_ids_by_email( (string) $email, MLAB_SMTP_PRIVACY_BATCH );
-	$removed = mlab_smtp_store_delete_ids( $ids );
-	$failed  = ! $legacy['ok'] || count( $ids ) > $removed;
+	$ids     = mlab_smtp_store_ids_by_email_checked( (string) $email, MLAB_SMTP_PRIVACY_BATCH );
+	$result  = null === $ids ? array(
+		'ok'      => false,
+		'deleted' => 0,
+	) : mlab_smtp_store_delete_result( $ids );
+	$failed  = ! $legacy['ok'] || ! $result['ok'];
 	return array(
-		'items_removed'  => $removed + $legacy['removed'],
+		'items_removed'  => $result['deleted'] + $legacy['removed'],
 		'items_retained' => $failed,
 		'messages'       => $failed ? array( __( 'Nicht alle Protokolleinträge konnten gelöscht werden. Bitte die Löschung wiederholen.', 'mlab-smtp' ) ) : array(),
-		'done'           => $failed || count( $ids ) < MLAB_SMTP_PRIVACY_BATCH || 0 === $removed,
+		'done'           => $failed || count( (array) $ids ) < MLAB_SMTP_PRIVACY_BATCH || 0 === $result['deleted'],
 	);
 }
 
