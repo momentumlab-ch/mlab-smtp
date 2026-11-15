@@ -12,10 +12,14 @@
 defined( 'ABSPATH' ) || exit;
 
 const MLAB_SMTP_SCHEMA_VERSION = '1.5.0.3';
+const MLAB_SMTP_DB_ERROR_OPTION  = 'mlab_smtp_db_error';
+// A failed upgrade is repeated at most this often by the automatic check (an explicit install runs at once).
+const MLAB_SMTP_DB_RETRY_SECONDS = 600;
 
 add_action( 'init', 'mlab_smtp_db_maybe_upgrade', 5 );
 add_action( 'wp_initialize_site', 'mlab_smtp_db_new_site', 20 );
 add_filter( 'wpmu_drop_tables', 'mlab_smtp_db_drop_tables' );
+add_action( 'admin_notices', 'mlab_smtp_db_error_notice' );
 
 /**
  * Status vocabulary of a message.
@@ -169,11 +173,106 @@ function mlab_smtp_db_install(): bool {
 	foreach ( mlab_smtp_db_schema( $wpdb->get_charset_collate() ) as $sql ) {
 		dbDelta( $sql );
 	}
-	$ok = mlab_smtp_db_tables_exist();
-	if ( $ok ) {
+	$missing = mlab_smtp_db_missing();
+	if ( ! $missing ) {
 		update_option( 'mlab_smtp_db_version', MLAB_SMTP_SCHEMA_VERSION, false );
+		delete_option( MLAB_SMTP_DB_ERROR_OPTION );
+		return true;
 	}
-	return $ok;
+	// Tables, columns or indexes are missing: the version stays old, so the next run repeats the upgrade (dbDelta is idempotent).
+	update_option(
+		MLAB_SMTP_DB_ERROR_OPTION,
+		array(
+			'time'    => time(),
+			'missing' => array_slice( $missing, 0, 20 ),
+			'error'   => function_exists( 'mlab_smtp_redact' ) ? mlab_smtp_redact( substr( (string) $wpdb->last_error, 0, 300 ) ) : '',
+		),
+		false
+	);
+	return false;
+}
+
+/**
+ * Expected columns and keys, read from the CREATE TABLE statements (one source of truth).
+ *
+ * @return array<string, array{columns:string[], keys:string[]}> Table => columns and key names.
+ */
+function mlab_smtp_db_expected(): array {
+	$expected = array();
+	foreach ( mlab_smtp_db_schema( '' ) as $sql ) {
+		if ( ! preg_match( '/CREATE TABLE\s+(\S+)\s*\(/', $sql, $table ) ) {
+			continue;
+		}
+		$entry = array(
+			'columns' => array(),
+			'keys'    => array(),
+		);
+		foreach ( explode( "\n", $sql ) as $line ) {
+			if ( preg_match( '/^\s+(?:UNIQUE\s+)?KEY\s+(\w+)/i', $line, $key ) ) {
+				$entry['keys'][] = $key[1];
+			} elseif ( preg_match( '/^\s+(\w+)\s+(?:bigint|int|smallint|tinyint|varchar|char|text|longtext|mediumtext)\b/i', $line, $col ) ) {
+				$entry['columns'][] = $col[1];
+			}
+		}
+		$expected[ $table[1] ] = $entry;
+	}
+	return $expected;
+}
+
+/**
+ * Tables, columns and keys that the schema requires but the database does not have (checked after install/upgrade only).
+ *
+ * @return string[] For example «events.processed_at», «events (key due)» or «events (table)».
+ */
+function mlab_smtp_db_missing(): array {
+	global $wpdb;
+	$missing = array();
+	foreach ( mlab_smtp_db_expected() as $table => $entry ) {
+		$short = (string) preg_replace( '/^' . preg_quote( $wpdb->prefix, '/' ) . 'mlab_smtp_/', '', $table );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Schema check; the table name is validated above.
+		// The table name is the prefix plus a fixed name; unquoted because the SQLite driver of the test environment rejects backticks here.
+		$columns = preg_match( '/^[A-Za-z0-9_]+$/', $table ) ? $wpdb->get_col( 'SHOW COLUMNS FROM ' . $table, 0 ) : array();
+		$keys    = $columns ? $wpdb->get_results( 'SHOW INDEX FROM ' . $table, ARRAY_A ) : array();
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		if ( ! $columns ) {
+			$missing[] = $short . ' (table)';
+			continue;
+		}
+		$have = array_map( 'strtolower', $columns );
+		foreach ( $entry['columns'] as $column ) {
+			if ( ! in_array( strtolower( $column ), $have, true ) ) {
+				$missing[] = $short . '.' . $column;
+			}
+		}
+		$have_keys = array_map( 'strtolower', array_column( (array) $keys, 'Key_name' ) );
+		foreach ( $entry['keys'] as $key ) {
+			if ( ! in_array( strtolower( $key ), $have_keys, true ) ) {
+				$missing[] = $short . ' (key ' . $key . ')';
+			}
+		}
+	}
+	return $missing;
+}
+
+/**
+ * Admin notice while the database upgrade is incomplete: says what is missing and what keeps working.
+ */
+function mlab_smtp_db_error_notice(): void {
+	$error = get_option( MLAB_SMTP_DB_ERROR_OPTION );
+	if ( ! is_array( $error ) || ! current_user_can( mlab_smtp_capability() ) ) {
+		return;
+	}
+	printf(
+		'<div class="notice notice-error"><p><strong>%1$s</strong> %2$s</p></div>',
+		esc_html__( 'Die Datenbank von MomentumLab SMTP ist nicht vollständig aktualisiert.', 'mlab-smtp' ),
+		esc_html(
+			sprintf(
+				/* translators: %s: list of missing database fields */
+				__( 'Fehlend: %s. E-Mails werden weiter versendet, aber ohne Protokoll und Warteschlange. Die Aktualisierung wird automatisch wiederholt; hilft das nicht, melden Sie den Fehler dem Support.', 'mlab-smtp' ),
+				implode( ', ', array_map( 'strval', (array) ( $error['missing'] ?? array() ) ) )
+			)
+		)
+	);
 }
 
 /**
@@ -197,6 +296,10 @@ function mlab_smtp_db_tables_exist(): bool {
 function mlab_smtp_db_maybe_upgrade(): void {
 	if ( version_compare( (string) get_option( 'mlab_smtp_db_version', '0' ), MLAB_SMTP_SCHEMA_VERSION, '>=' ) ) {
 		return;
+	}
+	$error = get_option( MLAB_SMTP_DB_ERROR_OPTION );
+	if ( is_array( $error ) && time() - (int) ( $error['time'] ?? 0 ) < MLAB_SMTP_DB_RETRY_SECONDS ) {
+		return; // No schema work on every request while the problem persists.
 	}
 	mlab_smtp_db_install();
 }

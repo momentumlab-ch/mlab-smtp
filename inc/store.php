@@ -1062,7 +1062,7 @@ function mlab_smtp_store_transactional(): bool {
 				$names = array_map( 'mlab_smtp_table', array( 'messages', 'attempts', 'events', 'recipients' ) );
 				$in    = implode( ',', array_fill( 0, count( $names ), '%s' ) );
 				$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND ENGINE = 'InnoDB' AND TABLE_NAME IN ($in)", $names ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders only.
-				return (int) $count === count( $names );
+				return count( $names ) === (int) $count;
 			}
 		);
 	}

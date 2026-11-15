@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-15T10:37:27+00:00\n"
+"POT-Creation-Date: 2026-11-15T11:00:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mlab-smtp\n"
@@ -2535,6 +2535,16 @@ msgstr ""
 msgid "Der Ersatzweg ist nicht eingerichtet."
 msgstr ""
 
+#: inc/db.php:267
+msgid "Die Datenbank von MomentumLab SMTP ist nicht vollständig aktualisiert."
+msgstr ""
+
+#. translators: %s: list of missing database fields
+#: inc/db.php:271
+#, php-format
+msgid "Fehlend: %s. E-Mails werden weiter versendet, aber ohne Protokoll und Warteschlange. Die Aktualisierung wird automatisch wiederholt; hilft das nicht, melden Sie den Fehler dem Support."
+msgstr ""
+
 #: inc/detect.php:113
 msgid "Anderer Anbieter"
 msgstr ""
@@ -2561,82 +2571,82 @@ msgstr ""
 msgid "Jede Minute (MomentumLab SMTP)"
 msgstr ""
 
-#: inc/engine-worker.php:141
+#: inc/engine-worker.php:144
 msgid "Die gespeicherte Nachricht ist nicht mehr vorhanden."
 msgstr ""
 
-#: inc/engine-worker.php:145
+#: inc/engine-worker.php:148
 msgid "Staging-Schutz: Nachricht stammt aus einer anderen Umgebung und wurde nicht gesendet."
 msgstr ""
 
-#: inc/engine-worker.php:155
+#: inc/engine-worker.php:158
 msgid "Der Versand wurde von einer Erweiterung zurückgestellt."
 msgstr ""
 
-#: inc/engine-worker.php:162
+#: inc/engine-worker.php:165
 msgid "Idempotenz-Fenster abgelaufen, bitte manuell prüfen."
 msgstr ""
 
-#: inc/engine-worker.php:171
+#: inc/engine-worker.php:174
 msgid "Der Weg mit dem unklaren Ergebnis ist nicht mehr verfügbar, bitte manuell prüfen."
 msgstr ""
 
-#: inc/engine-worker.php:176
+#: inc/engine-worker.php:179
 msgid "Die Verbindung wurde seit dem unklaren Versuch geändert, bitte manuell prüfen."
 msgstr ""
 
-#: inc/engine-worker.php:184
+#: inc/engine-worker.php:187
 msgid "Der Anbieter hat um eine Pause gebeten (Retry-After)."
 msgstr ""
 
-#: inc/engine-worker.php:279
+#: inc/engine-worker.php:282
 msgid "Ein früherer Versuch war unklar, bitte manuell prüfen."
 msgstr ""
 
-#: inc/engine-worker.php:288
+#: inc/engine-worker.php:291
 msgid "Die Höchstzahl der Versuche ist erreicht."
 msgstr ""
 
-#: inc/engine-worker.php:468
-#: inc/engine-worker.php:532
+#: inc/engine-worker.php:471
+#: inc/engine-worker.php:535
 msgid "Die Nachricht hat einen anderen Status, die Aktion ist nicht mehr möglich."
 msgstr ""
 
-#: inc/engine-worker.php:472
+#: inc/engine-worker.php:475
 msgid "Der Inhalt der Nachricht wird nicht mehr aufbewahrt, sie kann nicht erneut gesendet werden."
 msgstr ""
 
-#: inc/engine-worker.php:495
+#: inc/engine-worker.php:498
 msgid "Die Nachricht wurde in der Zwischenzeit geändert."
 msgstr ""
 
-#: inc/engine-worker.php:529
+#: inc/engine-worker.php:532
 msgid "Manuell als zugestellt markiert."
 msgstr ""
 
-#: inc/engine-worker.php:571
+#: inc/engine-worker.php:574
 msgid "Unbekannte Aktion."
 msgstr ""
 
-#: inc/engine-worker.php:634
+#: inc/engine-worker.php:637
 msgid "WP-Cron ist abgeschaltet (DISABLE_WP_CRON). Die Warteschlange läuft nur, wenn ein System-Cron wp-cron.php aufruft."
 msgstr ""
 
-#: inc/engine-worker.php:636
+#: inc/engine-worker.php:639
 msgid "Das Cron-Ereignis der Warteschlange ist nicht geplant. Es wird beim nächsten Seitenaufruf neu angelegt."
 msgstr ""
 
 #. translators: %s: time since the last run
-#: inc/engine-worker.php:640
+#: inc/engine-worker.php:643
 #, php-format
 msgid "Der Worker lief zuletzt vor %s."
 msgstr ""
 
-#: inc/engine-worker.php:641
+#: inc/engine-worker.php:644
 msgid "Der Worker lief noch nie."
 msgstr ""
 
-#: inc/engine-worker.php:643
+#: inc/engine-worker.php:646
 msgid "Empfehlung: einen System-Cron einrichten, der jede Minute «wget -q -O - https://ihre-domain.ch/wp-cron.php?doing_wp_cron» oder «wp cron event run --due-now» aufruft, und WP-Cron mit DISABLE_WP_CRON abschalten."
 msgstr ""
 
@@ -2648,7 +2658,7 @@ msgid "Der Anhang «%s» konnte nicht gelesen werden."
 msgstr ""
 
 #: inc/engine.php:301
-#: inc/store.php:1166
+#: inc/store.php:1297
 msgid "Die Nachricht ist für die Warteschlange zu gross."
 msgstr ""
 
@@ -2890,11 +2900,11 @@ msgstr ""
 msgid "Die Nachricht ist zu gross für den Anbieter (Grenze: %s MB). Bitte Anhänge verkleinern oder den Ersatzweg aktivieren."
 msgstr ""
 
-#: inc/log-migrate.php:187
+#: inc/log-migrate.php:189
 msgid "MomentumLab SMTP:"
 msgstr ""
 
-#: inc/log-migrate.php:188
+#: inc/log-migrate.php:190
 msgid "Das alte Versandprotokoll konnte nicht vollständig übernommen werden. Die alten Einträge bleiben erhalten, die Übernahme wird automatisch wiederholt. Besteht der Fehler weiter, prüfen Sie die Datenbankrechte oder wenden Sie sich an den Support."
 msgstr ""
 
@@ -3027,29 +3037,29 @@ msgstr ""
 msgid "Abgeschlossen"
 msgstr ""
 
-#: inc/privacy.php:130
+#: inc/privacy.php:133
 msgid "Nicht alle Protokolleinträge konnten gelöscht werden. Bitte die Löschung wiederholen."
 msgstr ""
 
-#: inc/privacy.php:143
+#: inc/privacy.php:146
 msgid "E-Mail-Versand (MomentumLab SMTP)"
 msgstr ""
 
-#: inc/privacy.php:144
+#: inc/privacy.php:147
 msgid "Vorschlag für Ihre Datenschutzerklärung. Passen Sie den Text an Ihre Verhältnisse an."
 msgstr ""
 
-#: inc/privacy.php:145
+#: inc/privacy.php:148
 msgid "Unsere Website versendet E-Mails (zum Beispiel Bestätigungen, Passwort-Zurücksetzung und Benachrichtigungen) über den von uns gewählten Mailserver oder E-Mail-Dienst. Dabei werden die Empfängeradresse und die Nachricht an diesen Dienst übermittelt."
 msgstr ""
 
 #. translators: %d: number of days
-#: inc/privacy.php:148
+#: inc/privacy.php:151
 #, php-format
 msgid "Im Versandprotokoll speichern wir je Nachricht die Empfängeradresse, den Betreff, den Versandstatus, Zeitpunkte und gegebenenfalls eine Fehlermeldung. Den Nachrichteninhalt und Anhänge speichern wir standardmässig nicht. Die Protokolleinträge werden nach %d Tagen automatisch gelöscht."
 msgstr ""
 
-#: inc/privacy.php:151
+#: inc/privacy.php:154
 msgid "Nur wenn Nachrichten im Hintergrund versendet oder wiederholt werden, liegt die fertige Nachricht samt Anhängen bis zur Annahme durch den Dienst verschlüsselt in der Datenbank und wird danach gelöscht. Auskunft und Löschung erfolgen über die Werkzeuge von WordPress für den Export und das Löschen personenbezogener Daten."
 msgstr ""
 
@@ -3315,19 +3325,19 @@ msgstr ""
 msgid "Hauptweg gestört, Ersatzweg stellt zu"
 msgstr ""
 
-#: inc/store.php:724
+#: inc/store.php:735
 msgid "Der Worker wurde wiederholt vor dem Senden unterbrochen, die Nachricht wird nicht weiter versucht."
 msgstr ""
 
-#: inc/store.php:740
+#: inc/store.php:751
 msgid "Der Versand wurde unterbrochen, ob der Anbieter die Nachricht angenommen hat, ist unklar."
 msgstr ""
 
-#: inc/store.php:1159
+#: inc/store.php:1290
 msgid "Die Nachricht konnte nicht gespeichert werden."
 msgstr ""
 
-#: inc/store.php:1220
+#: inc/store.php:1351
 msgid "Die gespeicherte Nachricht ist nicht mehr lesbar (Schlüssel geändert)."
 msgstr ""
 

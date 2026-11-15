@@ -7,8 +7,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-15T10:37:27+00:00\n"
-"PO-Revision-Date: 2026-11-15T10:37:27+00:00\n"
+"POT-Creation-Date: 2026-11-15T11:00:08+00:00\n"
+"PO-Revision-Date: 2026-11-15T11:00:08+00:00\n"
 "Language: fr_FR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Domain: mlab-smtp\n"
@@ -2534,6 +2534,16 @@ msgstr "Voie de secours : erreur inconnue."
 msgid "Der Ersatzweg ist nicht eingerichtet."
 msgstr "La voie de secours n'est pas configurée."
 
+#: inc/db.php:267
+msgid "Die Datenbank von MomentumLab SMTP ist nicht vollständig aktualisiert."
+msgstr "La base de données de MomentumLab SMTP n'est pas entièrement à jour."
+
+#. translators: %s: list of missing database fields
+#: inc/db.php:271
+#, php-format
+msgid "Fehlend: %s. E-Mails werden weiter versendet, aber ohne Protokoll und Warteschlange. Die Aktualisierung wird automatisch wiederholt; hilft das nicht, melden Sie den Fehler dem Support."
+msgstr "Manquant : %s. Les e-mails sont toujours envoyés, mais sans journal ni file d'attente. La mise à jour est répétée automatiquement ; si cela ne suffit pas, signalez l'erreur au support."
+
 #: inc/detect.php:113
 msgid "Anderer Anbieter"
 msgstr "Autre fournisseur"
@@ -2560,82 +2570,82 @@ msgstr "Voie de secours : %s"
 msgid "Jede Minute (MomentumLab SMTP)"
 msgstr "Chaque minute (MomentumLab SMTP)"
 
-#: inc/engine-worker.php:141
+#: inc/engine-worker.php:144
 msgid "Die gespeicherte Nachricht ist nicht mehr vorhanden."
 msgstr "Le message enregistré n'existe plus."
 
-#: inc/engine-worker.php:145
+#: inc/engine-worker.php:148
 msgid "Staging-Schutz: Nachricht stammt aus einer anderen Umgebung und wurde nicht gesendet."
 msgstr "Protection de préproduction : le message provient d'un autre environnement et n'a pas été envoyé."
 
-#: inc/engine-worker.php:155
+#: inc/engine-worker.php:158
 msgid "Der Versand wurde von einer Erweiterung zurückgestellt."
 msgstr "L'envoi a été différé par une extension."
 
-#: inc/engine-worker.php:162
+#: inc/engine-worker.php:165
 msgid "Idempotenz-Fenster abgelaufen, bitte manuell prüfen."
 msgstr "Fenêtre d'idempotence expirée, veuillez vérifier manuellement."
 
-#: inc/engine-worker.php:171
+#: inc/engine-worker.php:174
 msgid "Der Weg mit dem unklaren Ergebnis ist nicht mehr verfügbar, bitte manuell prüfen."
 msgstr "La voie au résultat incertain n'est plus disponible, veuillez vérifier manuellement."
 
-#: inc/engine-worker.php:176
+#: inc/engine-worker.php:179
 msgid "Die Verbindung wurde seit dem unklaren Versuch geändert, bitte manuell prüfen."
 msgstr "La connexion a été modifiée depuis la tentative incertaine, veuillez vérifier manuellement."
 
-#: inc/engine-worker.php:184
+#: inc/engine-worker.php:187
 msgid "Der Anbieter hat um eine Pause gebeten (Retry-After)."
 msgstr "Le fournisseur a demandé une pause (Retry-After)."
 
-#: inc/engine-worker.php:279
+#: inc/engine-worker.php:282
 msgid "Ein früherer Versuch war unklar, bitte manuell prüfen."
 msgstr "Une tentative précédente était incertaine, veuillez vérifier manuellement."
 
-#: inc/engine-worker.php:288
+#: inc/engine-worker.php:291
 msgid "Die Höchstzahl der Versuche ist erreicht."
 msgstr "Le nombre maximal de tentatives est atteint."
 
-#: inc/engine-worker.php:468
-#: inc/engine-worker.php:532
+#: inc/engine-worker.php:471
+#: inc/engine-worker.php:535
 msgid "Die Nachricht hat einen anderen Status, die Aktion ist nicht mehr möglich."
 msgstr "Le message a un autre statut, l'action n'est plus possible."
 
-#: inc/engine-worker.php:472
+#: inc/engine-worker.php:475
 msgid "Der Inhalt der Nachricht wird nicht mehr aufbewahrt, sie kann nicht erneut gesendet werden."
 msgstr "Le contenu du message n'est plus conservé, il ne peut pas être renvoyé."
 
-#: inc/engine-worker.php:495
+#: inc/engine-worker.php:498
 msgid "Die Nachricht wurde in der Zwischenzeit geändert."
 msgstr "Le message a été modifié entre-temps."
 
-#: inc/engine-worker.php:529
+#: inc/engine-worker.php:532
 msgid "Manuell als zugestellt markiert."
 msgstr "Marqué manuellement comme livré."
 
-#: inc/engine-worker.php:571
+#: inc/engine-worker.php:574
 msgid "Unbekannte Aktion."
 msgstr "Action inconnue."
 
-#: inc/engine-worker.php:634
+#: inc/engine-worker.php:637
 msgid "WP-Cron ist abgeschaltet (DISABLE_WP_CRON). Die Warteschlange läuft nur, wenn ein System-Cron wp-cron.php aufruft."
 msgstr "WP-Cron est désactivé (DISABLE_WP_CRON). La file d'attente ne fonctionne que si un cron système appelle wp-cron.php."
 
-#: inc/engine-worker.php:636
+#: inc/engine-worker.php:639
 msgid "Das Cron-Ereignis der Warteschlange ist nicht geplant. Es wird beim nächsten Seitenaufruf neu angelegt."
 msgstr "L'événement cron de la file d'attente n'est pas planifié. Il sera recréé au prochain chargement de page."
 
 #. translators: %s: time since the last run
-#: inc/engine-worker.php:640
+#: inc/engine-worker.php:643
 #, php-format
 msgid "Der Worker lief zuletzt vor %s."
 msgstr "Le worker a tourné pour la dernière fois il y a %s."
 
-#: inc/engine-worker.php:641
+#: inc/engine-worker.php:644
 msgid "Der Worker lief noch nie."
 msgstr "Le worker n'a jamais tourné."
 
-#: inc/engine-worker.php:643
+#: inc/engine-worker.php:646
 msgid "Empfehlung: einen System-Cron einrichten, der jede Minute «wget -q -O - https://ihre-domain.ch/wp-cron.php?doing_wp_cron» oder «wp cron event run --due-now» aufruft, und WP-Cron mit DISABLE_WP_CRON abschalten."
 msgstr "Recommandation : configurer un cron système qui appelle chaque minute « wget -q -O - https://votre-domaine.ch/wp-cron.php?doing_wp_cron » ou « wp cron event run --due-now », et désactiver WP-Cron avec DISABLE_WP_CRON."
 
@@ -2647,7 +2657,7 @@ msgid "Der Anhang «%s» konnte nicht gelesen werden."
 msgstr "La pièce jointe « %s » n'a pas pu être lue."
 
 #: inc/engine.php:301
-#: inc/store.php:1166
+#: inc/store.php:1297
 msgid "Die Nachricht ist für die Warteschlange zu gross."
 msgstr "Le message est trop volumineux pour la file d'attente."
 
@@ -2889,11 +2899,11 @@ msgstr "La réponse du fournisseur ne contient aucun jeton d'accès."
 msgid "Die Nachricht ist zu gross für den Anbieter (Grenze: %s MB). Bitte Anhänge verkleinern oder den Ersatzweg aktivieren."
 msgstr "L'e-mail est trop volumineux pour le fournisseur (limite : %s Mo). Réduisez les pièces jointes ou activez la voie de secours."
 
-#: inc/log-migrate.php:187
+#: inc/log-migrate.php:189
 msgid "MomentumLab SMTP:"
 msgstr "MomentumLab SMTP :"
 
-#: inc/log-migrate.php:188
+#: inc/log-migrate.php:190
 msgid "Das alte Versandprotokoll konnte nicht vollständig übernommen werden. Die alten Einträge bleiben erhalten, die Übernahme wird automatisch wiederholt. Besteht der Fehler weiter, prüfen Sie die Datenbankrechte oder wenden Sie sich an den Support."
 msgstr "L'ancien journal d'envoi n'a pas pu être entièrement repris. Les anciennes entrées sont conservées et la reprise sera relancée automatiquement. Si l'erreur persiste, vérifiez les droits de la base de données ou contactez l'assistance."
 
@@ -3026,29 +3036,29 @@ msgstr "Créé"
 msgid "Abgeschlossen"
 msgstr "Terminé"
 
-#: inc/privacy.php:130
+#: inc/privacy.php:133
 msgid "Nicht alle Protokolleinträge konnten gelöscht werden. Bitte die Löschung wiederholen."
 msgstr "Toutes les entrées du journal n'ont pas pu être supprimées. Veuillez répéter la suppression."
 
-#: inc/privacy.php:143
+#: inc/privacy.php:146
 msgid "E-Mail-Versand (MomentumLab SMTP)"
 msgstr "Envoi d'e-mails (MomentumLab SMTP)"
 
-#: inc/privacy.php:144
+#: inc/privacy.php:147
 msgid "Vorschlag für Ihre Datenschutzerklärung. Passen Sie den Text an Ihre Verhältnisse an."
 msgstr "Proposition pour votre déclaration de confidentialité. Adaptez le texte à votre situation."
 
-#: inc/privacy.php:145
+#: inc/privacy.php:148
 msgid "Unsere Website versendet E-Mails (zum Beispiel Bestätigungen, Passwort-Zurücksetzung und Benachrichtigungen) über den von uns gewählten Mailserver oder E-Mail-Dienst. Dabei werden die Empfängeradresse und die Nachricht an diesen Dienst übermittelt."
 msgstr "Notre site envoie des e-mails (par exemple des confirmations, des réinitialisations de mot de passe et des notifications) via le serveur de messagerie ou le service d'e-mails que nous avons choisi. Ce faisant, l'adresse du destinataire et le contenu sont transmis à ce service."
 
 #. translators: %d: number of days
-#: inc/privacy.php:148
+#: inc/privacy.php:151
 #, php-format
 msgid "Im Versandprotokoll speichern wir je Nachricht die Empfängeradresse, den Betreff, den Versandstatus, Zeitpunkte und gegebenenfalls eine Fehlermeldung. Den Nachrichteninhalt und Anhänge speichern wir standardmässig nicht. Die Protokolleinträge werden nach %d Tagen automatisch gelöscht."
 msgstr "Dans le journal d'envoi, nous enregistrons pour chaque e-mail l'adresse du destinataire, l'objet, le statut d'envoi, les dates et, le cas échéant, un message d'erreur. Nous n'enregistrons pas le contenu des e-mails ni les pièces jointes par défaut. Les entrées du journal sont supprimées automatiquement après %d jours."
 
-#: inc/privacy.php:151
+#: inc/privacy.php:154
 msgid "Nur wenn Nachrichten im Hintergrund versendet oder wiederholt werden, liegt die fertige Nachricht samt Anhängen bis zur Annahme durch den Dienst verschlüsselt in der Datenbank und wird danach gelöscht. Auskunft und Löschung erfolgen über die Werkzeuge von WordPress für den Export und das Löschen personenbezogener Daten."
 msgstr "Ce n'est que lorsque des e-mails sont envoyés en arrière-plan ou renvoyés que l'e-mail prêt à être envoyé, pièces jointes comprises, reste chiffré dans la base de données jusqu'à son acceptation par le service, puis il est supprimé. Les demandes d'accès et de suppression se font via les outils de WordPress pour l'export et la suppression des données personnelles."
 
@@ -3314,19 +3324,19 @@ msgstr "L'envoi est perturbé"
 msgid "Hauptweg gestört, Ersatzweg stellt zu"
 msgstr "Voie principale perturbée, la voie de secours délivre"
 
-#: inc/store.php:724
+#: inc/store.php:735
 msgid "Der Worker wurde wiederholt vor dem Senden unterbrochen, die Nachricht wird nicht weiter versucht."
 msgstr "Le worker a été interrompu à plusieurs reprises avant l'envoi ; l'e-mail ne sera plus réessayé."
 
-#: inc/store.php:740
+#: inc/store.php:751
 msgid "Der Versand wurde unterbrochen, ob der Anbieter die Nachricht angenommen hat, ist unklar."
 msgstr "L'envoi a été interrompu ; on ne sait pas si le fournisseur a accepté l'e-mail."
 
-#: inc/store.php:1159
+#: inc/store.php:1290
 msgid "Die Nachricht konnte nicht gespeichert werden."
 msgstr "L'e-mail n'a pas pu être enregistré."
 
-#: inc/store.php:1220
+#: inc/store.php:1351
 msgid "Die gespeicherte Nachricht ist nicht mehr lesbar (Schlüssel geändert)."
 msgstr "L'e-mail enregistré n'est plus lisible (clé modifiée)."
 
