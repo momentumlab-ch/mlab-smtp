@@ -548,8 +548,13 @@ function mlab_smtp_engine_enqueue_new( $mailer, array $msg ): bool {
  * @return int Row id, 0 when it could not be stored.
  */
 function mlab_smtp_engine_store_queued( $mailer, array $msg, array $snapshot, string $status, int $next ): int {
+	$encoded = mlab_smtp_store_payload_encode( $snapshot );
+	if ( is_wp_error( $encoded ) ) {
+		return 0;
+	}
 	$id = (int) mlab_smtp_store_create(
 		array(
+			'payload'         => $encoded, // In the same INSERT: no worker can claim the row before the payload exists.
 			'uuid'            => $msg['uuid'],
 			'mode'            => 'queued',
 			'status'          => $status,
@@ -560,10 +565,6 @@ function mlab_smtp_engine_store_queued( $mailer, array $msg, array $snapshot, st
 			'next_attempt_at' => $next,
 		)
 	);
-	if ( $id && true !== mlab_smtp_store_set_payload( $id, $snapshot ) ) {
-		mlab_smtp_store_delete_ids( array( $id ) );
-		return 0;
-	}
 	return $id;
 }
 
@@ -626,7 +627,7 @@ function mlab_smtp_engine_retry_in_background( $mailer, array $msg, array $o ): 
 		'error_class'     => $o['class'],
 		'last_error'      => mlab_smtp_store_text( $o['message'], 2000 ),
 	);
-	if ( $msg['id'] > 0 && true === mlab_smtp_store_set_payload( $msg['id'], $snapshot ) ) {
+	if ( $msg['id'] > 0 && true === mlab_smtp_store_set_payload( $msg['id'], $snapshot, 0, array( 'processing' ) ) ) {
 		mlab_smtp_store_cas( $msg['id'], $fields );
 		$id = $msg['id'];
 	} else {

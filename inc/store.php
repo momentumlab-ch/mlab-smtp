@@ -188,7 +188,8 @@ function mlab_smtp_store_cas( int $id, array $set, string $where = '', int $now 
  * Creates a message and its recipient index.
  *
  * @param array $data route, provider, recipients (list or string), subject, mode (sync|queued), status, via, fallback,
- *                    max_attempts, next_attempt_at, lease (seconds, sets lock_token and locked_until), uuid, legacy_key, created_at, completed_at, last_error.
+ *                    max_attempts, next_attempt_at, lease (seconds, sets lock_token and locked_until), uuid, legacy_key, created_at, completed_at, last_error,
+ *                    payload (encoded text from mlab_smtp_store_payload_encode(), stored with the row), payload_expires_at.
  * @return int|false Message id, false when the schema is not ready or the insert fails.
  */
 function mlab_smtp_store_create( array $data ) {
@@ -218,6 +219,12 @@ function mlab_smtp_store_create( array $data ) {
 	}
 	if ( isset( $data['legacy_key'] ) ) {
 		$row['legacy_key'] = (string) $data['legacy_key'];
+	}
+	if ( isset( $data['payload'] ) && '' !== $data['payload'] ) {
+		$row['payload'] = (string) $data['payload']; // Written with the row: a worker never sees a queued message without its payload.
+		if ( ! empty( $data['payload_expires_at'] ) ) {
+			$row['payload_expires_at'] = (int) $data['payload_expires_at'];
+		}
 	}
 	$id = mlab_smtp_store_run(
 		static function () use ( $row ) {
@@ -944,21 +951,25 @@ function mlab_smtp_store_payload_encode( array $snapshot ) {
  * @param int   $id         Message id.
  * @param array $snapshot   Snapshot.
  * @param int   $expires_at Time after which the payload is removed (0 = no expiry).
+ * @param array $only_status When not empty, the payload is written only while the row still has one of these statuses.
  * @return bool|WP_Error
  */
-function mlab_smtp_store_set_payload( int $id, array $snapshot, int $expires_at = 0 ) {
+function mlab_smtp_store_set_payload( int $id, array $snapshot, int $expires_at = 0, array $only_status = array() ) {
 	$encoded = mlab_smtp_store_payload_encode( $snapshot );
 	if ( is_wp_error( $encoded ) ) {
 		return $encoded;
 	}
 	return (bool) mlab_smtp_store_run(
-		static function () use ( $id, $encoded, $expires_at ) {
+		static function () use ( $id, $encoded, $expires_at, $only_status ) {
+			global $wpdb;
+			$where = $only_status ? 'AND status IN (' . implode( ',', array_fill( 0, count( $only_status ), '%s' ) ) . ')' : '';
 			return mlab_smtp_store_cas(
 				$id,
 				array(
 					'payload'            => $encoded,
 					'payload_expires_at' => $expires_at > 0 ? $expires_at : null,
-				)
+				),
+				$only_status ? $wpdb->prepare( $where, array_values( $only_status ) ) : ''
 			);
 		}
 	);

@@ -9,6 +9,9 @@ defined( 'ABSPATH' ) || exit;
 
 const MLAB_SMTP_QUEUE_HOOK = 'mlab_smtp_process_queue';
 
+/** Seconds after creation during which a queued row without payload counts as «being written». */
+const MLAB_SMTP_ENGINE_PAYLOAD_GRACE = 60;
+
 add_filter( 'cron_schedules', 'mlab_smtp_engine_cron_schedules' ); // phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval -- The queue worker has to run every minute.
 add_action( MLAB_SMTP_QUEUE_HOOK, 'mlab_smtp_engine_cron' );
 add_action( 'init', 'mlab_smtp_engine_schedule', 20 );
@@ -129,6 +132,10 @@ function mlab_smtp_engine_process( array $row ): string {
 	$id       = (int) $row['id'];
 	$token    = (string) $row['lock_token'];
 	$snapshot = mlab_smtp_store_get_payload( $id );
+	if ( null === $snapshot && time() - (int) $row['created_at'] < MLAB_SMTP_ENGINE_PAYLOAD_GRACE ) {
+		// Queued without a payload that is just being written: not ready, never a failure.
+		return mlab_smtp_engine_hold( $id, $token, time() + MLAB_SMTP_ENGINE_PAYLOAD_GRACE / 2, '' );
+	}
 	if ( ! is_array( $snapshot ) ) {
 		$text = is_wp_error( $snapshot ) ? $snapshot->get_error_message() : __( 'Die gespeicherte Nachricht ist nicht mehr vorhanden.', 'mlab-smtp' );
 		return mlab_smtp_engine_settle_final( $row, $token, 'failed', $text, 'permanent' );
