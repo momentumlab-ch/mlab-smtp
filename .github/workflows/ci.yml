@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: sodium, pdo_sqlite, mysqli, mbstring
+          tools: composer:v2
+
+      - name: Composer install
+        run: composer install --no-interaction --no-progress
+
+      - name: Lint
+        run: bash bin/lint.sh
+
+      - name: PHPCS
+        run: bash bin/phpcs.sh
+
+      - name: Testumgebung (WordPress + SQLite)
+        run: bash tests/env/setup.sh
+
+      - name: Unit- und Integrationstests
+        run: bash bin/test.sh

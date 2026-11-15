@@ -1,0 +1,26 @@
+{
+	"name": "mlab/mlab-smtp-dev",
+	"description": "Entwicklungsabhängigkeiten für mlab-smtp (nicht Teil des Plugin-ZIPs).",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=8.0"
+	},
+	"require-dev": {
+		"squizlabs/php_codesniffer": "^3.10",
+		"wp-coding-standards/wpcs": "^3.1",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"phpmailer/phpmailer": "^7.2"
+	},
+	"config": {
+		"sort-packages": true,
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"scripts": {
+		"lint": "bash bin/lint.sh",
+		"phpcs": "bash bin/phpcs.sh",
+		"test": "bash bin/test.sh"
+	}
+}
