@@ -45,7 +45,7 @@ eng_reply( static function ( $u, $a ) use ( &$main_calls ) {
 $id = mlab_e_queue_message();
 mlab_smtp_process_queue();
 eng_due( $id );
-mlab_smtp_engine_pauses( 'resend', time() + 600 );
+mlab_smtp_engine_pauses( mlab_smtp_engine_pause_key( 'primary', 'resend' ), time() + 600 );
 mlab_smtp_process_queue();
 $fb = array_filter( mlab_e_resend_requests(), static fn( $r ) => ! str_contains( mlab_e_header( $r, 'Authorization' ), 'main' ) );
 assert_same( 0, count( $fb ), 'paused primary: the fallback does not send after an unclear primary' );

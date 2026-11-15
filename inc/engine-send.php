@@ -386,7 +386,7 @@ function mlab_smtp_engine_pause_from( array $results ): void {
 		$status = (int) ( $result['info']['http_status'] ?? 0 );
 		if ( 'temporary' === $result['class'] && ( $result['retry_after'] > 0 || 429 === $status ) ) {
 			$wait = $result['retry_after'] > 0 ? min( MLAB_SMTP_ENGINE_RETRY_CAP, $result['retry_after'] ) : MINUTE_IN_SECONDS;
-			mlab_smtp_engine_pauses( $result['provider'], time() + $wait );
+			mlab_smtp_engine_pauses( mlab_smtp_engine_pause_key( (string) $result['route'], (string) $result['provider'] ), time() + $wait );
 		}
 	}
 }

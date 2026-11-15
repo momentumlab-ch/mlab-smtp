@@ -165,9 +165,19 @@ function mlab_smtp_engine_delay( int $attempt, int $retry_after, ?float $random 
 }
 
 /**
- * Pauses of providers after a Retry-After (provider => time until which nothing is sent).
+ * Key of a pause: route and provider, so the two Resend accounts (main and fallback) pause independently.
  *
- * @param string $provider Provider to pause, empty to only read.
+ * @param string $route    primary or fallback.
+ * @param string $provider Provider id.
+ */
+function mlab_smtp_engine_pause_key( string $route, string $provider ): string {
+	return $route . ':' . $provider;
+}
+
+/**
+ * Pauses of routes after a Retry-After (key from mlab_smtp_engine_pause_key() => time until which nothing is sent).
+ *
+ * @param string $provider Key of the pause to set, empty to only read.
  * @param int    $until    Time the pause ends.
  * @return array<string,int> Active pauses.
  */

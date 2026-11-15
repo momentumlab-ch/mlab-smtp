@@ -174,7 +174,7 @@ $res = mlab_smtp_process_queue();
 assert_same( 1, count( mlab_e_resend_requests() ), 'Retry-After: the second message is not sent while the provider is paused' );
 $r1 = mlab_smtp_store_get( $one );
 assert_true( abs( (int) $r1['next_attempt_at'] - ( time() + 120 ) ) <= 3, 'Retry-After wins over the backoff' );
-assert_true( isset( mlab_smtp_engine_pauses()['resend'] ), 'Retry-After: the provider is paused' );
+assert_true( isset( mlab_smtp_engine_pauses()['primary:resend'] ), 'Retry-After: the route is paused (key route:provider)' );
 assert_same( 'queued', mlab_smtp_store_get( $two )['status'], 'Retry-After: the paused message goes back untouched' );
 assert_same( 0, (int) mlab_smtp_store_get( $two )['attempts'], 'Retry-After: no attempt was made for it' );
 assert_same( array(), mlab_smtp_process_queue(), 'Retry-After: nothing runs during the pause' );

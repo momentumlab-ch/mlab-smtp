@@ -113,8 +113,9 @@ function mlab_smtp_engine_active_routes(): array {
 	$routes = array();
 	$until  = 0;
 	foreach ( mlab_smtp_engine_routes() as $route ) {
-		if ( isset( $pauses[ $route['provider'] ] ) ) {
-			$until = 0 === $until ? $pauses[ $route['provider'] ] : min( $until, $pauses[ $route['provider'] ] );
+		$key = mlab_smtp_engine_pause_key( $route['route'], $route['provider'] );
+		if ( isset( $pauses[ $key ] ) ) {
+			$until = 0 === $until ? $pauses[ $key ] : min( $until, $pauses[ $key ] );
 			continue;
 		}
 		$routes[] = $route;
