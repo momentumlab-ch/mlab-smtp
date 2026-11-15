@@ -306,7 +306,8 @@ function mlab_smtp_staging_redirect_mail( $atts ) {
 	}
 	$original        = mlab_smtp_staging_original_recipients( $atts );
 	$html            = mlab_smtp_staging_is_html( (array) ( $atts['headers'] ?? array() ) );
-	$list            = implode( ', ', $original );
+	// Masked: the mail reaches the provider and the test address, real customer addresses must not.
+	$list            = mlab_smtp_mask_emails_in( implode( ', ', $original ) );
 	$footer          = $html
 		? '<hr><p>' . esc_html__( 'Staging-Umleitung. Ursprüngliche Empfänger:', 'mlab-smtp' ) . ' ' . esc_html( $list ) . '</p>'
 		: "\n\n-- \n" . __( 'Staging-Umleitung. Ursprüngliche Empfänger:', 'mlab-smtp' ) . ' ' . $list;

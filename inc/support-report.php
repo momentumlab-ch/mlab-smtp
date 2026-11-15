@@ -165,7 +165,7 @@ function mlab_smtp_support_database(): array {
  */
 function mlab_smtp_support_cron(): array {
 	$lines = array( 'DISABLE_WP_CRON: ' . mlab_smtp_support_yn( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) );
-	foreach ( (array) apply_filters( 'mlab_smtp_support_cron_hooks', array( MLAB_SMTP_CRON_HOOK, 'mlab_smtp_worker', 'mlab_smtp_sweep' ) ) as $hook ) {
+	foreach ( (array) apply_filters( 'mlab_smtp_support_cron_hooks', array( MLAB_SMTP_CRON_HOOK, MLAB_SMTP_QUEUE_HOOK ) ) as $hook ) {
 		$next    = wp_next_scheduled( (string) $hook );
 		$lines[] = $hook . ': ' . ( $next ? gmdate( 'Y-m-d H:i', $next ) . ' UTC' : 'nicht geplant' );
 	}

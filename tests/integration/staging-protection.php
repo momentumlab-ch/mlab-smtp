@@ -115,7 +115,7 @@ $atts = apply_filters( 'wp_mail', array( 'to' => array( 'kunde@example.test', 'x
 assert_same( 'test@example.ch', $atts['to'], 'redirect: recipient replaced' );
 assert_true( ! str_contains( $atts['headers'], 'Cc' ) && ! str_contains( $atts['headers'], 'Bcc' ) && str_contains( $atts['headers'], 'Reply-To' ), 'redirect: cc/bcc removed from string headers' );
 assert_same( '[Staging] Hallo', $atts['subject'], 'redirect: subject prefix' );
-assert_true( str_contains( $atts['message'], 'kunde@example.test' ) && str_contains( $atts['message'], 'cc@example.test' ) && str_contains( $atts['message'], 'bcc@example.test' ), 'redirect: footer lists original recipients' );
+assert_true( str_contains( $atts['message'], 'To: k***@e***.test' ) && str_contains( $atts['message'], 'Cc: c***@e***.test' ) && str_contains( $atts['message'], 'Bcc: b***@e***.test' ) && ! str_contains( $atts['message'], 'kunde@example.test' ), 'redirect: footer lists the original recipients only masked' );
 $atts = apply_filters( 'wp_mail', array( 'to' => 'a@example.test', 'subject' => 'S', 'message' => 'M', 'headers' => array( 'CC: c@example.test', 'bcc: b@example.test', 'Content-Type: text/html' ), 'attachments' => array() ) );
 assert_same( array( 'Content-Type: text/html' ), $atts['headers'], 'redirect: cc/bcc removed from array headers' );
 assert_true( str_contains( $atts['message'], '<hr>' ), 'redirect: html footer for html mail' );
@@ -124,16 +124,10 @@ mlab_http_mock( '#api\.resend\.com/emails#', 200, array( 'id' => 'mail-1' ) );
 wp_mail( 'kunde@example.test', 'Hallo', 'Text', array( 'Cc: cc@example.test' ) );
 $bodies = implode( ' ', array_map( static fn( $r ) => (string) ( $r['args']['body'] ?? '' ), mlab_http_requests() ) );
 assert_true( '' !== $bodies && ! str_contains( $bodies, 'kunde@example.test' ) && ! str_contains( $bodies, 'cc@example.test' ), 'redirect: the provider never sees the original recipients' );
+assert_true( str_contains( $bodies, 'k***@e***.test' ), 'redirect: the footer lists them only masked' );
 assert_true( str_contains( $bodies, 'test@example.ch' ), 'redirect: provider gets the test address' );
 sp_reset( array( 'mode' => 'redirect', 'test_email' => '' ) );
 assert_same( 'block', mlab_smtp_staging_status()['effective'], 'redirect without test address falls back to block' );
-
-// Constant override beats the setting (own process, constant cannot be undefined).
-sp_reset( array( 'mode' => 'block' ) );
-define( 'MLAB_SMTP_STAGING', 'off' );
-$st = mlab_smtp_staging_status();
-assert_same( 'off', $st['effective'], 'constant off beats setting block' );
-assert_same( 'constant', $st['reason'], 'reason constant' );
 
 // Confirm handler: nonce and capability.
 sp_reset( array( 'mode' => 'auto', 'fingerprint' => hash( 'sha256', 'https://old.example' ) ) );
@@ -163,5 +157,13 @@ wp_set_current_user( $sub );
 ob_start();
 do_action( 'admin_notices' );
 assert_same( '', trim( (string) ob_get_clean() ), 'no notice for users without manage_options' );
+
+// Constant override beats the setting. Last on purpose: a constant cannot be undefined for the rest of the process.
+sp_reset( array( 'mode' => 'block' ) );
+define( 'MLAB_SMTP_STAGING', 'off' );
+$st = mlab_smtp_staging_status();
+assert_same( 'off', $st['effective'], 'constant off beats setting block' );
+assert_same( 'constant', $st['reason'], 'reason constant' );
+
 
 t_finish();
