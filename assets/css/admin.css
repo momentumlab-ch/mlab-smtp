@@ -1629,3 +1629,22 @@
 		width: 1px;
 	}
 }
+
+/* === Einstellungen: Inhaltsverzeichnis und Anker (WP6b-B) === */
+.mlab-smtp .mlab-index ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mlab-s-2, 8px) var(--mlab-s-3, 16px);
+	list-style: none;
+	margin: 0 0 var(--mlab-s-3, 16px);
+	padding: 0;
+}
+
+.mlab-smtp .mlab-anchor {
+	scroll-margin-top: 48px;
+}
+
+.mlab-smtp .mlab-check {
+	display: inline-block;
+	margin-top: 4px;
+}

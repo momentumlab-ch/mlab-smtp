@@ -7,21 +7,49 @@
 
 defined( 'ABSPATH' ) || exit;
 
+require_once __DIR__ . '/settings-security.php';
+
 /**
- * Settings tab.
+ * Sections in display order: anchor => array( title, renderer ).
+ *
+ * @return array<string, array{0:string, 1:callable}>
+ */
+function mlab_smtp_settings_sections(): array {
+	return array(
+		'connection' => array( __( 'Verbindung', 'mlab-smtp' ), 'mlab_smtp_render_set_connection' ),
+		'fallback'   => array( __( 'Ersatzweg', 'mlab-smtp' ), 'mlab_smtp_render_set_fallback' ),
+		'delivery'   => array( __( 'Zustellung', 'mlab-smtp' ), 'mlab_smtp_render_set_delivery' ),
+		'webhooks'   => array( __( 'Zustellbestätigung', 'mlab-smtp' ), 'mlab_smtp_render_set_webhooks' ),
+		'sender'     => array( __( 'Absender', 'mlab-smtp' ), 'mlab_smtp_render_set_sender' ),
+		'staging'    => array( __( 'Staging', 'mlab-smtp' ), 'mlab_smtp_render_set_staging' ),
+		'alerts'     => array( __( 'Alarmierung', 'mlab-smtp' ), 'mlab_smtp_render_set_alerts' ),
+		'notify'     => array( __( 'Benachrichtigung', 'mlab-smtp' ), 'mlab_smtp_render_set_notify' ),
+		'log'        => array( __( 'Protokoll', 'mlab-smtp' ), 'mlab_smtp_render_set_log' ),
+		'privacy'    => array( __( 'Support und Datenschutz', 'mlab-smtp' ), 'mlab_smtp_render_set_privacy' ),
+		'encryption' => array( __( 'Verschlüsselung', 'mlab-smtp' ), 'mlab_smtp_render_set_encryption' ),
+		'locked'     => array( __( 'Aus wp-config.php', 'mlab-smtp' ), 'mlab_smtp_render_set_locked' ),
+	);
+}
+
+/**
+ * Settings tab: intro, index with anchor links, the sections and one save bar.
  */
 function mlab_smtp_render_settings(): void {
+	echo '<p class="mlab-muted">' . esc_html__( 'Hier stellen Sie ein, wie Mails versendet, geschützt und überwacht werden. Alles auf dieser Seite wird mit «Änderungen speichern» unten gespeichert. Die einzelnen Knöpfe (testen, bestätigen, herunterladen, neu verschlüsseln) wirken sofort.', 'mlab-smtp' ) . '</p>';
+	echo '<nav class="mlab-index" aria-label="' . esc_attr__( 'Inhalt dieser Seite', 'mlab-smtp' ) . '"><ul>';
+	foreach ( mlab_smtp_settings_sections() as $id => $section ) {
+		echo '<li><a href="#' . esc_attr( 'mlab-s-' . $id ) . '">' . esc_html( $section[0] ) . '</a></li>';
+	}
+	echo '</ul></nav>';
 	mlab_smtp_ui_form_open( 'mlab_smtp_save_settings', 'mlab-settings mlab-stack' );
-	mlab_smtp_render_set_connection();
-	mlab_smtp_render_set_fallback();
-	mlab_smtp_render_set_webhooks();
-	mlab_smtp_render_set_notify();
-	mlab_smtp_render_set_sender();
-	mlab_smtp_render_set_delivery();
-	mlab_smtp_render_set_log();
-	mlab_smtp_render_set_locked();
+	foreach ( mlab_smtp_settings_sections() as $id => $section ) {
+		echo '<div class="mlab-anchor" id="' . esc_attr( 'mlab-s-' . $id ) . '">';
+		call_user_func( $section[1] );
+		echo '</div>';
+	}
 	echo '<div class="mlab-savebar"><button type="submit" class="button button-primary">' . esc_html__( 'Änderungen speichern', 'mlab-smtp' ) . '</button></div>';
 	mlab_smtp_ui_form_close();
+	mlab_smtp_render_set_action_forms();
 }
 
 /**

@@ -12,6 +12,7 @@ add_action( 'admin_post_mlab_smtp_save_settings', 'mlab_smtp_handle_save_setting
 add_action( 'admin_post_mlab_smtp_test', 'mlab_smtp_handle_test' );
 add_action( 'admin_post_mlab_smtp_clear_log_confirmed', 'mlab_smtp_handle_clear_log' );
 add_action( 'admin_post_mlab_smtp_message_action', 'mlab_smtp_handle_message_action' );
+add_action( 'admin_post_mlab_smtp_reencrypt', 'mlab_smtp_handle_reencrypt' );
 
 /**
  * Setting keys the UI may save, grouped by form section. Every save names its group explicitly.
@@ -272,7 +273,8 @@ function mlab_smtp_flash_test( string $to ): void {
  */
 function mlab_smtp_handle_save_settings(): void {
 	mlab_smtp_guard( 'mlab_smtp_save_settings' );
-	$errors = mlab_smtp_save_group( 'settings', mlab_smtp_post_input() );
+	$input  = mlab_smtp_post_input();
+	$errors = array_merge( mlab_smtp_save_group( 'settings', $input ), mlab_smtp_save_security_forms( $input ) );
 	if ( $errors ) {
 		mlab_smtp_flash( 'error', implode( ' ', $errors ) );
 	} else {
@@ -317,4 +319,20 @@ function mlab_smtp_handle_message_action(): void {
 		mlab_smtp_flash( 'success', __( 'Die Aktion wurde ausgeführt.', 'mlab-smtp' ) );
 	}
 	mlab_smtp_back( array( 'view' => 'log' ) );
+}
+
+/**
+ * Stores the readable secrets again with the current key and reports the counts.
+ */
+function mlab_smtp_handle_reencrypt(): void {
+	mlab_smtp_guard( 'mlab_smtp_reencrypt' );
+	$result = mlab_smtp_reencrypt_secrets();
+	if ( $result['unreadable'] > 0 ) {
+		/* translators: 1: re-encrypted count, 2: unreadable count */
+		mlab_smtp_flash( 'warning', sprintf( __( '%1$d Zugangsdaten neu verschlüsselt. %2$d sind nicht lesbar und blieben unverändert. Bitte geben Sie diese neu ein.', 'mlab-smtp' ), $result['reencrypted'], $result['unreadable'] ) );
+	} else {
+		/* translators: %d: count */
+		mlab_smtp_flash( 'success', sprintf( __( '%d Zugangsdaten mit dem aktuellen Schlüssel neu verschlüsselt.', 'mlab-smtp' ), $result['reencrypted'] ) );
+	}
+	mlab_smtp_back( array( 'view' => 'settings' ) );
 }
