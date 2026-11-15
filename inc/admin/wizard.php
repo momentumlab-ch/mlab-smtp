@@ -363,9 +363,11 @@ function mlab_smtp_render_step_sender( string $provider ): void {
 	}
 	echo '<div class="mlab-fields is-open">';
 	mlab_smtp_render_sender_fields( $name, $email, $provider );
+	mlab_smtp_ui_field( 'dkim_selector', __( 'DKIM-Selektor (optional)', 'mlab-smtp' ) );
 	echo '</div><div class="mlab-preview"><p class="mlab-muted">' . esc_html__( 'Vorschau', 'mlab-smtp' ) . '</p><strong data-mlab-preview="from_name">' . esc_html( $name ) . '</strong> <span class="mlab-muted">&lt;<span data-mlab-preview="from_email">' . esc_html( $email ) . '</span>&gt;</span></div>';
 	mlab_smtp_render_step_foot( mlab_smtp_wizard_url( 2, $provider ), __( 'Weiter', 'mlab-smtp' ) );
 	mlab_smtp_ui_form_close();
+	mlab_smtp_render_domain_check( 'primary' );
 }
 
 /**

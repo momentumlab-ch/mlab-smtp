@@ -22,7 +22,7 @@ add_action( 'init', 'mlab_smtp_maybe_migrate' );
  * @return string[]
  */
 function mlab_smtp_secret_keys(): array {
-	return array_merge( mlab_smtp_provider_keys( 'secrets' ), array( 'fb_smtp_pass' ) );
+	return array_merge( mlab_smtp_provider_keys( 'secrets' ), array( 'fb_smtp_pass', 'license_key' ) );
 }
 
 /**
@@ -82,6 +82,13 @@ function mlab_smtp_defaults(): array {
 		'google_account'           => '',
 		'resend_api_key'           => '',
 		'fallback_enabled'         => 0,
+		'fb_from_email'            => '',
+		'fb_from_name'             => '',
+		'fb_reply_to'              => '',
+		'dkim_selector'            => '',
+		'fb_dkim_selector'         => '',
+		'license_url'              => '',
+		'license_key'              => '',
 		'fb_provider'              => 'smtp',
 		'fb_resend_api_key'        => '',
 		'resend_webhook_secret'    => '',
@@ -352,7 +359,7 @@ function mlab_smtp_sanitize_field( string $key, $raw, $fallback ) {
 	if ( str_ends_with( $key, '_port' ) ) {
 		return absint( $raw ) > 0 && absint( $raw ) <= 65535 ? absint( $raw ) : $fallback;
 	}
-	if ( in_array( $key, array( 'from_email', 'reply_to', 'notify_email' ), true ) ) {
+	if ( in_array( $key, array( 'from_email', 'reply_to', 'notify_email', 'fb_from_email', 'fb_reply_to' ), true ) ) {
 		return mlab_smtp_sanitize_email_field( $key, $raw );
 	}
 	if ( 'm365_secret_expires' === $key ) {
@@ -413,9 +420,11 @@ function mlab_smtp_sanitize_email_field( string $key, string $raw ) {
 		return $email;
 	}
 	$labels = array(
-		'from_email'   => __( 'Absender-Adresse', 'mlab-smtp' ),
-		'reply_to'     => __( 'Antwortadresse', 'mlab-smtp' ),
-		'notify_email' => __( 'Adresse für Benachrichtigungen', 'mlab-smtp' ),
+		'fb_from_email' => __( 'Absender-Adresse', 'mlab-smtp' ),
+		'fb_reply_to'   => __( 'Antwortadresse', 'mlab-smtp' ),
+		'from_email'    => __( 'Absender-Adresse', 'mlab-smtp' ),
+		'reply_to'      => __( 'Antwortadresse', 'mlab-smtp' ),
+		'notify_email'  => __( 'Adresse für Benachrichtigungen', 'mlab-smtp' ),
 	);
 	/* translators: 1: field name, 2: the entered value */
 	return new WP_Error( 'mlab_smtp_email', sprintf( __( '«%2$s» ist keine gültige E-Mail-Adresse (%1$s). Der bisherige Wert bleibt erhalten. Bitte im Format name@beispiel.ch eingeben.', 'mlab-smtp' ), $labels[ $key ], sanitize_text_field( $raw ) ) );

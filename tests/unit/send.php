@@ -13,7 +13,7 @@ function is_email( $e ) { return (bool) filter_var( $e, FILTER_VALIDATE_EMAIL );
 function wp_remote_retrieve_response_code( $r ) { return $r['code']; } function wp_remote_retrieve_body( $r ) { return $r['body']; }
 function wp_remote_post( $url, $args ) { $GLOBALS['calls'][] = array( $url, $args ); if ( str_contains( $url, 'oauth' ) || str_contains( $url, 'token' ) ) { return array( 'code' => 200, 'body' => '{"access_token":"T","expires_in":3600}' ); } return array( 'code' => $GLOBALS['code'] ?? 202, 'body' => $GLOBALS['body'] ?? '' ); }
 function wp_remote_request( $url, $args ) { $GLOBALS['calls'][] = array( $url, $args ); return array( 'code' => $GLOBALS['rcode'] ?? 200, 'body' => $GLOBALS['rbody'] ?? '{"id":"1"}' ); }
-foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'mailer', 'engine', 'engine-send', 'check' ) as $m ) { require MLAB_SMTP_DIR . "inc/$m.php"; }
+foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'sender', 'mailer', 'engine', 'engine-send', 'check' ) as $m ) { require MLAB_SMTP_DIR . "inc/$m.php"; }
 require dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 require MLAB_SMTP_DIR . 'inc/class-mlab-smtp-mailer.php';
 class_alias( \PHPMailer\PHPMailer\Exception::class, 'X' );

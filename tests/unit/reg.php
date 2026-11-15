@@ -16,7 +16,7 @@ function admin_url( $p = '' ) { return 'https://s/wp-admin/' . $p; } function ad
 function get_current_user_id() { return 1; } function get_bloginfo() { return 'Site'; } function wp_specialchars_decode( $s ) { return $s; } function sanitize_text_field( $s ) { return $s; } function wp_unslash( $s ) { return $s; }
 function checked() { return ''; } function wp_timezone() { return new DateTimeZone( 'UTC' ); } function wp_date( $f, $t = null ) { return gmdate( $f, $t ?? time() ); } function wp_nonce_field() {} function wp_nonce_url( $u ) { return $u; }
 if ( ! function_exists( 'wp_json_encode' ) ) { function wp_json_encode( $d ) { return json_encode( $d ); } }
-foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'mailer', 'health', 'detect', 'check', 'readiness', 'notify' ) as $m ) { require MLAB_SMTP_DIR . "inc/$m.php"; }
+foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'sender', 'mailer', 'health', 'detect', 'check', 'readiness', 'notify' ) as $m ) { require MLAB_SMTP_DIR . "inc/$m.php"; }
 require MLAB_SMTP_DIR . 'inc/log.php';
 require MLAB_SMTP_DIR . 'inc/admin/page.php';
 $fail = 0; function ok( $c, $l ) { global $fail; echo ( $c ? 'PASS ' : 'FAIL ' ) . $l . "\n"; if ( ! $c ) { $fail++; } }
@@ -24,7 +24,7 @@ function same( $a, $b ) { sort( $a ); sort( $b ); return $a === $b; }
 
 // Values of version 1.2.0 + Resend, written down independently of the registry.
 ok( same( array( 'smtp', 'm365', 'google', 'resend' ), mlab_smtp_choices()['provider'] ), 'provider choices' );
-ok( same( array( 'smtp_pass', 'fb_smtp_pass', 'm365_client_secret', 'google_client_secret', 'google_refresh_token', 'resend_api_key', 'fb_resend_api_key', 'resend_webhook_secret', 'fb_resend_webhook_secret' ), mlab_smtp_secret_keys() ), 'secret keys unchanged (+resend, +fallback key, +webhook secrets)' );
+ok( same( array( 'smtp_pass', 'fb_smtp_pass', 'license_key', 'm365_client_secret', 'google_client_secret', 'google_refresh_token', 'resend_api_key', 'fb_resend_api_key', 'resend_webhook_secret', 'fb_resend_webhook_secret' ), mlab_smtp_secret_keys() ), 'secret keys unchanged (+resend, +fallback key, +webhook secrets)' );
 ok( same( array( 'm365_tenant', 'm365_client_id', 'm365_client_secret', 'google_client_id', 'google_client_secret', 'google_refresh_token', 'resend_api_key', 'fb_resend_api_key' ), mlab_smtp_credential_keys() ), 'credential keys unchanged (+resend, +fallback key)' );
 ok( array( 'smtp_host' ) === mlab_smtp_required_keys( 'smtp' ) && array( 'm365_tenant', 'm365_client_id', 'm365_client_secret' ) === mlab_smtp_required_keys( 'm365' ) && array( 'google_client_id', 'google_client_secret', 'google_refresh_token' ) === mlab_smtp_required_keys( 'google' ) && array( 'resend_api_key' ) === mlab_smtp_required_keys( 'resend' ) && array() === mlab_smtp_required_keys( 'nope' ), 'required keys per provider' );
 $g = mlab_smtp_key_groups();

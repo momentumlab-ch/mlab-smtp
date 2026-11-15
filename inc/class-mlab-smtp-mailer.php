@@ -198,6 +198,10 @@ class Mlab_Smtp_Mailer extends \PHPMailer\PHPMailer\PHPMailer {
 		if ( ! mlab_smtp_fallback_ready() ) {
 			$this->fail( __( 'Der Ersatzweg ist nicht eingerichtet.', 'mlab-smtp' ), array( 'local_failure' => true ) );
 		}
+		if ( ! is_email( mlab_smtp_sender_for_route( 'fallback' )['email'] ) ) {
+			$this->fail( __( 'Es ist keine gültige Absender-Adresse für den Ersatzweg hinterlegt.', 'mlab-smtp' ), array( 'local_failure' => true ) );
+		}
+		mlab_smtp_apply_fallback_sender( $this );
 		$send = mlab_smtp_provider_def( (string) mlab_smtp_get( 'fb_provider' ) )['fb_send'];
 		if ( $send ) {
 			$result = call_user_func( $send, $this );

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MomentumLab SMTP
  * Description: Sends WordPress emails via your own mail server (SMTP), Microsoft 365, Google or Resend.
- * Version: 1.5.2
+ * Version: 1.5.3
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: MomentumLab
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MLAB_SMTP_VERSION', '1.5.2' );
+define( 'MLAB_SMTP_VERSION', '1.5.3' );
 define( 'MLAB_SMTP_FILE', __FILE__ );
 define( 'MLAB_SMTP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MLAB_SMTP_URL', plugin_dir_url( __FILE__ ) );
@@ -27,7 +27,7 @@ define( 'MLAB_SMTP_TIMEOUT', 10 );
 // Screen id of the plugin page (own top-level menu).
 define( 'MLAB_SMTP_SCREEN', 'toplevel_page_mlab-smtp' );
 
-foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'db', 'store', 'log', 'log-migrate', 'webhooks', 'privacy', 'mailer', 'engine', 'engine-send', 'engine-worker', 'notify', 'health', 'detect', 'check', 'readiness', 'staging', 'alerts', 'support-report', 'admin/page', 'updater' ) as $mlab_smtp_module ) {
+foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'db', 'store', 'log', 'log-migrate', 'webhooks', 'privacy', 'sender', 'domain-check', 'licensing', 'mailer', 'engine', 'engine-send', 'engine-worker', 'notify', 'health', 'detect', 'check', 'readiness', 'staging', 'alerts', 'support-report', 'admin/page', 'updater' ) as $mlab_smtp_module ) {
 	require_once MLAB_SMTP_DIR . 'inc/' . $mlab_smtp_module . '.php';
 }
 unset( $mlab_smtp_module );

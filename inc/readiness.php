@@ -64,7 +64,10 @@ function mlab_smtp_route_inputs( string $route ): array {
 	foreach ( mlab_smtp_route_connection_keys( $route, $provider ) as $key ) {
 		$values[ $key ] = (string) mlab_smtp_get( $key );
 	}
-	$sender = (string) mlab_smtp_get( 'from_email' );
+	if ( 'fallback' === $route && '' !== (string) mlab_smtp_get( 'fb_reply_to' ) ) {
+		$values['backup_reply_to'] = (string) mlab_smtp_get( 'fb_reply_to' );
+	}
+	$sender = mlab_smtp_sender_for_route( $route )['email'];
 	$secret = (string) mlab_smtp_get( 'fallback' === $route ? 'fb_resend_api_key' : 'resend_api_key' );
 	return array(
 		'provider'   => $provider,

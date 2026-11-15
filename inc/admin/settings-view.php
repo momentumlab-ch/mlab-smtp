@@ -20,7 +20,7 @@ function mlab_smtp_settings_sections(): array {
 		'fallback'   => array( __( 'Ersatzweg', 'mlab-smtp' ), 'mlab_smtp_render_set_fallback' ),
 		'delivery'   => array( __( 'Zustellung', 'mlab-smtp' ), 'mlab_smtp_render_set_delivery' ),
 		'webhooks'   => array( __( 'Zustellbestätigung', 'mlab-smtp' ), 'mlab_smtp_render_set_webhooks' ),
-		'sender'     => array( __( 'Absender', 'mlab-smtp' ), 'mlab_smtp_render_set_sender' ),
+		'sender'     => array( __( 'Hauptversand: Absender', 'mlab-smtp' ), 'mlab_smtp_render_set_sender' ),
 		'staging'    => array( __( 'Staging', 'mlab-smtp' ), 'mlab_smtp_render_set_staging' ),
 		'alerts'     => array( __( 'Alarmierung', 'mlab-smtp' ), 'mlab_smtp_render_set_alerts' ),
 		'notify'     => array( __( 'Benachrichtigung', 'mlab-smtp' ), 'mlab_smtp_render_set_notify' ),
@@ -50,6 +50,11 @@ function mlab_smtp_render_settings(): void {
 	echo '<div class="mlab-savebar"><button type="submit" class="button button-primary">' . esc_html__( 'Änderungen speichern', 'mlab-smtp' ) . '</button></div>';
 	mlab_smtp_ui_form_close();
 	mlab_smtp_render_set_action_forms();
+	mlab_smtp_render_domain_check( 'primary' );
+	if ( mlab_smtp_fallback_filled() ) {
+		mlab_smtp_render_domain_check( 'fallback' );
+	}
+	mlab_smtp_render_license();
 }
 
 /**
@@ -92,6 +97,7 @@ function mlab_smtp_render_set_fallback(): void {
 	echo '</div>';
 	echo '<div class="mlab-row"><button type="submit" name="do" value="check" class="button" data-mlab-check data-route="fallback" data-mlab-js-only hidden>' . esc_html__( 'Verbindung prüfen', 'mlab-smtp' ) . '</button></div>';
 	mlab_smtp_ui_result_area();
+	mlab_smtp_render_fallback_sender_fields();
 	echo '</div></div>';
 	mlab_smtp_ui_row_close();
 }
@@ -240,8 +246,9 @@ function mlab_smtp_render_set_notify(): void {
 function mlab_smtp_render_set_sender(): void {
 	$meta  = mlab_smtp_ui_providers()[ (string) mlab_smtp_get( 'provider' ) ]['sender'] ?? mlab_smtp_ui_sender( array() );
 	$fixed = $meta['fixed'];
-	mlab_smtp_ui_row_open( __( 'Absender', 'mlab-smtp' ), __( 'Name und Adresse, die Empfänger sehen.', 'mlab-smtp' ) );
+	mlab_smtp_ui_row_open( __( 'Hauptversand: Absender', 'mlab-smtp' ), __( 'Name und Adresse, die Empfänger sehen.', 'mlab-smtp' ) );
 	echo '<div class="mlab-fields is-open">';
+	mlab_smtp_ui_field( 'dkim_selector', __( 'DKIM-Selektor (optional)', 'mlab-smtp' ) );
 	mlab_smtp_ui_field( 'from_name', __( 'Absender-Name', 'mlab-smtp' ), array( 'placeholder' => get_bloginfo( 'name' ) ) );
 	mlab_smtp_ui_field(
 		'from_email',
