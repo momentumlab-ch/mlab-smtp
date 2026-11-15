@@ -7,8 +7,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-15T10:12:43+00:00\n"
-"PO-Revision-Date: 2026-11-15T10:12:43+00:00\n"
+"POT-Creation-Date: 2026-11-15T10:37:27+00:00\n"
+"PO-Revision-Date: 2026-11-15T10:37:27+00:00\n"
 "Language: fr_FR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Domain: mlab-smtp\n"
@@ -554,7 +554,7 @@ msgstr "E-mail de test envoyé avec succès"
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
 #: inc/admin/fallback-flow.php:300
-#: inc/readiness.php:171
+#: inc/readiness.php:192
 msgid "Erneute Prüfung nötig"
 msgstr "Nouvelle vérification nécessaire"
 
@@ -654,23 +654,27 @@ msgstr "Les réglages ont été enregistrés."
 msgid "Das Protokoll wurde geleert."
 msgstr "Le journal a été vidé."
 
-#: inc/admin/handlers.php:328
+#: inc/admin/handlers.php:304
+msgid "Das Protokoll konnte nicht vollständig geleert werden. Bitte versuchen Sie es noch einmal."
+msgstr "Le journal n'a pas pu être vidé complètement. Veuillez réessayer."
+
+#: inc/admin/handlers.php:331
 msgid "Diese Aktion ist nicht gültig."
 msgstr "Cette action n'est pas valide."
 
-#: inc/admin/handlers.php:335
+#: inc/admin/handlers.php:338
 #: inc/admin/queue-view.php:378
 msgid "Die Aktion wurde ausgeführt."
 msgstr "L'action a été exécutée."
 
 #. translators: 1: re-encrypted count, 2: unreadable count
-#: inc/admin/handlers.php:348
+#: inc/admin/handlers.php:351
 #, php-format
 msgid "%1$d Zugangsdaten neu verschlüsselt. %2$d sind nicht lesbar und blieben unverändert. Bitte geben Sie diese neu ein."
 msgstr "%1$d identifiants rechiffrés. %2$d sont illisibles et sont restés inchangés. Veuillez les saisir à nouveau."
 
 #. translators: %d: count
-#: inc/admin/handlers.php:351
+#: inc/admin/handlers.php:354
 #, php-format
 msgid "%d Zugangsdaten mit dem aktuellen Schlüssel neu verschlüsselt."
 msgstr "%d identifiants rechiffrés avec la clé actuelle."
@@ -2427,7 +2431,7 @@ msgid "Diese Nachricht bestätigt, dass der E-Mail-Versand funktioniert."
 msgstr "Ce message confirme que l'envoi d'e-mails fonctionne."
 
 #: inc/check.php:134
-#: inc/engine-send.php:255
+#: inc/engine-send.php:256
 msgid "Unbekannter Fehler."
 msgstr "Erreur inconnue."
 
@@ -2535,19 +2539,19 @@ msgid "Anderer Anbieter"
 msgstr "Autre fournisseur"
 
 #. translators: %s: error of the main route
-#: inc/engine-send.php:346
+#: inc/engine-send.php:347
 #, php-format
 msgid "Hauptweg unklar (fallback_after_unclear): %s"
 msgstr "Voie principale incertaine (fallback_after_unclear) : %s"
 
 #. translators: 1: error of the main route, 2: error of the fallback route
-#: inc/engine-send.php:352
+#: inc/engine-send.php:353
 #, php-format
 msgid "Hauptweg: %1$s | Ersatzweg: %2$s"
 msgstr "Voie principale : %1$s | voie de secours : %2$s"
 
 #. translators: %s: error of the fallback route
-#: inc/engine-send.php:355
+#: inc/engine-send.php:356
 #, php-format
 msgid "Ersatzweg: %s"
 msgstr "Voie de secours : %s"
@@ -2576,58 +2580,62 @@ msgstr "Fenêtre d'idempotence expirée, veuillez vérifier manuellement."
 msgid "Der Weg mit dem unklaren Ergebnis ist nicht mehr verfügbar, bitte manuell prüfen."
 msgstr "La voie au résultat incertain n'est plus disponible, veuillez vérifier manuellement."
 
-#: inc/engine-worker.php:179
+#: inc/engine-worker.php:176
+msgid "Die Verbindung wurde seit dem unklaren Versuch geändert, bitte manuell prüfen."
+msgstr "La connexion a été modifiée depuis la tentative incertaine, veuillez vérifier manuellement."
+
+#: inc/engine-worker.php:184
 msgid "Der Anbieter hat um eine Pause gebeten (Retry-After)."
 msgstr "Le fournisseur a demandé une pause (Retry-After)."
 
-#: inc/engine-worker.php:274
+#: inc/engine-worker.php:279
 msgid "Ein früherer Versuch war unklar, bitte manuell prüfen."
 msgstr "Une tentative précédente était incertaine, veuillez vérifier manuellement."
 
-#: inc/engine-worker.php:283
+#: inc/engine-worker.php:288
 msgid "Die Höchstzahl der Versuche ist erreicht."
 msgstr "Le nombre maximal de tentatives est atteint."
 
-#: inc/engine-worker.php:438
-#: inc/engine-worker.php:502
+#: inc/engine-worker.php:468
+#: inc/engine-worker.php:532
 msgid "Die Nachricht hat einen anderen Status, die Aktion ist nicht mehr möglich."
 msgstr "Le message a un autre statut, l'action n'est plus possible."
 
-#: inc/engine-worker.php:442
+#: inc/engine-worker.php:472
 msgid "Der Inhalt der Nachricht wird nicht mehr aufbewahrt, sie kann nicht erneut gesendet werden."
 msgstr "Le contenu du message n'est plus conservé, il ne peut pas être renvoyé."
 
-#: inc/engine-worker.php:465
+#: inc/engine-worker.php:495
 msgid "Die Nachricht wurde in der Zwischenzeit geändert."
 msgstr "Le message a été modifié entre-temps."
 
-#: inc/engine-worker.php:499
+#: inc/engine-worker.php:529
 msgid "Manuell als zugestellt markiert."
 msgstr "Marqué manuellement comme livré."
 
-#: inc/engine-worker.php:541
+#: inc/engine-worker.php:571
 msgid "Unbekannte Aktion."
 msgstr "Action inconnue."
 
-#: inc/engine-worker.php:604
+#: inc/engine-worker.php:634
 msgid "WP-Cron ist abgeschaltet (DISABLE_WP_CRON). Die Warteschlange läuft nur, wenn ein System-Cron wp-cron.php aufruft."
 msgstr "WP-Cron est désactivé (DISABLE_WP_CRON). La file d'attente ne fonctionne que si un cron système appelle wp-cron.php."
 
-#: inc/engine-worker.php:606
+#: inc/engine-worker.php:636
 msgid "Das Cron-Ereignis der Warteschlange ist nicht geplant. Es wird beim nächsten Seitenaufruf neu angelegt."
 msgstr "L'événement cron de la file d'attente n'est pas planifié. Il sera recréé au prochain chargement de page."
 
 #. translators: %s: time since the last run
-#: inc/engine-worker.php:610
+#: inc/engine-worker.php:640
 #, php-format
 msgid "Der Worker lief zuletzt vor %s."
 msgstr "Le worker a tourné pour la dernière fois il y a %s."
 
-#: inc/engine-worker.php:611
+#: inc/engine-worker.php:641
 msgid "Der Worker lief noch nie."
 msgstr "Le worker n'a jamais tourné."
 
-#: inc/engine-worker.php:613
+#: inc/engine-worker.php:643
 msgid "Empfehlung: einen System-Cron einrichten, der jede Minute «wget -q -O - https://ihre-domain.ch/wp-cron.php?doing_wp_cron» oder «wp cron event run --due-now» aufruft, und WP-Cron mit DISABLE_WP_CRON abschalten."
 msgstr "Recommandation : configurer un cron système qui appelle chaque minute « wget -q -O - https://votre-domaine.ch/wp-cron.php?doing_wp_cron » ou « wp cron event run --due-now », et désactiver WP-Cron avec DISABLE_WP_CRON."
 
@@ -2639,7 +2647,7 @@ msgid "Der Anhang «%s» konnte nicht gelesen werden."
 msgstr "La pièce jointe « %s » n'a pas pu être lue."
 
 #: inc/engine.php:301
-#: inc/store.php:1118
+#: inc/store.php:1166
 msgid "Die Nachricht ist für die Warteschlange zu gross."
 msgstr "Le message est trop volumineux pour la file d'attente."
 
@@ -2881,11 +2889,11 @@ msgstr "La réponse du fournisseur ne contient aucun jeton d'accès."
 msgid "Die Nachricht ist zu gross für den Anbieter (Grenze: %s MB). Bitte Anhänge verkleinern oder den Ersatzweg aktivieren."
 msgstr "L'e-mail est trop volumineux pour le fournisseur (limite : %s Mo). Réduisez les pièces jointes ou activez la voie de secours."
 
-#: inc/log-migrate.php:185
+#: inc/log-migrate.php:187
 msgid "MomentumLab SMTP:"
 msgstr "MomentumLab SMTP :"
 
-#: inc/log-migrate.php:186
+#: inc/log-migrate.php:188
 msgid "Das alte Versandprotokoll konnte nicht vollständig übernommen werden. Die alten Einträge bleiben erhalten, die Übernahme wird automatisch wiederholt. Besteht der Fehler weiter, prüfen Sie die Datenbankrechte oder wenden Sie sich an den Support."
 msgstr "L'ancien journal d'envoi n'a pas pu être entièrement repris. Les anciennes entrées sont conservées et la reprise sera relancée automatiquement. Si l'erreur persiste, vérifiez les droits de la base de données ou contactez l'assistance."
 
@@ -3018,91 +3026,95 @@ msgstr "Créé"
 msgid "Abgeschlossen"
 msgstr "Terminé"
 
-#: inc/privacy.php:140
+#: inc/privacy.php:130
+msgid "Nicht alle Protokolleinträge konnten gelöscht werden. Bitte die Löschung wiederholen."
+msgstr "Toutes les entrées du journal n'ont pas pu être supprimées. Veuillez répéter la suppression."
+
+#: inc/privacy.php:143
 msgid "E-Mail-Versand (MomentumLab SMTP)"
 msgstr "Envoi d'e-mails (MomentumLab SMTP)"
 
-#: inc/privacy.php:141
+#: inc/privacy.php:144
 msgid "Vorschlag für Ihre Datenschutzerklärung. Passen Sie den Text an Ihre Verhältnisse an."
 msgstr "Proposition pour votre déclaration de confidentialité. Adaptez le texte à votre situation."
 
-#: inc/privacy.php:142
+#: inc/privacy.php:145
 msgid "Unsere Website versendet E-Mails (zum Beispiel Bestätigungen, Passwort-Zurücksetzung und Benachrichtigungen) über den von uns gewählten Mailserver oder E-Mail-Dienst. Dabei werden die Empfängeradresse und die Nachricht an diesen Dienst übermittelt."
 msgstr "Notre site envoie des e-mails (par exemple des confirmations, des réinitialisations de mot de passe et des notifications) via le serveur de messagerie ou le service d'e-mails que nous avons choisi. Ce faisant, l'adresse du destinataire et le contenu sont transmis à ce service."
 
 #. translators: %d: number of days
-#: inc/privacy.php:145
+#: inc/privacy.php:148
 #, php-format
 msgid "Im Versandprotokoll speichern wir je Nachricht die Empfängeradresse, den Betreff, den Versandstatus, Zeitpunkte und gegebenenfalls eine Fehlermeldung. Den Nachrichteninhalt und Anhänge speichern wir standardmässig nicht. Die Protokolleinträge werden nach %d Tagen automatisch gelöscht."
 msgstr "Dans le journal d'envoi, nous enregistrons pour chaque e-mail l'adresse du destinataire, l'objet, le statut d'envoi, les dates et, le cas échéant, un message d'erreur. Nous n'enregistrons pas le contenu des e-mails ni les pièces jointes par défaut. Les entrées du journal sont supprimées automatiquement après %d jours."
 
-#: inc/privacy.php:148
+#: inc/privacy.php:151
 msgid "Nur wenn Nachrichten im Hintergrund versendet oder wiederholt werden, liegt die fertige Nachricht samt Anhängen bis zur Annahme durch den Dienst verschlüsselt in der Datenbank und wird danach gelöscht. Auskunft und Löschung erfolgen über die Werkzeuge von WordPress für den Export und das Löschen personenbezogener Daten."
 msgstr "Ce n'est que lorsque des e-mails sont envoyés en arrière-plan ou renvoyés que l'e-mail prêt à être envoyé, pièces jointes comprises, reste chiffré dans la base de données jusqu'à son acceptation par le service, puis il est supprimé. Les demandes d'accès et de suppression se font via les outils de WordPress pour l'export et la suppression des données personnelles."
 
-#: inc/readiness.php:164
+#: inc/readiness.php:185
 msgid "Der Ersatzweg"
 msgstr "La voie de secours"
 
-#: inc/readiness.php:164
+#: inc/readiness.php:185
 msgid "Der Hauptweg"
 msgstr "La voie principale"
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:167
+#: inc/readiness.php:188
 msgid "Nicht eingetragen"
 msgstr "Non renseignée"
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:167
+#: inc/readiness.php:188
 #, php-format
 msgid "%s ist noch nicht vollständig eingetragen."
 msgstr "%s n'est pas encore complètement renseignée."
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:171
+#: inc/readiness.php:192
 #, php-format
 msgid "Seit der letzten Prüfung hat sich etwas geändert (Zugangsdaten, Absender oder Domain). %s muss erneut geprüft und getestet werden."
 msgstr "Depuis la dernière vérification, quelque chose a changé (identifiants, expéditeur ou domaine). %s doit être de nouveau vérifiée et testée."
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:175
+#: inc/readiness.php:196
 msgid "Getestet"
 msgstr "Testée"
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:175
+#: inc/readiness.php:196
 #, php-format
 msgid "%s hat eine Testmail erfolgreich angenommen."
 msgstr "%s a accepté un e-mail de test avec succès."
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:179
+#: inc/readiness.php:200
 msgid "Geprüft, nicht getestet"
 msgstr "Vérifiée, non testée"
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:179
+#: inc/readiness.php:200
 #, php-format
 msgid "%s ist erreichbar, aber es wurde noch keine Testmail erfolgreich angenommen."
 msgstr "%s est joignable, mais aucun e-mail de test n'a encore été accepté avec succès."
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:182
+#: inc/readiness.php:203
 msgid "Eingetragen, nicht geprüft"
 msgstr "Renseignée, non vérifiée"
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:182
+#: inc/readiness.php:203
 #, php-format
 msgid "%s ist eingetragen, aber noch nicht geprüft. Eingetragen heisst nicht, dass er funktioniert."
 msgstr "%s est renseignée, mais pas encore vérifiée. « Renseignée » ne signifie pas qu'elle fonctionne."
 
-#: inc/readiness.php:214
+#: inc/readiness.php:235
 msgid "Ist der Ersatzweg tatsächlich getestet?"
 msgstr "La voie de secours est-elle vraiment testée ?"
 
-#: inc/readiness.php:220
+#: inc/readiness.php:241
 msgid "Der Ersatzweg ist getestet, aber noch nicht eingeschaltet. Fällt der Hauptweg aus, springt er nicht ein."
 msgstr "La voie de secours est testée, mais pas encore activée. Si la voie principale tombe en panne, elle ne prendra pas le relais."
 
@@ -3302,19 +3314,19 @@ msgstr "L'envoi est perturbé"
 msgid "Hauptweg gestört, Ersatzweg stellt zu"
 msgstr "Voie principale perturbée, la voie de secours délivre"
 
-#: inc/store.php:676
+#: inc/store.php:724
 msgid "Der Worker wurde wiederholt vor dem Senden unterbrochen, die Nachricht wird nicht weiter versucht."
 msgstr "Le worker a été interrompu à plusieurs reprises avant l'envoi ; l'e-mail ne sera plus réessayé."
 
-#: inc/store.php:692
+#: inc/store.php:740
 msgid "Der Versand wurde unterbrochen, ob der Anbieter die Nachricht angenommen hat, ist unklar."
 msgstr "L'envoi a été interrompu ; on ne sait pas si le fournisseur a accepté l'e-mail."
 
-#: inc/store.php:1111
+#: inc/store.php:1159
 msgid "Die Nachricht konnte nicht gespeichert werden."
 msgstr "L'e-mail n'a pas pu être enregistré."
 
-#: inc/store.php:1172
+#: inc/store.php:1220
 msgid "Die gespeicherte Nachricht ist nicht mehr lesbar (Schlüssel geändert)."
 msgstr "L'e-mail enregistré n'est plus lisible (clé modifiée)."
 

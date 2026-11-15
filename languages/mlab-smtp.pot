@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-15T10:12:43+00:00\n"
+"POT-Creation-Date: 2026-11-15T10:37:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mlab-smtp\n"
@@ -555,7 +555,7 @@ msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
 #: inc/admin/fallback-flow.php:300
-#: inc/readiness.php:171
+#: inc/readiness.php:192
 msgid "Erneute Prüfung nötig"
 msgstr ""
 
@@ -655,23 +655,27 @@ msgstr ""
 msgid "Das Protokoll wurde geleert."
 msgstr ""
 
-#: inc/admin/handlers.php:328
+#: inc/admin/handlers.php:304
+msgid "Das Protokoll konnte nicht vollständig geleert werden. Bitte versuchen Sie es noch einmal."
+msgstr ""
+
+#: inc/admin/handlers.php:331
 msgid "Diese Aktion ist nicht gültig."
 msgstr ""
 
-#: inc/admin/handlers.php:335
+#: inc/admin/handlers.php:338
 #: inc/admin/queue-view.php:378
 msgid "Die Aktion wurde ausgeführt."
 msgstr ""
 
 #. translators: 1: re-encrypted count, 2: unreadable count
-#: inc/admin/handlers.php:348
+#: inc/admin/handlers.php:351
 #, php-format
 msgid "%1$d Zugangsdaten neu verschlüsselt. %2$d sind nicht lesbar und blieben unverändert. Bitte geben Sie diese neu ein."
 msgstr ""
 
 #. translators: %d: count
-#: inc/admin/handlers.php:351
+#: inc/admin/handlers.php:354
 #, php-format
 msgid "%d Zugangsdaten mit dem aktuellen Schlüssel neu verschlüsselt."
 msgstr ""
@@ -2428,7 +2432,7 @@ msgid "Diese Nachricht bestätigt, dass der E-Mail-Versand funktioniert."
 msgstr ""
 
 #: inc/check.php:134
-#: inc/engine-send.php:255
+#: inc/engine-send.php:256
 msgid "Unbekannter Fehler."
 msgstr ""
 
@@ -2536,19 +2540,19 @@ msgid "Anderer Anbieter"
 msgstr ""
 
 #. translators: %s: error of the main route
-#: inc/engine-send.php:346
+#: inc/engine-send.php:347
 #, php-format
 msgid "Hauptweg unklar (fallback_after_unclear): %s"
 msgstr ""
 
 #. translators: 1: error of the main route, 2: error of the fallback route
-#: inc/engine-send.php:352
+#: inc/engine-send.php:353
 #, php-format
 msgid "Hauptweg: %1$s | Ersatzweg: %2$s"
 msgstr ""
 
 #. translators: %s: error of the fallback route
-#: inc/engine-send.php:355
+#: inc/engine-send.php:356
 #, php-format
 msgid "Ersatzweg: %s"
 msgstr ""
@@ -2577,58 +2581,62 @@ msgstr ""
 msgid "Der Weg mit dem unklaren Ergebnis ist nicht mehr verfügbar, bitte manuell prüfen."
 msgstr ""
 
-#: inc/engine-worker.php:179
+#: inc/engine-worker.php:176
+msgid "Die Verbindung wurde seit dem unklaren Versuch geändert, bitte manuell prüfen."
+msgstr ""
+
+#: inc/engine-worker.php:184
 msgid "Der Anbieter hat um eine Pause gebeten (Retry-After)."
 msgstr ""
 
-#: inc/engine-worker.php:274
+#: inc/engine-worker.php:279
 msgid "Ein früherer Versuch war unklar, bitte manuell prüfen."
 msgstr ""
 
-#: inc/engine-worker.php:283
+#: inc/engine-worker.php:288
 msgid "Die Höchstzahl der Versuche ist erreicht."
 msgstr ""
 
-#: inc/engine-worker.php:438
-#: inc/engine-worker.php:502
+#: inc/engine-worker.php:468
+#: inc/engine-worker.php:532
 msgid "Die Nachricht hat einen anderen Status, die Aktion ist nicht mehr möglich."
 msgstr ""
 
-#: inc/engine-worker.php:442
+#: inc/engine-worker.php:472
 msgid "Der Inhalt der Nachricht wird nicht mehr aufbewahrt, sie kann nicht erneut gesendet werden."
 msgstr ""
 
-#: inc/engine-worker.php:465
+#: inc/engine-worker.php:495
 msgid "Die Nachricht wurde in der Zwischenzeit geändert."
 msgstr ""
 
-#: inc/engine-worker.php:499
+#: inc/engine-worker.php:529
 msgid "Manuell als zugestellt markiert."
 msgstr ""
 
-#: inc/engine-worker.php:541
+#: inc/engine-worker.php:571
 msgid "Unbekannte Aktion."
 msgstr ""
 
-#: inc/engine-worker.php:604
+#: inc/engine-worker.php:634
 msgid "WP-Cron ist abgeschaltet (DISABLE_WP_CRON). Die Warteschlange läuft nur, wenn ein System-Cron wp-cron.php aufruft."
 msgstr ""
 
-#: inc/engine-worker.php:606
+#: inc/engine-worker.php:636
 msgid "Das Cron-Ereignis der Warteschlange ist nicht geplant. Es wird beim nächsten Seitenaufruf neu angelegt."
 msgstr ""
 
 #. translators: %s: time since the last run
-#: inc/engine-worker.php:610
+#: inc/engine-worker.php:640
 #, php-format
 msgid "Der Worker lief zuletzt vor %s."
 msgstr ""
 
-#: inc/engine-worker.php:611
+#: inc/engine-worker.php:641
 msgid "Der Worker lief noch nie."
 msgstr ""
 
-#: inc/engine-worker.php:613
+#: inc/engine-worker.php:643
 msgid "Empfehlung: einen System-Cron einrichten, der jede Minute «wget -q -O - https://ihre-domain.ch/wp-cron.php?doing_wp_cron» oder «wp cron event run --due-now» aufruft, und WP-Cron mit DISABLE_WP_CRON abschalten."
 msgstr ""
 
@@ -2640,7 +2648,7 @@ msgid "Der Anhang «%s» konnte nicht gelesen werden."
 msgstr ""
 
 #: inc/engine.php:301
-#: inc/store.php:1118
+#: inc/store.php:1166
 msgid "Die Nachricht ist für die Warteschlange zu gross."
 msgstr ""
 
@@ -2882,11 +2890,11 @@ msgstr ""
 msgid "Die Nachricht ist zu gross für den Anbieter (Grenze: %s MB). Bitte Anhänge verkleinern oder den Ersatzweg aktivieren."
 msgstr ""
 
-#: inc/log-migrate.php:185
+#: inc/log-migrate.php:187
 msgid "MomentumLab SMTP:"
 msgstr ""
 
-#: inc/log-migrate.php:186
+#: inc/log-migrate.php:188
 msgid "Das alte Versandprotokoll konnte nicht vollständig übernommen werden. Die alten Einträge bleiben erhalten, die Übernahme wird automatisch wiederholt. Besteht der Fehler weiter, prüfen Sie die Datenbankrechte oder wenden Sie sich an den Support."
 msgstr ""
 
@@ -3019,91 +3027,95 @@ msgstr ""
 msgid "Abgeschlossen"
 msgstr ""
 
-#: inc/privacy.php:140
+#: inc/privacy.php:130
+msgid "Nicht alle Protokolleinträge konnten gelöscht werden. Bitte die Löschung wiederholen."
+msgstr ""
+
+#: inc/privacy.php:143
 msgid "E-Mail-Versand (MomentumLab SMTP)"
 msgstr ""
 
-#: inc/privacy.php:141
+#: inc/privacy.php:144
 msgid "Vorschlag für Ihre Datenschutzerklärung. Passen Sie den Text an Ihre Verhältnisse an."
 msgstr ""
 
-#: inc/privacy.php:142
+#: inc/privacy.php:145
 msgid "Unsere Website versendet E-Mails (zum Beispiel Bestätigungen, Passwort-Zurücksetzung und Benachrichtigungen) über den von uns gewählten Mailserver oder E-Mail-Dienst. Dabei werden die Empfängeradresse und die Nachricht an diesen Dienst übermittelt."
 msgstr ""
 
 #. translators: %d: number of days
-#: inc/privacy.php:145
+#: inc/privacy.php:148
 #, php-format
 msgid "Im Versandprotokoll speichern wir je Nachricht die Empfängeradresse, den Betreff, den Versandstatus, Zeitpunkte und gegebenenfalls eine Fehlermeldung. Den Nachrichteninhalt und Anhänge speichern wir standardmässig nicht. Die Protokolleinträge werden nach %d Tagen automatisch gelöscht."
 msgstr ""
 
-#: inc/privacy.php:148
+#: inc/privacy.php:151
 msgid "Nur wenn Nachrichten im Hintergrund versendet oder wiederholt werden, liegt die fertige Nachricht samt Anhängen bis zur Annahme durch den Dienst verschlüsselt in der Datenbank und wird danach gelöscht. Auskunft und Löschung erfolgen über die Werkzeuge von WordPress für den Export und das Löschen personenbezogener Daten."
 msgstr ""
 
-#: inc/readiness.php:164
+#: inc/readiness.php:185
 msgid "Der Ersatzweg"
 msgstr ""
 
-#: inc/readiness.php:164
+#: inc/readiness.php:185
 msgid "Der Hauptweg"
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:167
+#: inc/readiness.php:188
 msgid "Nicht eingetragen"
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:167
+#: inc/readiness.php:188
 #, php-format
 msgid "%s ist noch nicht vollständig eingetragen."
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:171
+#: inc/readiness.php:192
 #, php-format
 msgid "Seit der letzten Prüfung hat sich etwas geändert (Zugangsdaten, Absender oder Domain). %s muss erneut geprüft und getestet werden."
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:175
+#: inc/readiness.php:196
 msgid "Getestet"
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:175
+#: inc/readiness.php:196
 #, php-format
 msgid "%s hat eine Testmail erfolgreich angenommen."
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:179
+#: inc/readiness.php:200
 msgid "Geprüft, nicht getestet"
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:179
+#: inc/readiness.php:200
 #, php-format
 msgid "%s ist erreichbar, aber es wurde noch keine Testmail erfolgreich angenommen."
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:182
+#: inc/readiness.php:203
 msgid "Eingetragen, nicht geprüft"
 msgstr ""
 
 #. translators: %s: Der Ersatzweg or Der Hauptweg
-#: inc/readiness.php:182
+#: inc/readiness.php:203
 #, php-format
 msgid "%s ist eingetragen, aber noch nicht geprüft. Eingetragen heisst nicht, dass er funktioniert."
 msgstr ""
 
-#: inc/readiness.php:214
+#: inc/readiness.php:235
 msgid "Ist der Ersatzweg tatsächlich getestet?"
 msgstr ""
 
-#: inc/readiness.php:220
+#: inc/readiness.php:241
 msgid "Der Ersatzweg ist getestet, aber noch nicht eingeschaltet. Fällt der Hauptweg aus, springt er nicht ein."
 msgstr ""
 
@@ -3303,19 +3315,19 @@ msgstr ""
 msgid "Hauptweg gestört, Ersatzweg stellt zu"
 msgstr ""
 
-#: inc/store.php:676
+#: inc/store.php:724
 msgid "Der Worker wurde wiederholt vor dem Senden unterbrochen, die Nachricht wird nicht weiter versucht."
 msgstr ""
 
-#: inc/store.php:692
+#: inc/store.php:740
 msgid "Der Versand wurde unterbrochen, ob der Anbieter die Nachricht angenommen hat, ist unklar."
 msgstr ""
 
-#: inc/store.php:1111
+#: inc/store.php:1159
 msgid "Die Nachricht konnte nicht gespeichert werden."
 msgstr ""
 
-#: inc/store.php:1172
+#: inc/store.php:1220
 msgid "Die gespeicherte Nachricht ist nicht mehr lesbar (Schlüssel geändert)."
 msgstr ""
 

@@ -7,12 +7,17 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 8.0 is the declared minimum (Requires PHP in the plugin header), 8.3 the version used for development.
+        php: ['8.0', '8.3']
     steps:
       - uses: actions/checkout@v4
 
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: ${{ matrix.php }}
           extensions: sodium, pdo_sqlite, mysqli, mbstring
           tools: composer:v2
 
@@ -23,6 +28,7 @@ jobs:
         run: bash bin/lint.sh
 
       - name: PHPCS
+        if: matrix.php == '8.3'
         run: bash bin/phpcs.sh
 
       - name: Testumgebung (WordPress + SQLite)

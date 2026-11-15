@@ -3,8 +3,10 @@
  * Übernahme des alten Protokolls (Option `mlab_smtp_log`) in die Tabellen.
  *
  * Batches von 100, wiederaufnehmbar über `legacy_key` (UNIQUE), mit atomarer Sperre (add_option) samt Ablaufzeit.
- * Zustand in `mlab_smtp_migration`. Die alte Option wird nie gelöscht und nach der Übernahme nicht mehr geschrieben,
- * sie bleibt eine Release lang für eine Rückstufung erhalten (uninstall.php löscht sie).
+ * Zustand in `mlab_smtp_migration`. Die alte Option bleibt eine Release lang als Kopie für eine Rückstufung erhalten
+ * (uninstall.php löscht sie). Sie wird nur noch verkleinert, nie ergänzt: Löschung einer Person, Aufbewahrungsfrist und
+ * «Protokoll leeren» gelten auch für sie und laufen unter derselben Sperre wie die Migration, damit ein offener Batch
+ * nichts zurückbringt. Einträge ausserhalb der Aufbewahrung werden nicht übernommen.
  *
  * @package mlab-smtp
  */
@@ -298,4 +300,3 @@ function mlab_smtp_legacy_log_clear(): bool {
 	$result = mlab_smtp_legacy_log_locked( static fn(): array => mlab_smtp_legacy_log_rewrite( '__return_false' ) );
 	return null !== $result && $result['ok'];
 }
-
