@@ -39,7 +39,7 @@ function mlab_smtp_engine_after_mail(): void {
 	if ( $final['id'] > 0 && function_exists( 'mlab_smtp_store_get' ) ) {
 		$row = mlab_smtp_store_get( $final['id'] );
 		if ( $row && $row['status'] !== $final['status'] ) {
-			mlab_smtp_store_set_status( $final['id'], $final['status'], $final['fields'] );
+			mlab_smtp_store_set_status( $final['id'], $final['status'], $final['fields'], 0, true );
 		}
 	}
 	mlab_smtp_engine_final( array() );
@@ -467,7 +467,7 @@ function mlab_smtp_engine_row_fields( array $o ): array {
  */
 function mlab_smtp_engine_set_status( int $id, string $status, array $fields, string $source ): bool {
 	$old = mlab_smtp_store_get( $id );
-	$ok  = mlab_smtp_store_set_status( $id, $status, $fields );
+	$ok  = mlab_smtp_store_set_status( $id, $status, $fields, 0, 'manual' !== $source );
 	if ( $ok ) {
 		mlab_smtp_engine_changed( $id, $status, (string) ( $old['status'] ?? '' ), $source );
 		if ( ! empty( $fields['provider_msg_id'] ) && function_exists( 'mlab_smtp_webhook_rematch' ) ) {

@@ -396,22 +396,68 @@ function mlab_smtp_store_status_fields( string $status, array $fields, int $now 
 
 /**
  * Sets the status of a message unconditionally (for the request that owns the row, e.g. synchronous sending).
+ * With $keep_events a status that only a provider event sets (delivered, bounced, complained) is never replaced by a lower rank;
+ * the other fields (payload clearing, lock release) are still written. Pending events are applied afterwards.
  *
- * @param int    $id     Message id.
- * @param string $status Status from mlab_smtp_db_statuses().
- * @param array  $fields provider_msg_id, error_class, last_error, via, route, provider, fallback, next_attempt_at.
- * @param int    $now    Time (default now).
+ * @param int    $id          Message id.
+ * @param string $status      Status from mlab_smtp_db_statuses().
+ * @param array  $fields      provider_msg_id, error_class, last_error, via, route, provider, fallback, next_attempt_at.
+ * @param int    $now         Time (default now).
+ * @param bool   $keep_events Never downgrade an event status.
  */
-function mlab_smtp_store_set_status( int $id, string $status, array $fields = array(), int $now = 0 ): bool {
+function mlab_smtp_store_set_status( int $id, string $status, array $fields = array(), int $now = 0, bool $keep_events = false ): bool {
 	$now = $now > 0 ? $now : mlab_smtp_store_now();
 	if ( ! in_array( $status, mlab_smtp_db_statuses(), true ) ) {
 		return false;
 	}
-	return (bool) mlab_smtp_store_run(
-		static function () use ( $id, $status, $fields, $now ) {
-			return mlab_smtp_store_cas( $id, mlab_smtp_store_status_fields( $status, $fields, $now ), '', $now );
+	$ok = (bool) mlab_smtp_store_run(
+		static function () use ( $id, $status, $fields, $now, $keep_events ) {
+			global $wpdb;
+			$set   = mlab_smtp_store_status_fields( $status, $fields, $now );
+			$where = '';
+			if ( $keep_events ) {
+				$current = (string) $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM ' . mlab_smtp_table( 'messages' ) . ' WHERE id = %d', $id ) );
+				if ( in_array( $current, array( 'delivered', 'bounced', 'complained' ), true ) && (int) mlab_smtp_store_rank( $current ) > (int) mlab_smtp_store_rank( $status ) ) {
+					unset( $set['status'], $set['completed_at'] );
+					$where = $wpdb->prepare( 'AND status = %s', $current );
+				}
+			}
+			return mlab_smtp_store_cas( $id, $set, $where, $now );
 		}
 	);
+	if ( $ok ) {
+		mlab_smtp_store_apply_pending_events( $id );
+	}
+	return $ok;
+}
+
+/**
+ * Applies the strongest stored provider event to a message that just left «processing». Events that arrived while the
+ * worker or the synchronous request owned the row were stored but did not change the status.
+ *
+ * @param int $id Message id.
+ * @return bool True when the status changed.
+ */
+function mlab_smtp_store_apply_pending_events( int $id ): bool {
+	if ( ! function_exists( 'mlab_smtp_webhook_types' ) ) {
+		return false;
+	}
+	$types = array_filter( mlab_smtp_webhook_types() );
+	$rows  = (array) mlab_smtp_store_run(
+		static function () use ( $id ) {
+			global $wpdb;
+			return $wpdb->get_col( $wpdb->prepare( 'SELECT DISTINCT type FROM ' . mlab_smtp_table( 'events' ) . ' WHERE message_id = %d', $id ) );
+		},
+		array()
+	);
+	$best = '';
+	foreach ( $rows as $type ) {
+		$status = $types[ $type ] ?? '';
+		if ( '' !== $status && (int) mlab_smtp_store_rank( $status ) > (int) mlab_smtp_store_rank( $best ) ) {
+			$best = $status;
+		}
+	}
+	return '' !== $best && mlab_smtp_store_apply_event_status( $id, $best );
 }
 
 /**
@@ -427,13 +473,14 @@ function mlab_smtp_store_apply_event_status( int $id, string $status, int $now =
 	if ( null === $new || 'processing' === $status ) {
 		return false;
 	}
+	// The event is stored by the caller; while the row is processing it is applied after the completion (mlab_smtp_store_apply_pending_events).
 	return (bool) mlab_smtp_store_run(
 		static function () use ( $id, $status, $new, $now ) {
 			global $wpdb;
 			for ( $i = 0; $i < 3; $i++ ) {
 				$current = (string) $wpdb->get_var( $wpdb->prepare( 'SELECT status FROM ' . mlab_smtp_table( 'messages' ) . ' WHERE id = %d', $id ) );
 				$rank    = mlab_smtp_store_rank( $current );
-				if ( null === $rank || $rank >= $new ) {
+				if ( null === $rank || 'processing' === $current || $rank >= $new ) {
 					return false;
 				}
 				$set = array(
@@ -511,13 +558,17 @@ function mlab_smtp_store_complete( int $id, string $token, string $status, array
 	if ( '' === $token || ! in_array( $status, mlab_smtp_db_statuses(), true ) ) {
 		return false;
 	}
-	return (bool) mlab_smtp_store_run(
+	$ok = (bool) mlab_smtp_store_run(
 		static function () use ( $id, $token, $status, $fields, $now ) {
 			global $wpdb;
 			$where = $wpdb->prepare( "AND status = 'processing' AND lock_token = %s", $token );
 			return mlab_smtp_store_cas( $id, mlab_smtp_store_status_fields( $status, $fields, $now ), $where, $now );
 		}
 	);
+	if ( $ok && in_array( $status, mlab_smtp_store_final_statuses(), true ) ) {
+		mlab_smtp_store_apply_pending_events( $id );
+	}
+	return $ok;
 }
 
 /**
