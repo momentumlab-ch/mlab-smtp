@@ -3,6 +3,8 @@
  * Werkzeug für die Übersetzungen (ohne gettext-Programme): sync und check.
  *
  *   php bin/i18n.php sync   übernimmt alle Texte der POT in en_US, fr_FR und it_IT (vorhandene Übersetzungen bleiben)
+ *   php bin/i18n.php dump A B   gibt die Texte A bis B nummeriert aus (für Übersetzer)
+ *   php bin/i18n.php apply L F  spielt Übersetzungen aus der JSON-Datei F in die Sprache L ein
  *   php bin/i18n.php check  prüft die .po-Dateien: vollständig, keine Fuzzy-Einträge, Platzhalter, HTML, Plural, .mo
  *
  * Quelltexte sind Deutsch. Exit 1 bei Fehlern.
@@ -63,6 +65,66 @@ if ( 'sync' === $cmd ) {
 		printf( "%s: %d Texte, %d übernommen, %d offen\n", basename( $file ), count( $new ), $kept, count( $new ) - $kept );
 	}
 	exit( 0 );
+}
+
+if ( 'dump' === $cmd ) {
+	// php bin/i18n.php dump <von> <bis>: Texte der POT als nummerierte Liste (für Übersetzer).
+	$from = max( 1, (int) ( $argv[2] ?? 1 ) );
+	$to   = (int) ( $argv[3] ?? PHP_INT_MAX );
+	$pot  = Translations::fromPoFile( "$root/mlab-smtp.pot" );
+	$n    = 0;
+	foreach ( $pot as $entry ) {
+		++$n;
+		if ( $n < $from || $n > $to ) {
+			continue;
+		}
+		echo '#' . $n . ( '' !== $entry->getContext() ? ' [' . $entry->getContext() . ']' : '' ) . "\n" . json_encode( $entry->getOriginal(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . "\n";
+		if ( $entry->hasPlural() ) {
+			echo '  PLURAL: ' . json_encode( $entry->getPlural(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . "\n";
+		}
+		foreach ( $entry->getExtractedComments() as $c ) {
+			echo '  HINWEIS: ' . $c . "\n";
+		}
+	}
+	fwrite( STDERR, 'Gesamt: ' . count( $pot ) . " Texte\n" );
+	exit( 0 );
+}
+
+if ( 'apply' === $cmd ) {
+	// php bin/i18n.php apply <locale> <datei.json>: [{"id":"Originaltext","ctx":"","tr":"...","pl":["Pluralform 2"]}]
+	$locale = $argv[2] ?? '';
+	$json   = $argv[3] ?? '';
+	if ( ! isset( LOCALES[ $locale ] ) || ! is_file( $json ) ) {
+		fwrite( STDERR, "Aufruf: php bin/i18n.php apply <en_US|fr_FR|it_IT> <datei.json>\n" );
+		exit( 2 );
+	}
+	$file = "$root/mlab-smtp-$locale.po";
+	if ( ! is_file( $file ) ) {
+		fwrite( STDERR, "$file fehlt: zuerst bash bin/i18n-sync.sh\n" );
+		exit( 2 );
+	}
+	$po    = Translations::fromPoFile( $file );
+	$items = json_decode( (string) file_get_contents( $json ), true );
+	if ( ! is_array( $items ) ) {
+		fwrite( STDERR, "Ungültiges JSON in $json\n" );
+		exit( 2 );
+	}
+	$done = 0;
+	$miss = 0;
+	foreach ( $items as $item ) {
+		$entry = $po->find( (string) ( $item['ctx'] ?? '' ), (string) ( $item['id'] ?? '' ) );
+		if ( ! $entry ) {
+			++$miss;
+			fwrite( STDERR, 'Unbekannter Text: ' . mb_substr( (string) ( $item['id'] ?? '' ), 0, 60 ) . "\n" );
+			continue;
+		}
+		$entry->setTranslation( (string) ( $item['tr'] ?? '' ) );
+		$entry->setPluralTranslations( array_map( 'strval', (array) ( $item['pl'] ?? array() ) ) );
+		++$done;
+	}
+	$po->toPoFile( $file );
+	printf( "%s: %d übernommen, %d unbekannt\n", basename( $file ), $done, $miss );
+	exit( $miss ? 1 : 0 );
 }
 
 // ---- check
