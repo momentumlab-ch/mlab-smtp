@@ -48,8 +48,40 @@ function mlab_smtp_render_set_fallback(): void {
 	mlab_smtp_ui_row_open( __( 'Ersatzweg', 'mlab-smtp' ), __( 'Springt ein, wenn die Hauptverbindung ausfällt oder eine Mail ablehnt.', 'mlab-smtp' ) );
 	echo '<div data-mlab-fields data-group="fallback">';
 	mlab_smtp_ui_switch( 'fallback_enabled', __( 'Ersatzweg verwenden', 'mlab-smtp' ), 'mlab-fallback' );
-	echo '<div class="mlab-fields" id="mlab-fallback">';
-	echo '<p class="mlab-muted">' . esc_html__( 'Der Ersatzweg ist immer ein eigener Mailserver (SMTP).', 'mlab-smtp' ) . '</p>';
+	echo '<div class="mlab-fields mlab-fb" id="mlab-fallback">';
+	mlab_smtp_ui_segmented( 'fb_provider', __( 'Ersatzweg über', 'mlab-smtp' ), mlab_smtp_fallback_options() );
+	echo '<div data-fb="smtp">';
+	mlab_smtp_render_fallback_smtp();
+	echo '</div><div data-fb="resend">';
+	mlab_smtp_render_fallback_resend();
+	echo '</div>';
+	echo '<div class="mlab-row"><button type="submit" name="do" value="check" class="button" data-mlab-check data-route="fallback" data-mlab-js-only hidden>' . esc_html__( 'Verbindung prüfen', 'mlab-smtp' ) . '</button></div>';
+	mlab_smtp_ui_result_area();
+	echo '</div></div>';
+	mlab_smtp_ui_row_close();
+}
+
+/**
+ * Providers that can serve as fallback, by name. Resend is left out when it is already the main route.
+ *
+ * @return array<string, string> Provider key => name.
+ */
+function mlab_smtp_fallback_options(): array {
+	$options = array();
+	// The own mail server is the default, so it comes first.
+	$ids = array_merge( array( 'smtp' ), array_diff( mlab_smtp_choices()['fb_provider'], array( 'smtp' ) ) );
+	foreach ( $ids as $id ) {
+		if ( mlab_smtp_get( 'provider' ) !== $id || 'smtp' === $id ) {
+			$options[ $id ] = mlab_smtp_ui_providers()[ $id ]['name'];
+		}
+	}
+	return $options;
+}
+
+/**
+ * Fields of the own mail server as fallback.
+ */
+function mlab_smtp_render_fallback_smtp(): void {
 	mlab_smtp_ui_field( 'fb_smtp_host', __( 'Server', 'mlab-smtp' ), array( 'placeholder' => 'mail.ihre-domain.ch' ) );
 	mlab_smtp_ui_field(
 		'fb_smtp_port',
@@ -70,10 +102,21 @@ function mlab_smtp_render_set_fallback(): void {
 	mlab_smtp_ui_switch( 'fb_smtp_auth', __( 'Der Server verlangt Benutzername und Passwort', 'mlab-smtp' ) );
 	mlab_smtp_ui_field( 'fb_smtp_user', __( 'Benutzername', 'mlab-smtp' ) );
 	mlab_smtp_ui_field( 'fb_smtp_pass', __( 'Passwort', 'mlab-smtp' ), array( 'type' => 'password' ) );
-	echo '<div class="mlab-row"><button type="submit" name="do" value="check" class="button" data-mlab-check data-route="fallback" data-mlab-js-only hidden>' . esc_html__( 'Verbindung prüfen', 'mlab-smtp' ) . '</button></div>';
-	mlab_smtp_ui_result_area();
-	echo '</div></div>';
-	mlab_smtp_ui_row_close();
+}
+
+/**
+ * Field of Resend as fallback: its own API key.
+ */
+function mlab_smtp_render_fallback_resend(): void {
+	mlab_smtp_ui_field(
+		'fb_resend_api_key',
+		__( 'API-Key von Resend', 'mlab-smtp' ),
+		array(
+			'type'        => 'password',
+			'placeholder' => 're_…',
+			'help'        => __( 'Beginnt mit «re_». Die Domain Ihrer Absender-Adresse muss bei Resend verifiziert sein, und der Ersatzweg sendet immer mit dieser Adresse.', 'mlab-smtp' ),
+		)
+	);
 }
 
 /**

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.0
+
+Ersatzweg über Resend, eigener Menüpunkt und klarere Texte im Assistenten.
+
+- Neu: Der Ersatzweg kann auch Resend sein, nicht nur ein Mailserver. Er hat einen eigenen API-Key, wird in den Einstellungen mit «Verbindung prüfen» getestet und sendet mit der hinterlegten Absender-Adresse (deren Domain muss bei Resend verifiziert sein). Bestehende Einrichtungen bleiben beim Mailserver.
+- Neu: Eigener Menüpunkt «E-Mail-Versand» mit Papierflieger-Symbol in der Hauptnavigation (vorher unter Einstellungen). Alte Links unter Einstellungen leiten weiter.
+- Verbessert: Texte und Schritte im Assistenten sind klarer. Die Schritte heissen wie die Punkte der Übersicht (Anbieter, Verbindung, Absender, Testmail), die Vorbereitung bei Microsoft, Google und Resend zählt nicht mehr eigene «Schritte», und bei jedem Schritt steht, was zu tun ist.
+- Beim Update ändert sich an bestehenden Einrichtungen nichts. Der Ersatzweg bleibt beim Mailserver, bis Resend gewählt wird.
+
 ## 1.3.0
 
 Neu: Versand über Resend, mit geführter Einrichtung und Fehleranzeige.

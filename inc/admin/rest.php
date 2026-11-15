@@ -166,7 +166,7 @@ function mlab_smtp_run_check( string $route ): array {
  */
 function mlab_smtp_check_success_text( string $route ): string {
 	if ( 'fallback' === $route ) {
-		return __( 'Ersatzweg erreichbar. Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' );
+		return mlab_smtp_ui_providers()[ (string) mlab_smtp_get( 'fb_provider' ) ]['fb_success'] ?? '';
 	}
 	$providers = mlab_smtp_ui_providers();
 	$success   = ( $providers[ (string) mlab_smtp_get( 'provider' ) ] ?? $providers['smtp'] )['success'];

@@ -28,7 +28,7 @@ function mlab_smtp_ui_providers(): array {
 				'color'   => '#0f6cbd',
 				'letter'  => 'M',
 				'card'    => array(
-					'text'    => __( 'Postfach bei Microsoft (Outlook, Exchange Online).', 'mlab-smtp' ),
+					'text'    => __( 'Für Firmen mit Microsoft 365 oder Outlook. Kein Passwort auf der Website.', 'mlab-smtp' ),
 					'bullets' => array( __( 'Kein Passwort auf der Website', 'mlab-smtp' ), __( 'Einmalig App in Microsoft anlegen', 'mlab-smtp' ) ),
 				),
 				'connect' => 'mlab_smtp_render_connect_m365',
@@ -40,7 +40,7 @@ function mlab_smtp_ui_providers(): array {
 				'color'   => '#1e8e3e',
 				'letter'  => 'G',
 				'card'    => array(
-					'text'    => __( 'Postfach bei Google (Gmail, Workspace).', 'mlab-smtp' ),
+					'text'    => __( 'Für Firmen mit Google Workspace oder Gmail. Anmeldung mit dem Google-Konto.', 'mlab-smtp' ),
 					'bullets' => array( __( 'Anmelden mit Google-Konto', 'mlab-smtp' ), __( 'Einmalig Zugang in Google Cloud anlegen', 'mlab-smtp' ) ),
 				),
 				'connect' => 'mlab_smtp_render_connect_google',
@@ -55,16 +55,17 @@ function mlab_smtp_ui_providers(): array {
 				),
 			),
 			'resend' => array(
-				'name'    => __( 'Resend', 'mlab-smtp' ),
-				'color'   => '#111111',
-				'letter'  => 'R',
-				'card'    => array(
-					'text'    => __( 'Versanddienst für Website-Mails, ohne eigenes Postfach.', 'mlab-smtp' ),
+				'name'       => __( 'Resend', 'mlab-smtp' ),
+				'color'      => '#111111',
+				'letter'     => 'R',
+				'card'       => array(
+					'text'    => __( 'Versanddienst für Website-Mails, braucht kein Postfach. Nur ein API-Key nötig.', 'mlab-smtp' ),
 					'bullets' => array( __( 'Nur ein API-Key, keine Anmeldung', 'mlab-smtp' ), __( 'Prüft Ihre Domain und zeigt fehlende DNS-Einträge', 'mlab-smtp' ) ),
 				),
-				'connect' => 'mlab_smtp_render_connect_resend',
-				'success' => static fn(): string => mlab_smtp_resend_success_text(),
-				'sender'  => mlab_smtp_ui_sender(
+				'connect'    => 'mlab_smtp_render_connect_resend',
+				'success'    => static fn(): string => mlab_smtp_resend_success_text(),
+				'fb_success' => __( 'Ersatzweg erreichbar. Resend hat den API-Key akzeptiert.', 'mlab-smtp' ),
+				'sender'     => mlab_smtp_ui_sender(
 					array(
 						'help'    => __( 'Die Domain muss bei Resend verifiziert sein. Das Postfach muss nicht existieren, zum Beispiel noreply@ihre-domain.ch.', 'mlab-smtp' ),
 						'suggest' => 'mlab_smtp_resend_suggest_sender',
@@ -73,16 +74,17 @@ function mlab_smtp_ui_providers(): array {
 				),
 			),
 			'smtp'   => array(
-				'name'    => __( 'Eigener Mailserver', 'mlab-smtp' ),
-				'color'   => '#50575e',
-				'letter'  => '@',
-				'card'    => array(
-					'text'    => __( 'Mailserver Ihres Hosters, z. B. Infomaniak, Hostpoint, cyon.', 'mlab-smtp' ),
+				'name'       => __( 'Eigener Mailserver', 'mlab-smtp' ),
+				'color'      => '#50575e',
+				'letter'     => '@',
+				'card'       => array(
+					'text'    => __( 'Für den Mailserver Ihres Hosters, z. B. Infomaniak, Hostpoint, cyon.', 'mlab-smtp' ),
 					'bullets' => array( __( 'Server, Benutzer und Passwort', 'mlab-smtp' ), __( 'Funktioniert mit fast jedem Anbieter', 'mlab-smtp' ) ),
 				),
-				'connect' => 'mlab_smtp_render_connect_smtp',
-				'success' => __( 'Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' ),
-				'sender'  => mlab_smtp_ui_sender( array( 'source' => 'smtp_user' ) ),
+				'connect'    => 'mlab_smtp_render_connect_smtp',
+				'success'    => __( 'Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' ),
+				'fb_success' => __( 'Ersatzweg erreichbar. Die Anmeldung am Server war erfolgreich.', 'mlab-smtp' ),
+				'sender'     => mlab_smtp_ui_sender( array( 'source' => 'smtp_user' ) ),
 			),
 		);
 	}

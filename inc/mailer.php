@@ -62,10 +62,23 @@ function mlab_smtp_tracking(): bool {
 }
 
 /**
- * True when the fallback is switched on and its server is filled in.
+ * True when everything the chosen fallback provider needs is filled in (server for SMTP, API key for Resend).
+ */
+function mlab_smtp_fallback_filled(): bool {
+	$keys = mlab_smtp_provider_def( (string) mlab_smtp_get( 'fb_provider' ) )['fb_required'] ?? array();
+	foreach ( (array) $keys as $key ) {
+		if ( '' === (string) mlab_smtp_get( $key ) ) {
+			return false;
+		}
+	}
+	return (bool) $keys;
+}
+
+/**
+ * True when the fallback is switched on and complete.
  */
 function mlab_smtp_fallback_ready(): bool {
-	return (bool) mlab_smtp_get( 'fallback_enabled' ) && '' !== (string) mlab_smtp_get( 'fb_smtp_host' );
+	return (bool) mlab_smtp_get( 'fallback_enabled' ) && mlab_smtp_fallback_filled();
 }
 
 /**

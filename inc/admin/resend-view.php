@@ -12,9 +12,9 @@ defined( 'ABSPATH' ) || exit;
  * nothing has to be edited in files.
  */
 function mlab_smtp_render_connect_resend(): void {
-	echo '<h2>' . esc_html__( 'Mit Resend verbinden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Resend versendet die Mails Ihrer Website über Ihre eigene, geprüfte Domain. Der Key wird nur hier eingegeben und verschlüsselt gespeichert.', 'mlab-smtp' ) . '</p>';
+	echo '<h2>' . esc_html__( 'Mit Resend verbinden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Resend versendet die Mails Ihrer Website über Ihre eigene, geprüfte Domain. Bereiten Sie die Domain und den Key bei Resend vor und tragen Sie den Key unten ein. Er wird verschlüsselt gespeichert.', 'mlab-smtp' ) . '</p>';
 	mlab_smtp_render_guide(
-		__( 'Anleitung bei Resend (3 Schritte)', 'mlab-smtp' ),
+		__( 'Vorbereitung bei Resend', 'mlab-smtp' ),
 		static function (): void {
 			mlab_smtp_render_guide_item( __( 'Domain hinzufügen', 'mlab-smtp' ), __( 'Resend › Domains › Add Domain. Empfohlen ist eine Subdomain wie updates.ihre-domain.ch: Das schützt den Ruf Ihrer Hauptdomain.', 'mlab-smtp' ) );
 			mlab_smtp_render_guide_item( __( 'DNS-Einträge setzen', 'mlab-smtp' ), __( 'Resend zeigt SPF- und DKIM-Einträge. Tragen Sie diese bei Ihrem Domain-Anbieter ein. Im Schritt «Absender» zeigt Ihnen dieses Plugin, ob alles verifiziert ist.', 'mlab-smtp' ) );

@@ -95,7 +95,32 @@ class Mlab_Smtp_Mailer extends \PHPMailer\PHPMailer\PHPMailer {
 	}
 
 	/**
-	 * Sends the same message through the fallback SMTP server.
+	 * Hands the message to the chosen fallback provider.
+	 *
+	 * @throws \PHPMailer\PHPMailer\Exception When the fallback is not set up or does not deliver.
+	 */
+	private function deliver_fallback(): void {
+		if ( ! mlab_smtp_fallback_ready() ) {
+			throw new \PHPMailer\PHPMailer\Exception( __( 'Der Ersatzweg ist nicht eingerichtet.', 'mlab-smtp' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain text for logs; escaped on output.
+		}
+		$send = mlab_smtp_provider_def( (string) mlab_smtp_get( 'fb_provider' ) )['fb_send'];
+		if ( $send ) {
+			$result = call_user_func( $send, $this );
+			if ( is_wp_error( $result ) ) {
+				throw new \PHPMailer\PHPMailer\Exception( $result->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain text for logs; escaped on output.
+			}
+			return;
+		}
+		$this->smtpClose();
+		mlab_smtp_apply_smtp( $this, 'fb_' );
+		// Rebuild header and body: an API route keeps the Bcc header in the message, SMTP must not.
+		if ( ! $this->preSend() || ! $this->smtpSend( $this->MIMEHeader, $this->MIMEBody ) ) {
+			throw new \PHPMailer\PHPMailer\Exception( $this->ErrorInfo ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain text for logs; escaped on output.
+		}
+	}
+
+	/**
+	 * Sends the same message through the fallback (own mail server or Resend).
 	 *
 	 * @param string $primary_error Error of the primary route, empty when it was skipped.
 	 * @return bool
@@ -104,15 +129,7 @@ class Mlab_Smtp_Mailer extends \PHPMailer\PHPMailer\PHPMailer {
 	private function send_fallback( string $primary_error ): bool {
 		$provider = (string) mlab_smtp_get( 'provider' );
 		try {
-			if ( ! mlab_smtp_fallback_ready() ) {
-				throw new \PHPMailer\PHPMailer\Exception( __( 'Der Ersatzweg ist nicht eingerichtet.', 'mlab-smtp' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain text for logs; escaped on output.
-			}
-			$this->smtpClose();
-			mlab_smtp_apply_smtp( $this, 'fb_' );
-			// Rebuild header and body: an API route keeps the Bcc header in the message, SMTP must not.
-			if ( ! $this->preSend() || ! $this->smtpSend( $this->MIMEHeader, $this->MIMEBody ) ) {
-				throw new \PHPMailer\PHPMailer\Exception( $this->ErrorInfo ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain text for logs; escaped on output.
-			}
+			$this->deliver_fallback();
 		} catch ( \PHPMailer\PHPMailer\Exception $e ) {
 			mlab_smtp_route_result(
 				array(
@@ -130,7 +147,7 @@ class Mlab_Smtp_Mailer extends \PHPMailer\PHPMailer\PHPMailer {
 		}
 		mlab_smtp_route_result(
 			array(
-				'via'           => 'smtp',
+				'via'           => (string) mlab_smtp_get( 'fb_provider' ),
 				'fallback'      => '' !== $primary_error,
 				'primary_error' => $primary_error,
 			)

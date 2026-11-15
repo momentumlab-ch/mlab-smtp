@@ -15,17 +15,32 @@ defined( 'ABSPATH' ) || exit;
  * @return true|WP_Error
  */
 function mlab_smtp_check_connection( string $route = 'primary' ) {
-	$provider = 'fallback' === $route ? 'smtp' : (string) mlab_smtp_get( 'provider' );
-	if ( 'fallback' === $route && '' === (string) mlab_smtp_get( 'fb_smtp_host' ) ) {
-		return new WP_Error( 'mlab_smtp_check', __( 'Beim Ersatzweg ist kein Server eingetragen. Bitte Server, Port und Verschlüsselung ergänzen.', 'mlab-smtp' ) );
+	$provider = (string) mlab_smtp_get( 'fallback' === $route ? 'fb_provider' : 'provider' );
+	if ( 'fallback' === $route && ! mlab_smtp_fallback_filled() ) {
+		return new WP_Error( 'mlab_smtp_check', __( 'Der Ersatzweg ist noch nicht vollständig eingetragen. Bitte Server (Mailserver) oder API-Key (Resend) ergänzen.', 'mlab-smtp' ) );
 	}
 	if ( 'primary' === $route && ! mlab_smtp_has_credentials() ) {
 		return new WP_Error( 'mlab_smtp_check', __( 'Die Verbindung ist noch nicht vollständig eingetragen. Bitte alle Pflichtfelder ausfüllen und speichern.', 'mlab-smtp' ) );
 	}
-	if ( 'fallback' === $route ) {
-		return mlab_smtp_check_smtp( 'fb_' );
-	}
-	return call_user_func( mlab_smtp_provider_def( $provider )['check'] );
+	return call_user_func( mlab_smtp_provider_def( $provider )[ 'fallback' === $route ? 'fb_check' : 'check' ] );
+}
+
+/**
+ * Registry entry «fb_check» of the own mail server: connects and logs in with the fallback data.
+ *
+ * @return true|WP_Error
+ */
+function mlab_smtp_check_fb_smtp() {
+	return mlab_smtp_check_smtp( 'fb_' );
+}
+
+/**
+ * Registry entry «fb_check» of Resend: asks Resend with the key of the fallback.
+ *
+ * @return true|WP_Error
+ */
+function mlab_smtp_check_fb_resend() {
+	return mlab_smtp_with_resend_key( 'fb_resend_api_key', 'mlab_smtp_resend_check' );
 }
 
 /**

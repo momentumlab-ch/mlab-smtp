@@ -19,6 +19,61 @@ const MLAB_SMTP_RESEND_RECIPIENTS = 50;               // Largest "to" list of on
 add_action( 'admin_post_mlab_smtp_resend_recheck', 'mlab_smtp_resend_recheck' );
 
 /**
+ * Setting that holds the API key of the current request: the main key, or the one of the fallback while the
+ * fallback is checked or sends.
+ *
+ * @param string|null $set Setting key, null to only read.
+ */
+function mlab_smtp_resend_key_name( ?string $set = null ): string {
+	static $name = 'resend_api_key';
+	if ( null !== $set ) {
+		$name = $set;
+	}
+	return $name;
+}
+
+/**
+ * Runs a callback with another API key setting and restores the previous one afterwards.
+ *
+ * @param string   $name     Setting key, resend_api_key or fb_resend_api_key.
+ * @param callable $callback Work to do.
+ * @return mixed Result of the callback.
+ */
+function mlab_smtp_with_resend_key( string $name, callable $callback ) {
+	$previous = mlab_smtp_resend_key_name();
+	mlab_smtp_resend_key_name( $name );
+	try {
+		return $callback();
+	} finally {
+		mlab_smtp_resend_key_name( $previous );
+	}
+}
+
+/**
+ * Registry entry «fb_send»: sends through Resend as the fallback. Resend only sends from a verified domain, so the
+ * stored sender address replaces whatever the message came with.
+ *
+ * @param \PHPMailer\PHPMailer\PHPMailer $mailer Prepared message.
+ * @return true|WP_Error
+ */
+function mlab_smtp_send_resend_fallback( $mailer ) {
+	// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Property names are the PHPMailer API.
+	if ( is_email( (string) mlab_smtp_get( 'from_email' ) ) ) {
+		$mailer->From = (string) mlab_smtp_get( 'from_email' );
+		if ( '' !== (string) mlab_smtp_get( 'from_name' ) ) {
+			$mailer->FromName = (string) mlab_smtp_get( 'from_name' );
+		}
+	}
+	// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	return mlab_smtp_with_resend_key(
+		'fb_resend_api_key',
+		static function () use ( $mailer ) {
+			return mlab_smtp_send_resend( $mailer );
+		}
+	);
+}
+
+/**
  * Arguments of a request to the Resend API: authentication, content type and a generic user agent (Resend
  * rejects requests without one).
  *
@@ -54,7 +109,7 @@ function mlab_smtp_resend_request_args( string $method, string $key, array $head
  * @return array|WP_Error Decoded response (may be empty) or error.
  */
 function mlab_smtp_resend_request( string $method, string $path, ?array $body = null, array $headers = array() ) {
-	$key = (string) mlab_smtp_get( 'resend_api_key' );
+	$key = (string) mlab_smtp_get( mlab_smtp_resend_key_name() );
 	if ( '' === $key ) {
 		return new WP_Error( 'mlab_smtp_resend_unlinked', __( 'Es ist noch kein Resend-API-Key eingetragen. Bitte im Assistenten unter «Verbinden» den Key eingeben.', 'mlab-smtp' ) );
 	}
@@ -240,7 +295,7 @@ function mlab_smtp_send_resend( $mailer ) {
  */
 function mlab_smtp_resend_cache_key(): string {
 	static $memo              = array();
-	$secret                   = (string) mlab_smtp_get( 'resend_api_key' );
+	$secret                   = (string) mlab_smtp_get( mlab_smtp_resend_key_name() );
 	return $memo[ $secret ] ??= mlab_smtp_token_key( 'resend', array( $secret ) );
 }
 

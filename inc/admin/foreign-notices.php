@@ -11,7 +11,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-add_action( 'load-settings_page_mlab-smtp', 'mlab_smtp_capture_foreign_notices' );
+add_action( 'load-' . MLAB_SMTP_SCREEN, 'mlab_smtp_capture_foreign_notices' );
 
 /**
  * Starts catching the notices of other plugins. Runs before the admin header prints them.
