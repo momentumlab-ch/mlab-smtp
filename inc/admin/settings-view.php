@@ -46,6 +46,7 @@ function mlab_smtp_render_set_connection(): void {
  */
 function mlab_smtp_render_set_fallback(): void {
 	mlab_smtp_ui_row_open( __( 'Ersatzweg', 'mlab-smtp' ), __( 'Springt ein, wenn die Hauptverbindung ausfällt oder eine Mail ablehnt.', 'mlab-smtp' ) );
+	mlab_smtp_render_fallback_status();
 	echo '<div data-mlab-fields data-group="fallback">';
 	mlab_smtp_ui_switch( 'fallback_enabled', __( 'Ersatzweg verwenden', 'mlab-smtp' ), 'mlab-fallback' );
 	echo '<div class="mlab-fields mlab-fb" id="mlab-fallback">';
@@ -59,6 +60,17 @@ function mlab_smtp_render_set_fallback(): void {
 	mlab_smtp_ui_result_area();
 	echo '</div></div>';
 	mlab_smtp_ui_row_close();
+}
+
+/**
+ * State of the fallback route (four labelled states) and the button into the guided flow.
+ */
+function mlab_smtp_render_fallback_status(): void {
+	$state = mlab_smtp_route_state( 'fallback' );
+	mlab_smtp_ui_hint( $state['level'], $state['label'], $state['text'] );
+	mlab_smtp_render_route_states( $state );
+	$label = $state['eingetragen'] ? __( 'Ersatzweg prüfen und testen', 'mlab-smtp' ) : __( 'Ersatzweg einrichten', 'mlab-smtp' );
+	echo '<p><a class="button' . ( $state['getestet'] && ! $state['veraltet'] ? '' : ' button-primary' ) . '" href="' . esc_url( mlab_smtp_fallback_url( 1 ) ) . '">' . esc_html( $label ) . '</a></p>';
 }
 
 /**

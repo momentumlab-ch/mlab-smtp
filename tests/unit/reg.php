@@ -15,7 +15,8 @@ function esc_html( $s ) { return htmlspecialchars( (string) $s ); } function esc
 function admin_url( $p = '' ) { return 'https://s/wp-admin/' . $p; } function add_query_arg( $a, $u ) { return $u . '?' . http_build_query( $a ); } function plugin_basename() { return 'x'; }
 function get_current_user_id() { return 1; } function get_bloginfo() { return 'Site'; } function wp_specialchars_decode( $s ) { return $s; } function sanitize_text_field( $s ) { return $s; } function wp_unslash( $s ) { return $s; }
 function checked() { return ''; } function wp_timezone() { return new DateTimeZone( 'UTC' ); } function wp_date( $f, $t = null ) { return gmdate( $f, $t ?? time() ); } function wp_nonce_field() {} function wp_nonce_url( $u ) { return $u; }
-foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'mailer', 'health', 'detect', 'check', 'notify' ) as $m ) { require MLAB_SMTP_DIR . "inc/$m.php"; }
+if ( ! function_exists( 'wp_json_encode' ) ) { function wp_json_encode( $d ) { return json_encode( $d ); } }
+foreach ( array( 'providers', 'options', 'crypto', 'security', 'http', 'm365', 'google', 'resend', 'state', 'mailer', 'health', 'detect', 'check', 'readiness', 'notify' ) as $m ) { require MLAB_SMTP_DIR . "inc/$m.php"; }
 require MLAB_SMTP_DIR . 'inc/log.php';
 require MLAB_SMTP_DIR . 'inc/admin/page.php';
 $fail = 0; function ok( $c, $l ) { global $fail; echo ( $c ? 'PASS ' : 'FAIL ' ) . $l . "\n"; if ( ! $c ) { $fail++; } }

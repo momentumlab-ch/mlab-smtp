@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-foreach ( array( 'components', 'handlers', 'rest', 'overview', 'wizard', 'resend-view', 'log-view', 'settings-view', 'foreign-notices' ) as $mlab_smtp_admin_file ) {
+foreach ( array( 'components', 'handlers', 'rest', 'overview', 'wizard', 'resend-view', 'log-view', 'settings-view', 'fallback-flow', 'foreign-notices' ) as $mlab_smtp_admin_file ) {
 	require_once MLAB_SMTP_DIR . 'inc/admin/' . $mlab_smtp_admin_file . '.php';
 }
 unset( $mlab_smtp_admin_file );
@@ -227,10 +227,12 @@ function mlab_smtp_render_page(): void {
 		return;
 	}
 	$view = mlab_smtp_query( 'view', 'overview' );
-	$view = in_array( $view, array( 'overview', 'log', 'settings', 'wizard' ), true ) ? $view : 'overview';
+	$view = in_array( $view, array( 'overview', 'log', 'settings', 'wizard', 'fallback' ), true ) ? $view : 'overview';
 	echo '<div class="wrap mlab-smtp">';
 	if ( 'wizard' === $view ) {
 		mlab_smtp_render_wizard();
+	} elseif ( 'fallback' === $view ) {
+		mlab_smtp_render_fallback_flow();
 	} else {
 		mlab_smtp_render_header( $view );
 		call_user_func(

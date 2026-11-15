@@ -248,11 +248,16 @@ function mlab_smtp_health_notify(): array {
  * @return array
  */
 function mlab_smtp_health_fallback(): array {
-	$title = __( 'Ersatzweg', 'mlab-smtp' );
-	if ( mlab_smtp_fallback_ready() ) {
-		return mlab_smtp_health_row( 'ok', $title, __( 'Fällt der Hauptweg aus, stellt der Ersatzweg die Mails zu.', 'mlab-smtp' ) );
+	$title  = __( 'Ersatzweg', 'mlab-smtp' );
+	$answer = mlab_smtp_fallback_tested_answer();
+	$url    = mlab_smtp_fallback_url( 1 );
+	if ( ! mlab_smtp_route_state( 'fallback' )['eingetragen'] ) {
+		return mlab_smtp_health_row( 'warn', $title, __( 'Es ist kein Ersatzweg eingerichtet. Fällt der Hauptweg aus, gehen Mails verloren. Empfohlen: ein zweiter Mailserver.', 'mlab-smtp' ), __( 'Einrichten', 'mlab-smtp' ), $url );
 	}
-	return mlab_smtp_health_row( 'warn', $title, __( 'Es ist kein Ersatzweg eingerichtet. Fällt der Hauptweg aus, gehen Mails verloren. Empfohlen: ein zweiter Mailserver.', 'mlab-smtp' ), __( 'Einrichten', 'mlab-smtp' ), mlab_smtp_health_settings_url() );
+	if ( $answer['tested'] && $answer['enabled'] ) {
+		return mlab_smtp_health_row( 'ok', $title, __( 'Getestet: Fällt der Hauptweg aus, stellt der Ersatzweg die Mails zu.', 'mlab-smtp' ) );
+	}
+	return mlab_smtp_health_row( 'warn', $title, $answer['label'] . '. ' . $answer['text'], __( 'Prüfen und testen', 'mlab-smtp' ), $url );
 }
 
 /**

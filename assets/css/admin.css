@@ -1569,3 +1569,63 @@
 .mlab-smtp form:has(select[name="fb_smtp_secure"] option[value="none"]:checked) .mlab-insecure[data-for="fb_smtp_secure"] {
 	display: block;
 }
+
+/* ==========================================================================
+   Ersatzweg: geführter Ablauf und Bereitschaft (v1.5.0)
+   ========================================================================== */
+
+.mlab-smtp .mlab-route-states {
+	display: grid;
+	gap: var(--mlab-s-1) var(--mlab-s-3);
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	list-style: none;
+	margin: var(--mlab-s-2) 0;
+	padding: 0;
+}
+
+.mlab-smtp .mlab-route-states li {
+	align-items: center;
+	display: flex;
+	gap: var(--mlab-s-1);
+	margin: 0;
+}
+
+.mlab-smtp .mlab-facts {
+	display: grid;
+	gap: var(--mlab-s-half) var(--mlab-s-2);
+	grid-template-columns: max-content minmax(0, 1fr);
+	margin: var(--mlab-s-2) 0;
+}
+
+.mlab-smtp .mlab-facts dt {
+	color: var(--mlab-muted);
+	font-weight: 600;
+}
+
+.mlab-smtp .mlab-facts dd {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.mlab-smtp .mlab-fbflow .mlab-foot .button:focus-visible,
+.mlab-smtp .mlab-fbflow .mlab-row .button:focus-visible {
+	outline: 2px solid var(--mlab-accent);
+	outline-offset: 2px;
+}
+
+@media (max-width: 782px) {
+	.mlab-smtp .mlab-route-states {
+		grid-template-columns: 1fr;
+	}
+
+	/* Sieben Schritte passen nicht nebeneinander: nur der aktuelle zeigt seinen Namen (steht auch im Schrittzähler). */
+	.mlab-smtp .mlab-fbflow .mlab-stepper li:not(.is-now) .mlab-step-label {
+		border: 0;
+		clip-path: inset(50%);
+		height: 1px;
+		overflow: hidden;
+		position: absolute;
+		white-space: nowrap;
+		width: 1px;
+	}
+}
