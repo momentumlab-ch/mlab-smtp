@@ -17,7 +17,8 @@ defined( 'ABSPATH' ) || exit;
 const MLAB_SMTP_STAGING_OPTION = 'mlab_smtp_staging';
 
 add_filter( 'pre_wp_mail', 'mlab_smtp_staging_pre_wp_mail', 5, 2 );
-add_filter( 'wp_mail', 'mlab_smtp_staging_redirect_mail', 1 );
+add_filter( 'wp_mail', 'mlab_smtp_staging_redirect_mail', PHP_INT_MAX ); // Last word: later filters (BCC plugins) cannot add recipients.
+add_action( 'phpmailer_init', 'mlab_smtp_staging_lock_recipients', PHP_INT_MAX );
 add_action( 'init', 'mlab_smtp_staging_init' );
 add_action( 'admin_notices', 'mlab_smtp_staging_notice', 1 );
 add_action( 'network_admin_notices', 'mlab_smtp_staging_notice', 1 );
@@ -341,6 +342,27 @@ function mlab_smtp_staging_redirect_mail( $atts ) {
 	$atts['subject'] = '[Staging] ' . (string) ( $atts['subject'] ?? '' );
 	$atts['message'] = (string) ( $atts['message'] ?? '' ) . $footer;
 	return $atts;
+}
+
+/**
+ * phpmailer_init at the last priority: in redirect mode only the test address stays a recipient, whatever a later hook added to the mailer.
+ *
+ * @param object $mailer PHPMailer of wp_mail().
+ */
+function mlab_smtp_staging_lock_recipients( $mailer ): void {
+	if ( ! $mailer instanceof Mlab_Smtp_Mailer ) {
+		return;
+	}
+	$status = mlab_smtp_staging_status();
+	if ( 'redirect' !== $status['effective'] || '' === $status['redirect_to'] ) {
+		return;
+	}
+	$to = array_map( static fn( $pair ) => strtolower( (string) $pair[0] ), $mailer->getToAddresses() );
+	if ( array( strtolower( $status['redirect_to'] ) ) === $to && ! $mailer->getCcAddresses() && ! $mailer->getBccAddresses() ) {
+		return;
+	}
+	$mailer->clearAllRecipients();
+	$mailer->addAddress( $status['redirect_to'] );
 }
 
 /**

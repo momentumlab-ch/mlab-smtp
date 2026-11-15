@@ -97,3 +97,26 @@ assert_same( 1, count( mlab_e_resend_requests() ), 'redirect: exactly one reques
 $plain = st_msg( 'own', 'off' );
 mlab_smtp_process_queue();
 assert_same( 'blocked', mlab_smtp_store_get( $plain )['status'], 'redirect: own row queued before the switch is not sent unredirected' );
+
+// Umleiten: spätere Filter (z. B. «BCC für alle Mails») können weder Empfänger ergänzen noch ändern.
+st_setup( array( 'mode' => 'redirect', 'test_email' => 'test@example.test' ) );
+$late_wp = static function ( $atts ) {
+	$atts['headers'] = array_merge( (array) ( $atts['headers'] ?? array() ), array( 'Bcc: spy@example.test' ) );
+	$atts['to']      = 'other@example.test';
+	return $atts;
+};
+$late_init = static function ( $m ) {
+	$m->addBCC( 'spy2@example.test' );
+	$m->addCC( 'spy3@example.test' );
+	$m->addAddress( 'spy4@example.test' );
+};
+add_filter( 'wp_mail', $late_wp, 100 );
+add_action( 'phpmailer_init', $late_init, 100 );
+wp_mail( 'kunde@example.test', 'Betreff', 'Text' );
+remove_filter( 'wp_mail', $late_wp, 100 );
+remove_action( 'phpmailer_init', $late_init, 100 );
+$req = mlab_e_resend_requests();
+assert_same( 1, count( $req ), 'redirect late: one request' );
+$body = json_decode( $req[0]['args']['body'], true );
+assert_same( array( 'test@example.test' ), $body['to'], 'redirect late: only the test address in to' );
+assert_true( empty( $body['bcc'] ) && empty( $body['cc'] ), 'redirect late: no cc or bcc added by later hooks' );
