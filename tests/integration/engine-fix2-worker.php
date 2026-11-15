@@ -103,13 +103,17 @@ assert_same( 'accepted', $row['status'], 'new4: finished accepted attempt settle
 assert_same( 'em_done', $row['provider_msg_id'], 'new4: provider id taken over' );
 assert_same( 0, (int) $row['has_payload'], 'new4: payload cleared' );
 $id = mlab_e_queue_message();
-mlab_smtp_store_claim_batch( 1, 300, $t );
+$t  = time(); // Each newly created message must already be due at the simulated claim time.
+$claimed = mlab_smtp_store_claim_batch( 1, 300, $t );
+assert_same( $id, (int) ( $claimed[0]['id'] ?? 0 ), 'the new message is claimed before simulating its attempt' );
 $a = mlab_smtp_store_add_attempt( $id, array( 'route' => 'primary', 'provider' => 'resend', 'started_at' => $t, 'request_sent_at' => $t ) );
 mlab_smtp_store_finish_attempt( $a, array( 'outcome' => 'unknown' ) );
 mlab_smtp_store_sweep( $t + 1000 );
 assert_same( 'unclear', mlab_smtp_store_get( $id )['status'], 'new4: finished unknown attempt is unclear, no requeue' );
 $id = mlab_e_queue_message();
-mlab_smtp_store_claim_batch( 1, 300, $t );
+$t  = time(); // Each newly created message must already be due at the simulated claim time.
+$claimed = mlab_smtp_store_claim_batch( 1, 300, $t );
+assert_same( $id, (int) ( $claimed[0]['id'] ?? 0 ), 'the new message is claimed before simulating its attempt' );
 $a = mlab_smtp_store_add_attempt( $id, array( 'route' => 'primary', 'provider' => 'resend', 'started_at' => $t, 'request_sent_at' => $t ) );
 mlab_smtp_store_finish_attempt( $a, array( 'outcome' => 'temporary' ) );
 mlab_smtp_store_sweep( $t + 1000 );

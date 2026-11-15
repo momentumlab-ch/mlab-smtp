@@ -56,7 +56,9 @@ assert_same( 'delivered', mlab_smtp_store_get( $id )['status'], 'n3: orphan even
 assert_true( in_array( array( $id, 'accepted', 'processing', 'worker' ), $changed, true ), 'n3: status_changed fired for the sweep' );
 assert_same( 1, $accepted, 'n3: accepted action fired' );
 $id = mlab_e_queue_message();
-mlab_smtp_store_claim_batch( 1, 300, $t );
+$t  = time(); // Each newly created message must already be due at the simulated claim time.
+$claimed = mlab_smtp_store_claim_batch( 1, 300, $t );
+assert_same( $id, (int) ( $claimed[0]['id'] ?? 0 ), 'the new message is claimed before simulating its attempt' );
 $a = mlab_smtp_store_add_attempt( $id, array( 'route' => 'primary', 'provider' => 'resend', 'started_at' => $t, 'request_sent_at' => $t ) );
 mlab_smtp_store_finish_attempt( $a, array( 'outcome' => 'partial' ) );
 mlab_smtp_store_sweep( $t + 1000 );
