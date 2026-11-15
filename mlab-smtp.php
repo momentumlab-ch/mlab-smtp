@@ -37,6 +37,35 @@ register_activation_hook( __FILE__, 'mlab_smtp_engine_schedule' );
 register_deactivation_hook( __FILE__, 'mlab_smtp_engine_deactivate' );
 
 add_action( 'init', 'mlab_smtp_load_textdomain' );
+add_filter( 'plugin_locale', 'mlab_smtp_filter_locale', 10, 2 );
+
+/**
+ * Translation file that serves a locale. German is the language of the source texts and needs no file. English,
+ * French and Italian map to their file for every regional variant (en_GB, fr_CH, it_CH ...). Every other
+ * language gets English, which more readers understand than German.
+ *
+ * @param string $locale WordPress locale, for example fr_CH.
+ * @return string Locale of the translation file to load; the unchanged locale for German.
+ */
+function mlab_smtp_map_locale( string $locale ): string {
+	$language  = strtolower( substr( $locale, 0, 2 ) );
+	$supported = array(
+		'en' => 'en_US',
+		'fr' => 'fr_FR',
+		'it' => 'it_IT',
+	);
+	return 'de' === $language ? $locale : ( $supported[ $language ] ?? 'en_US' );
+}
+
+/**
+ * Applies mlab_smtp_map_locale() to the text domain of this plugin only.
+ *
+ * @param string $locale Locale WordPress is about to use.
+ * @param string $domain Text domain.
+ */
+function mlab_smtp_filter_locale( $locale, $domain ) {
+	return 'mlab-smtp' === $domain ? mlab_smtp_map_locale( (string) $locale ) : $locale;
+}
 
 /**
  * Loads the plugin translations.
