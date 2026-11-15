@@ -17,10 +17,14 @@ defined( 'ABSPATH' ) || exit;
  * the wizard, empty for the default), help_settings (text on the settings page), suggest (function that suggests an
  * address) and panel (function that prints a status block above the sender fields).
  *
+ * @param bool $reset True, um den gemerkten Stand zu verwerfen (Tests, spät angehängte Filter).
  * @return array<string, array<string, mixed>>
  */
-function mlab_smtp_ui_providers(): array {
+function mlab_smtp_ui_providers( bool $reset = false ): array {
 	static $providers = null;
+	if ( $reset ) {
+		$providers = null;
+	}
 	if ( null === $providers ) {
 		$providers = array(
 			'm365'   => array(
