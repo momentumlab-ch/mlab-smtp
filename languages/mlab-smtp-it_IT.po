@@ -1,0 +1,3347 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: MomentumLab SMTP\n"
+"Report-Msgid-Bugs-To: https://github.com/momentumlab-ch/mlab-smtp/issues\n"
+"Last-Translator: \n"
+"Language-Team: MomentumLab\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-15T09:50:05+00:00\n"
+"PO-Revision-Date: 2026-11-15T09:50:05+00:00\n"
+"Language: it_IT\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: mlab-smtp\n"
+
+#. Plugin Name of the plugin
+#: mlab-smtp.php:3
+msgid "MomentumLab SMTP"
+msgstr "MomentumLab SMTP"
+
+#. Description of the plugin
+#: mlab-smtp.php:4
+msgid "Versendet WordPress-E-Mails über einen eigenen Mailserver (SMTP), Microsoft 365, Google oder Resend."
+msgstr "Invia le e-mail di WordPress tramite un proprio server di posta (SMTP), Microsoft 365, Google o Resend."
+
+#. Author of the plugin
+#: mlab-smtp.php:8
+msgid "MomentumLab"
+msgstr "MomentumLab"
+
+#. Author URI of the plugin
+#: mlab-smtp.php:9
+msgid "https://momentumlab.ch"
+msgstr "https://momentumlab.ch"
+
+#: inc/admin/components.php:27
+msgid "Microsoft 365"
+msgstr "Microsoft 365"
+
+#: inc/admin/components.php:31
+msgid "Für Firmen mit Microsoft 365 oder Outlook. Kein Passwort auf der Website."
+msgstr "Per aziende con Microsoft 365 o Outlook. Nessuna password sul sito."
+
+#: inc/admin/components.php:32
+msgid "Kein Passwort auf der Website"
+msgstr "Nessuna password sul sito"
+
+#: inc/admin/components.php:32
+msgid "Einmalig App in Microsoft anlegen"
+msgstr "Una tantum: crei un'app in Microsoft"
+
+#: inc/admin/components.php:35
+msgid "Verbunden. Microsoft hat die Zugangsdaten akzeptiert."
+msgstr "Collegato. Microsoft ha accettato le credenziali."
+
+#: inc/admin/components.php:39
+msgid "Google Workspace"
+msgstr "Google Workspace"
+
+#: inc/admin/components.php:43
+msgid "Für Firmen mit Google Workspace oder Gmail. Anmeldung mit dem Google-Konto."
+msgstr "Per aziende con Google Workspace o Gmail. Accesso con l'account Google."
+
+#: inc/admin/components.php:44
+msgid "Anmelden mit Google-Konto"
+msgstr "Accedere con account Google"
+
+#: inc/admin/components.php:44
+msgid "Einmalig Zugang in Google Cloud anlegen"
+msgstr "Una tantum: crei l'accesso in Google Cloud"
+
+#: inc/admin/components.php:47
+msgid "Verbunden. Google hat den Zugriff bestätigt."
+msgstr "Collegato. Google ha confermato l'accesso."
+
+#: inc/admin/components.php:52
+msgid "Das verbundene Google-Konto. Google erlaubt nur dieses oder einen freigegebenen Alias."
+msgstr "L'account Google collegato. Google consente solo questo o un alias condiviso."
+
+#: inc/admin/components.php:53
+msgid "Vorgegeben durch das verbundene Google-Konto."
+msgstr "Impostato dall'account Google collegato."
+
+#: inc/admin/components.php:58
+msgid "Resend"
+msgstr "Resend"
+
+#: inc/admin/components.php:62
+msgid "Versanddienst für Website-Mails, braucht kein Postfach. Nur ein API-Key nötig."
+msgstr "Servizio di invio per le e-mail del sito, non richiede una casella di posta. Serve solo una chiave API."
+
+#: inc/admin/components.php:63
+msgid "Nur ein API-Key, keine Anmeldung"
+msgstr "Solo una chiave API, nessun accesso"
+
+#: inc/admin/components.php:63
+msgid "Prüft Ihre Domain und zeigt fehlende DNS-Einträge"
+msgstr "Controlla il dominio e mostra le voci DNS mancanti"
+
+#: inc/admin/components.php:67
+msgid "Ersatzweg erreichbar. Resend hat den API-Key akzeptiert."
+msgstr "Via di riserva raggiungibile. Resend ha accettato la chiave API."
+
+#: inc/admin/components.php:70
+msgid "Die Domain muss bei Resend verifiziert sein. Das Postfach muss nicht existieren, zum Beispiel noreply@ihre-domain.ch."
+msgstr "Il dominio deve essere verificato presso Resend. La casella di posta non deve esistere, ad esempio noreply@il-suo-dominio.ch."
+
+#: inc/admin/components.php:77
+msgid "Eigener Mailserver"
+msgstr "Server di posta proprio"
+
+#: inc/admin/components.php:81
+msgid "Für den Mailserver Ihres Hosters, z. B. Infomaniak, Hostpoint, cyon."
+msgstr "Per il server di posta del proprio hoster, ad es. Infomaniak, Hostpoint, cyon."
+
+#: inc/admin/components.php:82
+msgid "Server, Benutzer und Passwort"
+msgstr "Server, utente e password"
+
+#: inc/admin/components.php:82
+msgid "Funktioniert mit fast jedem Anbieter"
+msgstr "Funziona con quasi tutti i provider"
+
+#: inc/admin/components.php:85
+msgid "Die Anmeldung am Server war erfolgreich."
+msgstr "L'accesso al server è riuscito."
+
+#: inc/admin/components.php:86
+msgid "Ersatzweg erreichbar. Die Anmeldung am Server war erfolgreich."
+msgstr "Via di riserva raggiungibile. L'accesso al server è riuscito."
+
+#: inc/admin/components.php:211
+msgid "Wartet auf Versand"
+msgstr "In attesa di invio"
+
+#: inc/admin/components.php:211
+msgid "Die Mail liegt in der Warteschlange und wird gleich gesendet."
+msgstr "L'e-mail è in coda e verrà inviata a breve."
+
+#: inc/admin/components.php:212
+msgid "Wird gesendet"
+msgstr "In invio"
+
+#: inc/admin/components.php:212
+msgid "Die Mail wird gerade an den Anbieter übergeben."
+msgstr "L'e-mail viene ora consegnata al provider."
+
+#: inc/admin/components.php:213
+#: inc/admin/log-view.php:18
+msgid "Vom Anbieter angenommen"
+msgstr "Accettata dal provider"
+
+#: inc/admin/components.php:213
+msgid "Der Anbieter hat die Mail übernommen. Ob sie im Postfach ankam, bestätigt er erst mit einem Zustellbeleg."
+msgstr "Il provider ha preso in carico l'e-mail. Se è arrivata nella casella di posta, lo confermerà solo con una ricevuta di consegna."
+
+#: inc/admin/components.php:214
+#: inc/admin/log-view.php:19
+#: inc/admin/log-view.php:197
+msgid "Zustellung bestätigt"
+msgstr "Consegna confermata"
+
+#: inc/admin/components.php:214
+msgid "Der Anbieter hat die Zustellung ins Postfach des Empfängers bestätigt."
+msgstr "Il provider ha confermato la consegna nella casella di posta del destinatario."
+
+#: inc/admin/components.php:215
+msgid "Wird erneut versucht"
+msgstr "Nuovo tentativo in corso"
+
+#: inc/admin/components.php:215
+msgid "Der letzte Versuch hat nicht geklappt. Das Plugin versucht es automatisch noch einmal."
+msgstr "L'ultimo tentativo non è riuscito. Il plugin riprova automaticamente ancora una volta."
+
+#: inc/admin/components.php:216
+#: inc/admin/overview.php:317
+#: inc/admin/queue-view.php:53
+msgid "Endgültig fehlgeschlagen"
+msgstr "Fallito definitivamente"
+
+#: inc/admin/components.php:216
+msgid "Die Mail wurde nicht gesendet und wird nicht mehr automatisch versucht."
+msgstr "L'e-mail non è stata inviata e non verranno effettuati altri tentativi automatici."
+
+#: inc/admin/components.php:217
+#: inc/health.php:339
+msgid "Versandstatus unklar"
+msgstr "Stato di invio incerto"
+
+#: inc/admin/components.php:217
+msgid "Der Anbieter hat möglicherweise angenommen. Das Plugin sendet nicht von selbst erneut, damit nichts doppelt ankommt."
+msgstr "Il provider potrebbe aver accettato l'e-mail. Il plugin non invia di nuovo da sé, per evitare duplicati."
+
+#: inc/admin/components.php:218
+msgid "Teilweise angenommen"
+msgstr "Accettata in parte"
+
+#: inc/admin/components.php:218
+msgid "Einzelne Empfänger wurden abgelehnt, die übrigen wurden angenommen."
+msgstr "Alcuni destinatari sono stati respinti, gli altri sono stati accettati."
+
+#: inc/admin/components.php:219
+msgid "Nicht gesendet (Staging-Schutz)"
+msgstr "Non inviata (protezione staging)"
+
+#: inc/admin/components.php:219
+msgid "Der Staging-Schutz hat den Versand dieser Mail verhindert."
+msgstr "La protezione staging ha impedito l'invio di questa e-mail."
+
+#: inc/admin/components.php:220
+#: inc/admin/log-view.php:199
+msgid "Zurückgewiesen"
+msgstr "Respinta"
+
+#: inc/admin/components.php:220
+msgid "Der Mailserver des Empfängers hat die Mail zurückgewiesen."
+msgstr "Il server di posta del destinatario ha respinto l'e-mail."
+
+#: inc/admin/components.php:221
+#: inc/admin/log-view.php:200
+msgid "Als Spam gemeldet"
+msgstr "Segnalata come spam"
+
+#: inc/admin/components.php:221
+msgid "Der Empfänger hat die Mail als unerwünscht gemeldet."
+msgstr "Il destinatario ha segnalato l'e-mail come indesiderata."
+
+#: inc/admin/components.php:223
+msgid "Status unbekannt"
+msgstr "Stato sconosciuto"
+
+#: inc/admin/components.php:274
+#: inc/admin/fallback-flow.php:90
+#: inc/admin/log-view.php:238
+#: inc/admin/overview.php:270
+#: inc/admin/queue-view.php:225
+#: inc/admin/settings-view.php:20
+#: inc/admin/settings-view.php:78
+#: inc/health.php:252
+msgid "Ersatzweg"
+msgstr "Via di riserva"
+
+#. translators: %d: number of messages
+#: inc/admin/components.php:310
+#, php-format
+msgid "%d Eintrag"
+msgid_plural "%d Einträge"
+msgstr[0] "%d voce"
+msgstr[1] "%d voci"
+
+#: inc/admin/components.php:311
+msgid "Seiten"
+msgstr "Pagine"
+
+#: inc/admin/components.php:318
+#: inc/admin/fallback-flow.php:137
+#: inc/admin/fallback-flow.php:204
+#: inc/admin/fallback-flow.php:325
+#: inc/admin/wizard.php:92
+msgid "Zurück"
+msgstr "Indietro"
+
+#. translators: %d: page number
+#: inc/admin/components.php:321
+#, php-format
+msgid "Seite %d"
+msgstr "Pagina %d"
+
+#: inc/admin/components.php:323
+#: inc/admin/fallback-flow.php:139
+#: inc/admin/fallback-flow.php:159
+#: inc/admin/fallback-flow.php:204
+#: inc/admin/wizard.php:116
+#: inc/admin/wizard.php:154
+#: inc/admin/wizard.php:350
+msgid "Weiter"
+msgstr "Avanti"
+
+#: inc/admin/components.php:354
+#: inc/admin/page.php:162
+msgid "Technische Meldung"
+msgstr "Messaggio tecnico"
+
+#: inc/admin/components.php:370
+#: inc/admin/page.php:161
+msgid "Kopieren"
+msgstr "Copia"
+
+#: inc/admin/components.php:377
+msgid "Gesetzt in wp-config.php"
+msgstr "Impostato in wp-config.php"
+
+#: inc/admin/components.php:476
+msgid "Gespeichert – leer lassen, um zu behalten"
+msgstr "Salvato – lasci vuoto per conservarlo"
+
+#: inc/admin/components.php:594
+msgid "Nicht empfohlen: keine Verschlüsselung"
+msgstr "Non consigliato: nessuna crittografia"
+
+#: inc/admin/fallback-flow.php:24
+#: inc/admin/wizard.php:56
+msgid "Anbieter"
+msgstr "Provider"
+
+#: inc/admin/fallback-flow.php:25
+msgid "Voraussetzungen"
+msgstr "Requisiti"
+
+#: inc/admin/fallback-flow.php:26
+msgid "Zugangsdaten"
+msgstr "Credenziali"
+
+#: inc/admin/fallback-flow.php:27
+#: inc/admin/overview.php:365
+#: inc/admin/settings-view.php:23
+#: inc/admin/settings-view.php:214
+#: inc/admin/wizard.php:56
+msgid "Absender"
+msgstr "Mittente"
+
+#: inc/admin/fallback-flow.php:28
+#: inc/admin/fallback-flow.php:224
+msgid "Domain"
+msgstr "Dominio"
+
+#: inc/admin/fallback-flow.php:29
+#: inc/admin/overview.php:366
+#: inc/admin/wizard.php:56
+msgid "Testmail"
+msgstr "E-mail di prova"
+
+#: inc/admin/fallback-flow.php:30
+#: inc/admin/fallback-flow.php:319
+msgid "Zusammenfassung"
+msgstr "Riepilogo"
+
+#: inc/admin/fallback-flow.php:71
+msgid "Der Key darf nur Mails senden («Sending access»). Das ist die sicherste Einstellung. Weil er die Domain-Liste nicht lesen darf, kann das Plugin den Domain-Status nicht anzeigen. Ob die Domain verifiziert ist, zeigt die Testmail."
+msgstr "La chiave deve poter inviare solo e-mail («Sending access»). Questa è l'impostazione più sicura. Poiché non può leggere l'elenco dei domini, il plugin non può mostrare lo stato del dominio. Se il dominio è verificato, lo mostra l'e-mail di prova."
+
+#: inc/admin/fallback-flow.php:91
+msgid "Schliessen"
+msgstr "Chiudi"
+
+#: inc/admin/fallback-flow.php:92
+#: inc/admin/overview.php:218
+#: inc/admin/overview.php:276
+#: inc/admin/settings-view.php:102
+msgid "Ersatzweg einrichten"
+msgstr "Configurare la via di riserva"
+
+#: inc/admin/fallback-flow.php:95
+msgid "Zuerst die Zugangsdaten eintragen"
+msgstr "Inserisca prima le credenziali"
+
+#: inc/admin/fallback-flow.php:95
+msgid "Der Ersatzweg ist noch nicht eingetragen. Bitte zuerst Schritt 3 abschliessen."
+msgstr "La via di riserva non è ancora configurata. Completi prima il passaggio 3."
+
+#: inc/admin/fallback-flow.php:96
+msgid "Zu Schritt 3"
+msgstr "Vai al passaggio 3"
+
+#. translators: 1: current step, 2: number of steps
+#: inc/admin/fallback-flow.php:111
+#, php-format
+msgid "Schritt %1$d von %2$d: %3$s"
+msgstr "Passo %1$d di %2$d: %3$s"
+
+#: inc/admin/fallback-flow.php:149
+msgid "Worüber soll der Ersatzweg senden?"
+msgstr "Con quale provider deve inviare la via di riserva?"
+
+#: inc/admin/fallback-flow.php:149
+msgid "Der Ersatzweg springt ein, wenn der Hauptweg ausfällt oder eine Mail ablehnt. Er sollte darum unabhängig vom Hauptweg sein."
+msgstr "La via di riserva subentra se la via principale non funziona o se un'e-mail viene respinta. Per questo dovrebbe essere indipendente dalla via principale."
+
+#: inc/admin/fallback-flow.php:151
+msgid "Anbieter des Ersatzwegs"
+msgstr "Provider della via di riserva"
+
+#: inc/admin/fallback-flow.php:157
+msgid "Resend ist bereits Ihr Hauptweg und steht darum hier nicht zur Wahl."
+msgstr "Resend è già la via principale e quindi non può essere scelto qui."
+
+#: inc/admin/fallback-flow.php:159
+#: inc/admin/log-view.php:343
+#: inc/admin/overview.php:352
+#: inc/admin/queue-view.php:325
+#: inc/admin/wizard.php:43
+msgid "Abbrechen"
+msgstr "Annulla"
+
+#: inc/admin/fallback-flow.php:167
+msgid "Das brauchen Sie vorab"
+msgstr "Cosa serve in anticipo"
+
+#: inc/admin/fallback-flow.php:169
+msgid "Für Resend brauchen Sie ein Konto, eine bestätigte Domain und einen eigenen API-Key für den Ersatzweg. Verwenden Sie nicht den Key des Hauptwegs: Fällt der Hauptweg aus, soll der Ersatzweg unabhängig davon funktionieren."
+msgstr "Per Resend servono un account, un dominio verificato e una chiave API propria per la via di riserva. Non usi la chiave della via principale: se la via principale non funziona, la via di riserva deve funzionare comunque."
+
+#: inc/admin/fallback-flow.php:171
+msgid "So gehen Sie bei Resend vor"
+msgstr "Procedura per Resend"
+
+#: inc/admin/fallback-flow.php:173
+msgid "Domain bestätigen"
+msgstr "Verificare il dominio"
+
+#: inc/admin/fallback-flow.php:173
+msgid "Öffnen Sie bei Resend «Domains», legen Sie die Domain Ihrer Absender-Adresse an und tragen Sie die DNS-Einträge bei Ihrem Domain-Anbieter ein."
+msgstr "Presso Resend apra «Domains», crei il dominio dell'indirizzo mittente e inserisca le voci DNS presso il provider del dominio."
+
+#: inc/admin/fallback-flow.php:174
+#: inc/admin/resend-view.php:21
+msgid "API-Key erstellen"
+msgstr "Creare la chiave API"
+
+#: inc/admin/fallback-flow.php:174
+msgid "Öffnen Sie «API Keys» und erstellen Sie einen neuen Key nur für den Ersatzweg. Mit der Berechtigung «Sending access» genügt er zum Senden und ist am sichersten. «Full access» zeigt zusätzlich den Domain-Status an."
+msgstr "Apra «API Keys» e crei una nuova chiave solo per la via di riserva. Con l'autorizzazione «Sending access» basta per l'invio ed è la più sicura. «Full access» mostra in più lo stato del dominio."
+
+#: inc/admin/fallback-flow.php:177
+#: inc/admin/fallback-flow.php:268
+#: inc/admin/resend-view.php:62
+msgid "Domains bei Resend öffnen"
+msgstr "Aprire i domini presso Resend"
+
+#: inc/admin/fallback-flow.php:179
+msgid "API-Keys bei Resend öffnen"
+msgstr "Aprire le chiavi API presso Resend"
+
+#: inc/admin/fallback-flow.php:181
+msgid "Für den eigenen Mailserver brauchen Sie die Mail-Zugangsdaten Ihres Hosters: Server, Port, Benutzername und Passwort. Sie stehen im Kundencenter Ihres Hosters, meist unter «E-Mail-Programm einrichten». Am besten ist ein Postfach bei einem anderen Anbieter als der Hauptweg."
+msgstr "Per il server di posta proprio servono i dati di accesso e-mail del proprio hoster: server, porta, nome utente e password. Si trovano nell'area clienti del proprio hoster, di solito sotto «Configurare il programma e-mail». Meglio ancora una casella presso un provider diverso dalla via principale."
+
+#: inc/admin/fallback-flow.php:191
+msgid "Zugangsdaten eintragen und prüfen"
+msgstr "Inserire e verificare le credenziali"
+
+#: inc/admin/fallback-flow.php:196
+msgid "Eigener Key für den Ersatzweg"
+msgstr "Chiave propria per la via di riserva"
+
+#: inc/admin/fallback-flow.php:196
+msgid "Tragen Sie hier einen eigenen Key ein, nicht den des Hauptwegs. «Sending access» wird unterstützt."
+msgstr "Inserisca qui una chiave propria, non quella della via principale. «Sending access» è supportato."
+
+#: inc/admin/fallback-flow.php:203
+msgid "Speichern und Verbindung prüfen"
+msgstr "Salvare e verificare la connessione"
+
+#: inc/admin/fallback-flow.php:204
+#: inc/admin/wizard.php:154
+msgid "Zuerst die Verbindung prüfen"
+msgstr "Verificare prima la connessione"
+
+#: inc/admin/fallback-flow.php:214
+msgid "Absender des Ersatzwegs"
+msgstr "Mittente della via di riserva"
+
+#: inc/admin/fallback-flow.php:215
+msgid "Der Ersatzweg sendet immer mit der gespeicherten Absender-Adresse, nicht mit der Adresse, die ein anderes Plugin für eine Mail setzt. Nur so passen Absender und Domain zusammen."
+msgstr "La via di riserva invia sempre con l'indirizzo mittente salvato, non con quello che un altro plugin imposta per un'e-mail. Solo così mittente e dominio corrispondono."
+
+#: inc/admin/fallback-flow.php:218
+msgid "Keine Absender-Adresse gespeichert"
+msgstr "Nessun indirizzo mittente salvato"
+
+#: inc/admin/fallback-flow.php:218
+msgid "Ohne Absender-Adresse kann der Ersatzweg keine Mail senden. Tragen Sie sie unter «Einstellungen» ein."
+msgstr "Senza indirizzo mittente la via di riserva non può inviare e-mail. Lo inserisca in «Impostazioni»."
+
+#: inc/admin/fallback-flow.php:219
+msgid "Zu den Einstellungen"
+msgstr "Vai alle impostazioni"
+
+#: inc/admin/fallback-flow.php:223
+#: inc/admin/settings-view.php:219
+#: inc/admin/wizard.php:391
+#: inc/options.php:391
+msgid "Absender-Adresse"
+msgstr "Indirizzo mittente"
+
+#: inc/admin/fallback-flow.php:225
+msgid "Ändern Sie die Adresse, muss der Ersatzweg danach erneut geprüft und getestet werden."
+msgstr "Se modifica l'indirizzo, la via di riserva deve poi essere nuovamente verificata e testata."
+
+#: inc/admin/fallback-flow.php:225
+msgid "Absender ändern"
+msgstr "Modificare il mittente"
+
+#: inc/admin/fallback-flow.php:233
+msgid "Status der Domain"
+msgstr "Stato del dominio"
+
+#: inc/admin/fallback-flow.php:235
+msgid "Der Mailserver entscheidet"
+msgstr "Decide il server di posta"
+
+#: inc/admin/fallback-flow.php:235
+msgid "Beim eigenen Mailserver gibt es keinen Domain-Status, den das Plugin abfragen kann. Der Server entscheidet, ob er die Absender-Adresse annimmt. Die Testmail im nächsten Schritt zeigt es."
+msgstr "Con un server di posta proprio non esiste uno stato del dominio che il plugin possa interrogare. È il server a decidere se accetta l'indirizzo mittente. Lo mostrerà l'e-mail di prova del passaggio successivo."
+
+#: inc/admin/fallback-flow.php:237
+msgid "Domain-Status nicht lesbar"
+msgstr "Stato del dominio non leggibile"
+
+#: inc/admin/fallback-flow.php:256
+msgid "Es gibt keinen Domain-Status. Prüfen Sie die Absender-Adresse."
+msgstr "Non esiste uno stato del dominio. Controlli l'indirizzo mittente."
+
+#: inc/admin/fallback-flow.php:268
+#: inc/admin/resend-view.php:62
+msgid "Nochmals prüfen"
+msgstr "Verificare di nuovo"
+
+#: inc/admin/fallback-flow.php:278
+msgid "Testmail über den Ersatzweg"
+msgstr "E-mail di prova tramite la via di riserva"
+
+#: inc/admin/fallback-flow.php:278
+msgid "Diese Testmail geht ausschliesslich über den Ersatzweg. Der Hauptweg wird dabei nicht verwendet. Kommt sie an, ist der Ersatzweg getestet."
+msgstr "Questa e-mail di prova passa esclusivamente per la via di riserva. La via principale non viene utilizzata. Se arriva, la via di riserva è stata testata."
+
+#: inc/admin/fallback-flow.php:280
+#: inc/admin/settings-view.php:187
+#: inc/admin/wizard.php:418
+msgid "An"
+msgstr "A"
+
+#: inc/admin/fallback-flow.php:281
+msgid "Testmail über den Ersatzweg senden"
+msgstr "Inviare e-mail di prova tramite la via di riserva"
+
+#. translators: 1: time, 2: masked recipient
+#: inc/admin/fallback-flow.php:285
+#, php-format
+msgid "Letzte erfolgreiche Testmail: %1$s an %2$s."
+msgstr "Ultima e-mail di prova riuscita: %1$s a %2$s."
+
+#: inc/admin/fallback-flow.php:297
+msgid "Eingetragen"
+msgstr "Inserito"
+
+#: inc/admin/fallback-flow.php:298
+msgid "Verbindung geprüft"
+msgstr "Connessione verificata"
+
+#: inc/admin/fallback-flow.php:299
+msgid "Testmail erfolgreich"
+msgstr "E-mail di prova riuscita"
+
+#. translators: %s: Der Ersatzweg or Der Hauptweg
+#: inc/admin/fallback-flow.php:300
+#: inc/readiness.php:171
+msgid "Erneute Prüfung nötig"
+msgstr "Nuova verifica necessaria"
+
+#: inc/admin/fallback-flow.php:306
+msgid "Ja"
+msgstr "Sì"
+
+#: inc/admin/fallback-flow.php:306
+msgid "Nein"
+msgstr "No"
+
+#: inc/admin/fallback-flow.php:322
+msgid "Der Ersatzweg ist eingeschaltet."
+msgstr "La via di riserva è attiva."
+
+#: inc/admin/fallback-flow.php:322
+msgid "Der Ersatzweg ist noch ausgeschaltet."
+msgstr "La via di riserva è ancora disattivata."
+
+#: inc/admin/fallback-flow.php:327
+msgid "Fertig"
+msgstr "Fatto"
+
+#: inc/admin/fallback-flow.php:329
+msgid "Zuerst eine Testmail über den Ersatzweg senden"
+msgstr "Inviare prima un'e-mail di prova tramite la via di riserva"
+
+#: inc/admin/fallback-flow.php:329
+msgid "Ersatzweg aktivieren"
+msgstr "Attivare la via di riserva"
+
+#: inc/admin/fallback-flow.php:376
+msgid "Dieser Anbieter ist als Ersatzweg nicht möglich. Bitte wählen Sie einen eigenen Mailserver oder Resend."
+msgstr "Questo provider non è possibile come via di riserva. Selezioni un server di posta proprio o Resend."
+
+#: inc/admin/fallback-flow.php:417
+msgid "Bitte prüfen Sie zuerst die Verbindung des Ersatzwegs."
+msgstr "Verifichi prima la connessione della via di riserva."
+
+#: inc/admin/fallback-flow.php:454
+#: inc/resend.php:683
+msgid "Resend prüft die DNS-Einträge jetzt. Das dauert meist wenige Minuten. Laden Sie die Seite danach neu oder wählen Sie «Nochmals prüfen» erneut."
+msgstr "Resend ora verifica i record DNS. Di solito ci vogliono pochi minuti. Ricarichi poi la pagina oppure selezioni di nuovo «Verificare di nuovo»."
+
+#: inc/admin/fallback-flow.php:467
+#: inc/admin/rest.php:190
+msgid "Bitte geben Sie eine gültige E-Mail-Adresse ein."
+msgstr "Inserisca un indirizzo e-mail valido."
+
+#. translators: %s: recipient address
+#: inc/admin/fallback-flow.php:473
+#, php-format
+msgid "Testmail an %s über den Ersatzweg versendet. Bitte prüfen Sie den Posteingang, auch den Spam-Ordner."
+msgstr "E-mail di prova a %s inviata tramite la via di riserva. Controlli la casella di posta, anche la cartella dello spam."
+
+#: inc/admin/fallback-flow.php:488
+msgid "Der Ersatzweg lässt sich erst einschalten, wenn eine aktuelle Testmail vom Ersatzweg angenommen wurde."
+msgstr "La via di riserva può essere attivata solo quando un'e-mail di prova attuale tramite la via di riserva è stata accettata."
+
+#: inc/admin/fallback-flow.php:492
+msgid "Der Ersatzweg ist eingeschaltet. Fällt der Hauptweg aus, stellt er die Mails zu."
+msgstr "La via di riserva è attiva. Se la via principale non funziona, consegna le e-mail."
+
+#: inc/admin/foreign-notices.php:95
+msgid "Mitteilungen anderer Plugins"
+msgstr "Messaggi di altri plugin"
+
+#. translators: %d: number of error messages of other plugins
+#: inc/admin/foreign-notices.php:102
+#, php-format
+msgid "%d Fehler"
+msgid_plural "%d Fehler"
+msgstr[0] "%d errore"
+msgstr[1] "%d errori"
+
+#: inc/admin/handlers.php:51
+msgid "Unbekannte Eingabe."
+msgstr "Input non riconosciuto."
+
+#: inc/admin/handlers.php:190
+msgid "Bitte prüfen Sie zuerst die Verbindung."
+msgstr "Verifichi prima la connessione."
+
+#: inc/admin/handlers.php:249
+msgid "Einrichtung abgeschlossen. Mails werden jetzt über den neuen Versandweg gesendet."
+msgstr "Configurazione completata. Le e-mail vengono ora inviate tramite la nuova via di invio."
+
+#: inc/admin/handlers.php:253
+msgid "Bitte senden Sie zuerst eine erfolgreiche Testmail."
+msgstr "Inviare prima un'e-mail di prova riuscita."
+
+#: inc/admin/handlers.php:281
+msgid "Die Einstellungen wurden gespeichert."
+msgstr "Le impostazioni sono state salvate."
+
+#: inc/admin/handlers.php:302
+msgid "Das Protokoll wurde geleert."
+msgstr "Il registro è stato svuotato."
+
+#: inc/admin/handlers.php:328
+msgid "Diese Aktion ist nicht gültig."
+msgstr "Questa azione non è valida."
+
+#: inc/admin/handlers.php:335
+#: inc/admin/queue-view.php:378
+msgid "Die Aktion wurde ausgeführt."
+msgstr "L'azione è stata eseguita."
+
+#. translators: 1: re-encrypted count, 2: unreadable count
+#: inc/admin/handlers.php:348
+#, php-format
+msgid "%1$d Zugangsdaten neu verschlüsselt. %2$d sind nicht lesbar und blieben unverändert. Bitte geben Sie diese neu ein."
+msgstr "%1$d credenziali cifrate di nuovo. %2$d non sono leggibili e sono rimaste invariate. Le inserisca di nuovo."
+
+#. translators: %d: count
+#: inc/admin/handlers.php:351
+#, php-format
+msgid "%d Zugangsdaten mit dem aktuellen Schlüssel neu verschlüsselt."
+msgstr "%d credenziali cifrate di nuovo con la chiave attuale."
+
+#: inc/admin/log-view.php:17
+#: inc/admin/queue-view.php:54
+msgid "Alle"
+msgstr "Tutte"
+
+#: inc/admin/log-view.php:20
+#: inc/admin/overview.php:313
+#: inc/admin/queue-view.php:50
+msgid "Wartend"
+msgstr "In attesa"
+
+#: inc/admin/log-view.php:21
+#: inc/admin/overview.php:316
+#: inc/admin/queue-view.php:52
+msgid "Unklar"
+msgstr "Incerto"
+
+#: inc/admin/log-view.php:22
+#: inc/admin/overview.php:439
+msgid "Fehlgeschlagen"
+msgstr "Non riuscite"
+
+#: inc/admin/log-view.php:23
+msgid "Weitere Probleme"
+msgstr "Altri problemi"
+
+#: inc/admin/log-view.php:111
+#: inc/admin/queue-view.php:179
+msgid "Filter"
+msgstr "Filtro"
+
+#: inc/admin/log-view.php:123
+#: inc/admin/log-view.php:124
+msgid "Empfänger oder Betreff suchen"
+msgstr "Cerca destinatario o oggetto"
+
+#: inc/admin/log-view.php:138
+msgid "Keine Einträge für diesen Filter."
+msgstr "Nessuna voce per questo filtro."
+
+#: inc/admin/log-view.php:138
+msgid "Noch keine Nachrichten aufgezeichnet."
+msgstr "Nessun messaggio ancora registrato."
+
+#: inc/admin/log-view.php:167
+msgid "Eigener Mailserver (Ersatzweg)"
+msgstr "Server di posta proprio (via di riserva)"
+
+#: inc/admin/log-view.php:196
+msgid "Vom Anbieter versendet"
+msgstr "Inviata dal provider"
+
+#: inc/admin/log-view.php:198
+msgid "Zustellung verzögert"
+msgstr "Consegna ritardata"
+
+#: inc/admin/log-view.php:201
+msgid "Anbieter meldet Fehler"
+msgstr "Il provider segnala un errore"
+
+#: inc/admin/log-view.php:214
+msgid "Angenommen"
+msgstr "Accettata"
+
+#: inc/admin/log-view.php:215
+msgid "Vorübergehender Fehler"
+msgstr "Errore temporaneo"
+
+#: inc/admin/log-view.php:216
+msgid "Dauerhafter Fehler"
+msgstr "Errore permanente"
+
+#: inc/admin/log-view.php:217
+msgid "Ergebnis unklar"
+msgstr "Esito incerto"
+
+#: inc/admin/log-view.php:219
+msgid "Offen"
+msgstr "Aperte"
+
+#: inc/admin/log-view.php:229
+msgid "Versuche"
+msgstr "Tentativi"
+
+#: inc/admin/log-view.php:231
+msgid "Es wurde noch kein Versuch aufgezeichnet."
+msgstr "Non è ancora stato registrato alcun tentativo."
+
+#: inc/admin/log-view.php:238
+#: inc/admin/overview.php:270
+#: inc/admin/queue-view.php:225
+msgid "Hauptweg"
+msgstr "Via principale"
+
+#. translators: %d: HTTP status code
+#: inc/admin/log-view.php:245
+#, php-format
+msgid "Antwortcode %d"
+msgstr "Codice di risposta %d"
+
+#: inc/admin/log-view.php:267
+msgid "Meldungen des Anbieters"
+msgstr "Messaggi del provider"
+
+#: inc/admin/log-view.php:281
+msgid "Details"
+msgstr "Dettagli"
+
+#: inc/admin/log-view.php:283
+msgid "Wählen Sie einen Eintrag, um Details zu sehen."
+msgstr "Selezioni una voce per vedere i dettagli."
+
+#: inc/admin/log-view.php:289
+msgid "Zeit"
+msgstr "Ora"
+
+#: inc/admin/log-view.php:290
+#: inc/privacy.php:86
+msgid "Empfänger"
+msgstr "Destinatario"
+
+#: inc/admin/log-view.php:291
+#: inc/privacy.php:106
+msgid "Versandweg"
+msgstr "Via di invio"
+
+#: inc/admin/log-view.php:292
+msgid "Kennung"
+msgstr "Identificativo"
+
+#: inc/admin/log-view.php:304
+msgid "Der Inhalt der Mail wird aus Datenschutzgründen nicht im Protokoll gespeichert."
+msgstr "Per motivi di protezione dei dati, il contenuto dell'e-mail non viene salvato nel registro."
+
+#: inc/admin/log-view.php:318
+msgid "Was ist passiert?"
+msgstr "Cosa è successo?"
+
+#: inc/admin/log-view.php:322
+msgid "Der Ersatzweg hat die Mail angenommen."
+msgstr "La via di riserva ha accettato l'e-mail."
+
+#: inc/admin/log-view.php:325
+#: inc/admin/overview.php:133
+#: inc/admin/overview.php:136
+#: inc/admin/overview.php:177
+#: inc/admin/overview.php:527
+msgid "Fehler beheben"
+msgstr "Risolvere l'errore"
+
+#. translators: %d: number of days
+#: inc/admin/log-view.php:338
+#, php-format
+msgid "Einträge werden nach %d Tagen automatisch gelöscht. Inhalte werden nie gespeichert."
+msgstr "Le voci vengono eliminate automaticamente dopo %d giorni. I contenuti non vengono mai salvati."
+
+#: inc/admin/log-view.php:342
+msgid "Alle Einträge löschen?"
+msgstr "Eliminare tutte le voci?"
+
+#: inc/admin/log-view.php:342
+msgid "Ja, löschen"
+msgstr "Sì, elimina"
+
+#: inc/admin/log-view.php:353
+msgid "Protokoll leeren"
+msgstr "Svuota registro"
+
+#: inc/admin/overview.php:44
+msgid "Keine Zahlen verfügbar"
+msgstr "Nessun numero disponibile"
+
+#: inc/admin/overview.php:44
+msgid "Solange Protokoll und Warteschlange nicht verfügbar sind, kann die Übersicht keine Mails zählen."
+msgstr "Finché registro e coda non sono disponibili, la panoramica non può contare le e-mail."
+
+#: inc/admin/overview.php:58
+#: inc/admin/overview.php:89
+#: inc/admin/overview.php:142
+#: inc/admin/overview.php:348
+#: inc/admin/wizard.php:417
+#: inc/admin/wizard.php:419
+msgid "Testmail senden"
+msgstr "Invia e-mail di prova"
+
+#: inc/admin/overview.php:84
+#: inc/admin/overview.php:276
+#: inc/admin/settings-view.php:64
+msgid "Einrichtung starten"
+msgstr "Avvia configurazione"
+
+#: inc/admin/overview.php:86
+msgid "Mailanbieter wählen"
+msgstr "Scelga il provider di posta"
+
+#: inc/admin/overview.php:86
+msgid "Wir schlagen den passenden anhand Ihrer Domain vor."
+msgstr "Suggeriamo quello adatto in base al dominio."
+
+#: inc/admin/overview.php:87
+msgid "Verbinden"
+msgstr "Collegare"
+
+#: inc/admin/overview.php:87
+msgid "Zugangsdaten eingeben oder mit dem Konto anmelden. Wir prüfen die Verbindung sofort."
+msgstr "Inserisca le credenziali oppure acceda con l'account. Verifichiamo subito la connessione."
+
+#: inc/admin/overview.php:88
+msgid "Absender festlegen"
+msgstr "Imposti il mittente"
+
+#: inc/admin/overview.php:88
+msgid "Ist bereits ausgefüllt."
+msgstr "È già compilato."
+
+#: inc/admin/overview.php:89
+msgid "Erst danach ist die Einrichtung abgeschlossen."
+msgstr "Solo dopo la configurazione è completata."
+
+#: inc/admin/overview.php:91
+msgid "So geht es weiter"
+msgstr "Come proseguire"
+
+#: inc/admin/overview.php:91
+msgid "Dauert etwa 3 Minuten. Sie brauchen den Zugang zum Mailkonto Ihrer Firma."
+msgstr "Richiede circa 3 minuti. Serve l'accesso alla casella e-mail della sua azienda."
+
+#: inc/admin/overview.php:130
+msgid "Nein, der Versand ist blockiert"
+msgstr "No, l'invio è bloccato"
+
+#: inc/admin/overview.php:130
+#: inc/health.php:83
+#: inc/staging.php:418
+msgid "Einstellungen öffnen"
+msgstr "Apri impostazioni"
+
+#: inc/admin/overview.php:133
+msgid "Nein, Mails werden nicht gesendet"
+msgstr "No, le e-mail non vengono inviate"
+
+#: inc/admin/overview.php:136
+msgid "Eingeschränkt: Der Ersatzweg übernimmt"
+msgstr "Limitato: subentra la via di riserva"
+
+#: inc/admin/overview.php:139
+msgid "Ja, aber einige Mails brauchen Ihre Aufmerksamkeit"
+msgstr "Sì, ma alcune e-mail richiedono attenzione"
+
+#: inc/admin/overview.php:139
+msgid "Der Versand läuft, doch es gibt Mails, die warten, fehlgeschlagen oder unklar sind."
+msgstr "L'invio funziona, ma ci sono e-mail in attesa, fallite o con esito incerto."
+
+#: inc/admin/overview.php:139
+#: inc/admin/overview.php:188
+msgid "Wartende E-Mails ansehen"
+msgstr "Visualizza le e-mail in attesa"
+
+#: inc/admin/overview.php:142
+msgid "Noch nicht erprobt"
+msgstr "Non ancora testato"
+
+#: inc/admin/overview.php:144
+msgid "Ja, der Anbieter nimmt Ihre Mails an"
+msgstr "Sì, il provider accetta le e-mail"
+
+#: inc/admin/overview.php:144
+msgid "Angenommen heisst: Der Anbieter hat die Mail übernommen. Zugestellt ist sie erst mit einem Zustellbeleg."
+msgstr "Accettata significa: il provider ha preso in carico l'e-mail. Consegnata è solo con una ricevuta di consegna."
+
+#: inc/admin/overview.php:144
+#: inc/admin/overview.php:208
+#: inc/admin/resend-view.php:37
+#: inc/admin/settings-view.php:89
+#: inc/admin/wizard.php:241
+#: inc/admin/wizard.php:280
+#: inc/admin/wizard.php:308
+#: inc/health.php:72
+msgid "Verbindung prüfen"
+msgstr "Verificare la connessione"
+
+#: inc/admin/overview.php:155
+msgid "Funktioniert der Versand?"
+msgstr "L'invio funziona?"
+
+#: inc/admin/overview.php:177
+msgid "Der Hauptweg hat ein Problem"
+msgstr "La via principale presenta un problema"
+
+#. translators: %d: number of messages
+#: inc/admin/overview.php:181
+#, php-format
+msgid "%d Mail ist endgültig fehlgeschlagen"
+msgid_plural "%d Mails sind endgültig fehlgeschlagen"
+msgstr[0] "%d e-mail fallita definitivamente"
+msgstr[1] "%d e-mail fallite definitivamente"
+
+#. translators: %d: number of messages
+#: inc/admin/overview.php:181
+msgid "Diese Mails wurden nicht gesendet. Sie können sie erneut versuchen, solange der Inhalt aufbewahrt wird."
+msgstr "Queste e-mail non sono state inviate. Può riprovare finché il contenuto viene conservato."
+
+#. translators: %d: number of messages
+#: inc/admin/overview.php:181
+msgid "Fehlgeschlagene ansehen"
+msgstr "Visualizza le e-mail fallite"
+
+#. translators: %d: number of messages
+#: inc/admin/overview.php:185
+#, php-format
+msgid "%d Mail hat einen unklaren Versandstatus"
+msgid_plural "%d Mails haben einen unklaren Versandstatus"
+msgstr[0] "%d e-mail ha uno stato di invio incerto"
+msgstr[1] "%d e-mail hanno uno stato di invio incerto"
+
+#. translators: %d: number of messages
+#: inc/admin/overview.php:185
+msgid "Der Anbieter hat sie möglicherweise angenommen. Bitte entscheiden Sie, ob sie erneut gesendet werden soll."
+msgstr "Il provider potrebbe averle accettate. Decida se inviarle di nuovo."
+
+#. translators: %d: number of messages
+#: inc/admin/overview.php:185
+msgid "Unklare Mails ansehen"
+msgstr "Visualizza le e-mail con esito incerto"
+
+#: inc/admin/overview.php:188
+msgid "Wartende E-Mails werden nicht abgearbeitet"
+msgstr "Le e-mail in attesa non vengono elaborate"
+
+#: inc/admin/overview.php:206
+msgid "Der Hauptweg ist noch nicht getestet"
+msgstr "La via principale non è ancora stata testata"
+
+#: inc/admin/overview.php:216
+msgid "Der Ersatzweg ist nicht getestet"
+msgstr "La via di riserva non è stata testata"
+
+#: inc/admin/overview.php:216
+msgid "Es gibt noch keinen Ersatzweg"
+msgstr "Non esiste ancora una via di riserva"
+
+#: inc/admin/overview.php:218
+#: inc/admin/overview.php:295
+msgid "Ersatzweg testen"
+msgstr "Testare la via di riserva"
+
+#: inc/admin/overview.php:236
+msgid "Was muss ich tun?"
+msgstr "Cosa devo fare?"
+
+#: inc/admin/overview.php:238
+msgid "Nichts. Alles ist in Ordnung."
+msgstr "Niente. Tutto è in ordine."
+
+#: inc/admin/overview.php:273
+msgid "Nicht eingerichtet"
+msgstr "Non configurato"
+
+#: inc/admin/overview.php:274
+msgid "Ohne Ersatzweg gehen Mails verloren, wenn der Hauptweg ausfällt."
+msgstr "Senza via di riserva le e-mail vanno perse se la via principale non funziona."
+
+#: inc/admin/overview.php:286
+msgid "Ja."
+msgstr "Sì."
+
+#: inc/admin/overview.php:286
+msgid "Nein."
+msgstr "No."
+
+#: inc/admin/overview.php:295
+msgid "Verwalten"
+msgstr "Gestisci"
+
+#: inc/admin/overview.php:305
+#: inc/admin/page.php:199
+msgid "Warteschlange"
+msgstr "Coda"
+
+#: inc/admin/overview.php:307
+msgid "Nicht verfügbar"
+msgstr "Non disponibile"
+
+#: inc/admin/overview.php:308
+msgid "Die Datenbanktabellen fehlen, deshalb gibt es keine Warteschlange."
+msgstr "Mancano le tabelle del database, quindi non c'è alcuna coda."
+
+#: inc/admin/overview.php:314
+msgid "In Bearbeitung"
+msgstr "In corso"
+
+#: inc/admin/overview.php:315
+msgid "Wiederholung geplant"
+msgstr "Nuovo tentativo pianificato"
+
+#. translators: %s: duration, e.g. 5 Minuten
+#: inc/admin/overview.php:327
+#, php-format
+msgid "Älteste fällige Mail wartet seit %s."
+msgstr "La più vecchia e-mail scaduta attende da %s."
+
+#: inc/admin/overview.php:329
+msgid "Keine fällige Mail wartet."
+msgstr "Nessuna e-mail scaduta in attesa."
+
+#: inc/admin/overview.php:332
+#: inc/admin/overview.php:524
+msgid "Warteschlange öffnen"
+msgstr "Apri la coda"
+
+#. translators: 1: provider name, 2: sender address
+#: inc/admin/overview.php:341
+#, php-format
+msgid "Über %1$s als %2$s"
+msgstr "Tramite %1$s come %2$s"
+
+#: inc/admin/overview.php:350
+msgid "Testmail an"
+msgstr "E-mail di prova a"
+
+#: inc/admin/overview.php:353
+msgid "Senden"
+msgstr "Invia"
+
+#: inc/admin/overview.php:364
+#: inc/admin/settings-view.php:19
+#: inc/admin/settings-view.php:61
+#: inc/admin/wizard.php:56
+#: inc/admin/wizard.php:291
+#: inc/health.php:72
+msgid "Verbindung"
+msgstr "Connessione"
+
+#: inc/admin/overview.php:368
+#: inc/admin/wizard.php:42
+msgid "Einrichtung"
+msgstr "Configurazione"
+
+#: inc/admin/overview.php:371
+msgid "Erledigt"
+msgstr "Completato"
+
+#: inc/admin/overview.php:437
+msgid "Vom Anbieter angenommen, 7 Tage"
+msgstr "Accettata dal provider, 7 giorni"
+
+#: inc/admin/overview.php:438
+msgid "Annahmequote"
+msgstr "Tasso di accettazione"
+
+#. translators: %d: number of days
+#: inc/admin/overview.php:450
+#, php-format
+msgid "Mails pro Tag, letzte %d Tage"
+msgstr "E-mail al giorno, ultimi %d giorni"
+
+#: inc/admin/overview.php:462
+msgid "Gesundheit"
+msgstr "Stato generale"
+
+#: inc/admin/overview.php:462
+msgid "Wird täglich automatisch geprüft."
+msgstr "Viene verificato automaticamente ogni giorno."
+
+#: inc/admin/overview.php:477
+msgid "Letzte Mails"
+msgstr "Ultime e-mail"
+
+#: inc/admin/overview.php:477
+msgid "Ganzes Protokoll"
+msgstr "Intero registro"
+
+#: inc/admin/overview.php:486
+msgid "Noch keine Nachrichten."
+msgstr "Nessun messaggio ancora."
+
+#: inc/admin/page.php:36
+#: inc/alerts.php:383
+#: inc/google.php:143
+#: inc/staging.php:448
+#: inc/support-report.php:218
+msgid "Dafür fehlt die Berechtigung."
+msgstr "Manca l'autorizzazione necessaria."
+
+#: inc/admin/page.php:86
+#: inc/admin/page.php:87
+#: inc/admin/page.php:233
+#: inc/privacy.php:81
+msgid "E-Mail-Versand"
+msgstr "Invio e-mail"
+
+#: inc/admin/page.php:119
+#: inc/admin/page.php:201
+msgid "Einstellungen"
+msgstr "Impostazioni"
+
+#: inc/admin/page.php:156
+msgid "Wird gespeichert …"
+msgstr "Salvataggio in corso …"
+
+#: inc/admin/page.php:157
+msgid "Wird geprüft …"
+msgstr "Verifica in corso …"
+
+#: inc/admin/page.php:158
+msgid "Wird gesendet …"
+msgstr "Invio in corso …"
+
+#: inc/admin/page.php:159
+msgid "Der Server hat nicht geantwortet. Bitte versuchen Sie es erneut."
+msgstr "Il server non ha risposto. Riprovi."
+
+#: inc/admin/page.php:160
+msgid "Kopiert."
+msgstr "Copiato."
+
+#: inc/admin/page.php:198
+msgid "Übersicht"
+msgstr "Panoramica"
+
+#: inc/admin/page.php:200
+#: inc/admin/settings-view.php:27
+#: inc/admin/settings-view.php:243
+msgid "Protokoll"
+msgstr "Registro"
+
+#: inc/admin/page.php:233
+msgid "Sorgt dafür, dass Mails dieser Website zuverlässig ankommen und nicht im Spam landen."
+msgstr "Garantisce che le e-mail di questo sito arrivino in modo affidabile e non finiscano nello spam."
+
+#: inc/admin/page.php:239
+msgid "Bereiche"
+msgstr "Sezioni"
+
+#: inc/admin/page.php:248
+#: inc/admin/settings-security.php:100
+msgid "Hinweis"
+msgid_plural "Hinweise"
+msgstr[0] "Avviso"
+msgstr[1] "Avvisi"
+
+#: inc/admin/queue-view.php:20
+msgid "Protokoll und Warteschlange sind nicht verfügbar"
+msgstr "Registro e coda non sono disponibili"
+
+#: inc/admin/queue-view.php:21
+msgid "Die Datenbanktabellen des Plugins fehlen. Deaktivieren und aktivieren Sie das Plugin erneut, damit sie angelegt werden. Mails werden weiterhin gesendet, aber nicht aufgezeichnet."
+msgstr "Mancano le tabelle del database del plugin. Disattivi e riattivi il plugin per crearle. Le e-mail continuano a essere inviate, ma non vengono registrate."
+
+#: inc/admin/queue-view.php:28
+msgid "Das alte Protokoll konnte nicht vollständig übernommen werden"
+msgstr "Il vecchio registro non è stato trasferito completamente"
+
+#: inc/admin/queue-view.php:29
+msgid "Einzelne frühere Einträge fehlen in der Liste. Die Übernahme wird täglich wiederholt, die alten Daten bleiben bis dahin erhalten."
+msgstr "Alcune voci precedenti mancano nell'elenco. Il trasferimento viene ripetuto ogni giorno, i vecchi dati restano conservati fino ad allora."
+
+#. translators: 1: migrated entries, 2: total entries
+#: inc/admin/queue-view.php:36
+#, php-format
+msgid "Das alte Protokoll wird übernommen (%1$d von %2$d)"
+msgstr "Trasferimento del vecchio registro in corso (%1$d di %2$d)"
+
+#: inc/admin/queue-view.php:37
+msgid "Die Übernahme läuft im Hintergrund. Ältere Einträge erscheinen nach und nach in der Liste."
+msgstr "Il trasferimento è in corso in background. Le voci più vecchie compaiono gradualmente nell'elenco."
+
+#: inc/admin/queue-view.php:51
+msgid "In Bearbeitung / Wiederholung"
+msgstr "In corso / nuovo tentativo"
+
+#: inc/admin/queue-view.php:121
+msgid "Die Warteschlange läuft nicht regelmässig"
+msgstr "La coda non viene eseguita regolarmente"
+
+#. translators: %d: minutes
+#: inc/admin/queue-view.php:124
+#, php-format
+msgid "Die älteste fällige Mail wartet seit %d Minuten. "
+msgstr "La più vecchia e-mail scaduta attende da %d minuti."
+
+#: inc/admin/queue-view.php:142
+msgid "Versandart: Warteschlange. Mails werden gespeichert und im Hintergrund gesendet."
+msgstr "Modalità di invio: coda. Le e-mail vengono salvate e inviate in background."
+
+#: inc/admin/queue-view.php:145
+msgid "Versandart: sofort senden. Bei einem vorübergehenden Fehler wird im Hintergrund wiederholt."
+msgstr "Modalità di invio: invio immediato. In caso di errore temporaneo, il tentativo viene ripetuto in background."
+
+#: inc/admin/queue-view.php:147
+msgid "Versandart: sofort senden. Mails kommen nur dann in die Warteschlange, wenn Sie das einstellen."
+msgstr "Modalità di invio: invio immediato. Le e-mail finiscono in coda solo se lo imposta Lei."
+
+#: inc/admin/queue-view.php:154
+msgid "So richten Sie einen System-Cron ein"
+msgstr "Come configurare un cron di sistema"
+
+#: inc/admin/queue-view.php:155
+msgid "Fügen Sie in der Datei wp-config.php die Zeile define( 'DISABLE_WP_CRON', true ); ein."
+msgstr "Inserisca nel file wp-config.php la riga define( 'DISABLE_WP_CRON', true );"
+
+#: inc/admin/queue-view.php:156
+msgid "Lassen Sie den Server (Cron-Dienst Ihres Hostings) jede Minute die Adresse Ihrer Website mit /wp-cron.php?doing_wp_cron aufrufen oder «wp cron event run --due-now» ausführen."
+msgstr "Faccia in modo che il server (servizio cron del proprio hosting) richiami ogni minuto l'indirizzo del sito con /wp-cron.php?doing_wp_cron oppure esegua «wp cron event run --due-now»."
+
+#: inc/admin/queue-view.php:157
+msgid "Laden Sie diese Seite nach etwa fünf Minuten neu. Die Warnung verschwindet, sobald die Warteschlange abgearbeitet wird."
+msgstr "Ricarichi questa pagina dopo circa cinque minuti. L'avviso scompare non appena la coda viene elaborata."
+
+#: inc/admin/queue-view.php:166
+msgid "Was bedeutet «Versandstatus unklar»?"
+msgstr "Cosa significa «Stato di invio incerto»?"
+
+#: inc/admin/queue-view.php:167
+msgid "Die Verbindung brach ab oder lief in eine Zeitüberschreitung, nachdem die Mail an den Anbieter gesendet wurde. Der Anbieter hat sie möglicherweise angenommen, wir wissen es nicht."
+msgstr "La connessione si è interrotta o è scaduta dopo che l'e-mail è stata inviata al provider. Il provider potrebbe averla accettata, non lo sappiamo."
+
+#: inc/admin/queue-view.php:168
+msgid "Das Plugin sendet solche Mails nicht von selbst erneut, weil der Empfänger sie sonst doppelt erhalten könnte."
+msgstr "Il plugin non invia di nuovo da sé queste e-mail, perché il destinatario potrebbe riceverle due volte."
+
+#: inc/admin/queue-view.php:169
+msgid "Was tun? Prüfen Sie beim Empfänger oder im Konto Ihres Anbieters, ob die Mail angekommen ist. Wenn ja, wählen Sie «Als zugestellt markieren». Wenn nein, wählen Sie «Erneut senden». Dabei kann die Mail doppelt ankommen."
+msgstr "Cosa fare? Verifichi presso il destinatario o nell'account del provider se l'e-mail è arrivata. In caso affermativo, selezioni «Segna come consegnata». In caso negativo, selezioni «Invia di nuovo». In questo caso l'e-mail potrebbe arrivare due volte."
+
+#: inc/admin/queue-view.php:200
+msgid "Nachrichten"
+msgstr "Messaggi"
+
+#: inc/admin/queue-view.php:202
+msgid "Nichts zu tun: In dieser Ansicht gibt es keine Mails."
+msgstr "Niente da fare: in questa vista non ci sono e-mail."
+
+#. translators: 1: attempts made, 2: maximum attempts
+#: inc/admin/queue-view.php:237
+#, php-format
+msgid "Versuch %1$d von %2$d"
+msgstr "Tentativo %1$d di %2$d"
+
+#: inc/admin/queue-view.php:240
+msgid "wird gleich versucht"
+msgstr "tentativo imminente"
+
+#. translators: %s: time
+#: inc/admin/queue-view.php:242
+#, php-format
+msgid "nächster Versuch %s"
+msgstr "prossimo tentativo %s"
+
+#. translators: %s: time
+#: inc/admin/queue-view.php:247
+#, php-format
+msgid "letzter Versuch %s"
+msgstr "ultimo tentativo %s"
+
+#: inc/admin/queue-view.php:287
+msgid "Erneut versuchen"
+msgstr "Riprova"
+
+#: inc/admin/queue-view.php:289
+msgid "Erneut versuchen ist nicht möglich: Der Inhalt der Mail wird nicht mehr aufbewahrt. Lösen Sie den Versand in der Anwendung neu aus."
+msgstr "Riprovare non è possibile: il contenuto dell'e-mail non viene più conservato. Riavvii l'invio nell'applicazione."
+
+#: inc/admin/queue-view.php:292
+msgid "Als zugestellt markieren"
+msgstr "Segna come consegnata"
+
+#: inc/admin/queue-view.php:307
+msgid "Erneut senden ist nicht möglich: Der Inhalt der Mail wird nicht mehr aufbewahrt."
+msgstr "Invio di nuovo non possibile: il contenuto dell'e-mail non viene più conservato."
+
+#: inc/admin/queue-view.php:320
+msgid "Erneut senden (Doppelversand möglich)"
+msgstr "Invia di nuovo (possibile doppio invio)"
+
+#: inc/admin/queue-view.php:323
+msgid "Möglicherweise hat der Empfänger diese Mail schon erhalten. Wenn Sie erneut senden, kann sie doppelt ankommen. Wirklich erneut senden?"
+msgstr "Il destinatario potrebbe aver già ricevuto questa e-mail. Se la invia di nuovo, potrebbe arrivare due volte. Inviarla davvero di nuovo?"
+
+#: inc/admin/queue-view.php:324
+msgid "Ja, erneut senden"
+msgstr "Sì, invia di nuovo"
+
+#: inc/admin/queue-view.php:374
+msgid "Die Mail wurde zum erneuten Versuch eingereiht."
+msgstr "L'e-mail è stata messa in coda per un nuovo tentativo."
+
+#: inc/admin/queue-view.php:375
+msgid "Die Mail wurde erneut eingereiht. Sie kann beim Empfänger doppelt ankommen."
+msgstr "L'e-mail è stata rimessa in coda. Potrebbe arrivare due volte al destinatario."
+
+#: inc/admin/queue-view.php:376
+msgid "Die Mail ist als zugestellt markiert. Der Anbieter hat sie nicht bestätigt, Sie haben das selbst festgehalten."
+msgstr "L'e-mail è stata segnata come consegnata. Il provider non l'ha confermato: lo ha annotato Lei stesso."
+
+#: inc/admin/resend-view.php:15
+msgid "Mit Resend verbinden"
+msgstr "Collegare a Resend"
+
+#: inc/admin/resend-view.php:15
+msgid "Resend versendet die Mails Ihrer Website über Ihre eigene, geprüfte Domain. Bereiten Sie die Domain und den Key bei Resend vor und tragen Sie den Key unten ein. Er wird verschlüsselt gespeichert."
+msgstr "Resend invia le e-mail del sito tramite il proprio dominio verificato. Prepari il dominio e la chiave presso Resend e inserisca la chiave qui sotto. Viene salvata in modo cifrato."
+
+#: inc/admin/resend-view.php:17
+msgid "Vorbereitung bei Resend"
+msgstr "Preparazione presso Resend"
+
+#: inc/admin/resend-view.php:19
+msgid "Domain hinzufügen"
+msgstr "Aggiungi dominio"
+
+#: inc/admin/resend-view.php:19
+msgid "Resend › Domains › Add Domain. Empfohlen ist eine Subdomain wie updates.ihre-domain.ch: Das schützt den Ruf Ihrer Hauptdomain."
+msgstr "Resend › Domains › Add Domain. Consigliato è un sottodominio come updates.il-suo-dominio.ch: così si protegge la reputazione del dominio principale."
+
+#: inc/admin/resend-view.php:20
+msgid "DNS-Einträge setzen"
+msgstr "Impostare le voci DNS"
+
+#: inc/admin/resend-view.php:20
+msgid "Resend zeigt SPF- und DKIM-Einträge. Tragen Sie diese bei Ihrem Domain-Anbieter ein. Im Schritt «Absender» zeigt Ihnen dieses Plugin, ob alles verifiziert ist."
+msgstr "Resend mostra le voci SPF e DKIM. Le inserisca presso il provider del dominio. Nel passaggio «Mittente» questo plugin mostra se tutto è verificato."
+
+#: inc/admin/resend-view.php:21
+msgid "Resend › API Keys › Create API Key. Wählen Sie «Sending access» und Ihre Domain. Kopieren Sie den Key (beginnt mit re_), er wird nur einmal angezeigt."
+msgstr "Resend › API Keys › Create API Key. Selezioni «Sending access» e il dominio. Copi la chiave (inizia con re_): viene mostrata una sola volta."
+
+#: inc/admin/resend-view.php:24
+msgid "Resend öffnen"
+msgstr "Apri Resend"
+
+#: inc/admin/resend-view.php:29
+msgid "API-Key"
+msgstr "Chiave API"
+
+#: inc/admin/resend-view.php:33
+msgid "Beginnt mit «re_». «Sending access» genügt und ist am sichersten."
+msgstr "Inizia con «re_». «Sending access» è sufficiente ed è la più sicura."
+
+#: inc/admin/resend-view.php:72
+msgid "DNS-Einträge für Resend"
+msgstr "Voci DNS per Resend"
+
+#: inc/admin/resend-view.php:72
+msgid "Typ"
+msgstr "Tipo"
+
+#: inc/admin/resend-view.php:72
+msgid "Name"
+msgstr "Nome"
+
+#: inc/admin/resend-view.php:72
+msgid "Wert"
+msgstr "Valore"
+
+#. translators: %s: priority of an MX record
+#: inc/admin/resend-view.php:77
+#, php-format
+msgid "(Priorität %s)"
+msgstr "(priorità %s)"
+
+#: inc/admin/rest.php:201
+msgid "Die Testmail wurde nur vom Ersatzweg angenommen. Der Hauptweg funktioniert nicht. Bitte beheben Sie zuerst den Fehler und senden Sie die Testmail erneut."
+msgstr "L'e-mail di prova è stata accettata solo dalla via di riserva. La via principale non funziona. Risolva prima l'errore e invii di nuovo l'e-mail di prova."
+
+#. translators: %s: recipient address
+#: inc/admin/rest.php:211
+#, php-format
+msgid "Testmail an %s versendet. Bitte prüfen Sie den Posteingang. Nicht da? Schauen Sie auch im Spam-Ordner."
+msgstr "E-mail di prova inviata a %s. Controlli la casella di posta. Non c'è? Controlli anche la cartella dello spam."
+
+#: inc/admin/settings-security.php:92
+msgid "Schutz vor ungewollten Mails (Staging)"
+msgstr "Protezione da e-mail indesiderate (staging)"
+
+#: inc/admin/settings-security.php:92
+msgid "Verhindert, dass eine Kopie der Website (Test- oder Entwicklungsumgebung) echten Kunden Mails schickt."
+msgstr "Impedisce che una copia del sito (ambiente di test o sviluppo) invii e-mail ai clienti reali."
+
+#: inc/admin/settings-security.php:94
+msgid "Versand frei"
+msgstr "Invio libero"
+
+#: inc/admin/settings-security.php:95
+msgid "Versand blockiert"
+msgstr "Invio bloccato"
+
+#: inc/admin/settings-security.php:96
+msgid "Mails werden umgeleitet"
+msgstr "E-mail reindirizzate"
+
+#: inc/admin/settings-security.php:107
+#: inc/staging.php:416
+msgid "Das ist die produktive Website"
+msgstr "Questo è il sito di produzione"
+
+#: inc/admin/settings-security.php:121
+msgid "Automatisch erkennen (empfohlen)"
+msgstr "Riconoscimento automatico (consigliato)"
+
+#: inc/admin/settings-security.php:122
+msgid "Aus"
+msgstr "Disattivo"
+
+#: inc/admin/settings-security.php:123
+msgid "Blockieren"
+msgstr "Blocca"
+
+#: inc/admin/settings-security.php:124
+msgid "An Testadresse umleiten"
+msgstr "Reindirizza a indirizzo di test"
+
+#: inc/admin/settings-security.php:127
+msgid "Modus"
+msgstr "Modalità"
+
+#: inc/admin/settings-security.php:135
+msgid "Die Konstante MLAB_SMTP_STAGING in der wp-config.php legt den Modus fest. Er lässt sich hier nicht ändern."
+msgstr "La costante MLAB_SMTP_STAGING nel file wp-config.php definisce la modalità. Non può essere modificata qui."
+
+#: inc/admin/settings-security.php:137
+msgid "Testadresse"
+msgstr "Indirizzo di test"
+
+#: inc/admin/settings-security.php:139
+msgid "Nur nötig für «An Testadresse umleiten». Dorthin gehen dann alle Mails."
+msgstr "Necessario solo per «Reindirizza a indirizzo di test». Verso di esso vengono inviate tutte le e-mail."
+
+#: inc/admin/settings-security.php:148
+msgid "Automatisch erkennen: Sieht die Website aus wie eine Kopie (andere Adresse als bei der Einrichtung oder keine produktive Umgebung), werden Mails blockiert, bis ein Administrator bestätigt."
+msgstr "Riconoscimento automatico: se il sito sembra una copia (indirizzo diverso da quello della configurazione o nessun ambiente di produzione), le e-mail vengono bloccate finché un amministratore non conferma."
+
+#: inc/admin/settings-security.php:149
+msgid "Aus: Mails werden immer normal versendet."
+msgstr "Disattivo: le e-mail vengono sempre inviate normalmente."
+
+#: inc/admin/settings-security.php:150
+msgid "Blockieren: Es wird nichts versendet. Das Protokoll zeigt «blockiert», und WordPress meldet den Versand als fehlgeschlagen."
+msgstr "Blocca: non viene inviato nulla. Il registro mostra «bloccato» e WordPress segnala l'invio come non riuscito."
+
+#: inc/admin/settings-security.php:151
+msgid "An Testadresse umleiten: Alle Mails gehen an die Testadresse. Kopien (Cc, Bcc) entfallen, der Betreff beginnt mit «[Staging]», unten steht die Liste der ursprünglichen Empfänger."
+msgstr "Reindirizza a indirizzo di test: tutte le e-mail vanno all'indirizzo di test. Le copie (Cc, Bcc) vengono omesse, l'oggetto inizia con «[Staging]» e in fondo compare l'elenco dei destinatari originali."
+
+#: inc/admin/settings-security.php:164
+msgid "Alarmierung (Webhook)"
+msgstr "Allarmi (webhook)"
+
+#: inc/admin/settings-security.php:164
+msgid "Meldet Störungen an eine Adresse Ihrer Wahl, zum Beispiel an Slack, Teams oder einen Überwachungsdienst."
+msgstr "Segnala i guasti a un indirizzo a scelta, ad esempio a Slack, Teams o a un servizio di monitoraggio."
+
+#: inc/admin/settings-security.php:166
+msgid "Webhook-Adresse"
+msgstr "Indirizzo webhook"
+
+#: inc/admin/settings-security.php:168
+msgid "Nur https. Leer lassen, um die Alarmierung auszuschalten."
+msgstr "Solo https. Lasci vuoto per disattivare gli allarmi."
+
+#: inc/admin/settings-security.php:169
+msgid "Signatur-Secret (optional)"
+msgstr "Segreto di firma (facoltativo)"
+
+#: inc/admin/settings-security.php:170
+msgid "gespeichert"
+msgstr "salvato"
+
+#: inc/admin/settings-security.php:171
+msgid "Damit kann der Empfänger prüfen, dass der Alarm von dieser Website kommt (Signatur im Header X-Mlab-Signature). Leer lassen, um ein gespeichertes Secret zu behalten."
+msgstr "Con questo il destinatario può verificare che l'allarme provenga da questo sito (firma nell'intestazione X-Mlab-Signature). Lasci vuoto per conservare un segreto salvato."
+
+#: inc/admin/settings-security.php:173
+msgid "Gespeichertes Secret entfernen"
+msgstr "Rimuovi segreto salvato"
+
+#: inc/admin/settings-security.php:178
+msgid "Der Alarm läuft unabhängig vom Mailweg: Er kommt auch an, wenn Hauptweg und Ersatzweg ausgefallen sind. Gesendet werden nur der Name der Website, das Ereignis, die Zeit, eine Anzahl und ein kurzer, bereinigter Text. Nie Empfänger, Betreffe oder Zugangsdaten."
+msgstr "L'allarme funziona indipendentemente dalla via di invio: arriva anche se la via principale e la via di riserva non funzionano. Vengono inviati solo il nome del sito, l'evento, l'ora, un numero e un breve testo ripulito. Mai destinatari, oggetti o credenziali."
+
+#: inc/admin/settings-security.php:188
+msgid "Alarm auslösen bei"
+msgstr "Attiva allarme in caso di"
+
+#: inc/admin/settings-security.php:203
+msgid "gesendet"
+msgstr "inviato"
+
+#: inc/admin/settings-security.php:203
+msgid "fehlgeschlagen"
+msgstr "non riuscito"
+
+#. translators: 1: time, 2: result, 3: HTTP code, 4: explanation
+#: inc/admin/settings-security.php:206
+#, php-format
+msgid "Letzter Alarm: %1$s, %2$s%3$s. %4$s"
+msgstr "Ultimo allarme: %1$s, %2$s%3$s. %4$s"
+
+#: inc/admin/settings-security.php:207
+msgid "Letztes Ergebnis"
+msgstr "Ultimo esito"
+
+#: inc/admin/settings-security.php:209
+msgid "Es wurde noch kein Alarm gesendet."
+msgstr "Non è ancora stato inviato alcun allarme."
+
+#: inc/admin/settings-security.php:212
+msgid "Alarm testen"
+msgstr "Prova allarme"
+
+#: inc/admin/settings-security.php:213
+msgid "Zuerst speichern, dann testen. Das Ergebnis erscheint oben auf der Seite."
+msgstr "Salvi prima, poi esegua la prova. Il risultato compare in alto nella pagina."
+
+#: inc/admin/settings-security.php:220
+#: inc/admin/settings-view.php:28
+msgid "Support und Datenschutz"
+msgstr "Supporto e protezione dei dati"
+
+#: inc/admin/settings-security.php:220
+msgid "Was für den Support bereitsteht und was das Plugin über Mails speichert."
+msgstr "Cosa è disponibile per il supporto e cosa salva il plugin sulle e-mail."
+
+#: inc/admin/settings-security.php:221
+msgid "Supportbericht"
+msgstr "Rapporto di supporto"
+
+#: inc/admin/settings-security.php:222
+msgid "Eine Textdatei mit Versionen, Zustand der Wege, Zahlen und den letzten 20 Protokolleinträgen. Passwörter, Schlüssel und Tokens fehlen, E-Mail-Adressen sind gekürzt, Betreffe und Inhalte fehlen. Die Datei wird beim Klick erzeugt und nirgends gespeichert."
+msgstr "Un file di testo con versioni, stato delle vie, numeri e le ultime 20 voci del registro. Mancano password, chiavi e token, gli indirizzi e-mail sono abbreviati, mancano oggetti e contenuti. Il file viene creato al clic e non viene salvato da nessuna parte."
+
+#: inc/admin/settings-security.php:223
+msgid "Supportbericht herunterladen"
+msgstr "Scarica rapporto di supporto"
+
+#: inc/admin/settings-security.php:235
+msgid "Datenschutz"
+msgstr "Protezione dei dati"
+
+#: inc/admin/settings-security.php:236
+msgid "Das Protokoll speichert je Mail Empfänger, Betreff, Status und eine eventuelle Fehlermeldung. Nachrichteninhalt und Anhänge werden standardmässig nicht gespeichert."
+msgstr "Il registro salva per ogni e-mail destinatario, oggetto, stato ed eventuale messaggio di errore. Il contenuto dei messaggi e gli allegati di norma non vengono salvati."
+
+#. translators: 1: days, 2: next cleanup
+#: inc/admin/settings-security.php:238
+#, php-format
+msgid "Einträge werden nach %1$d Tagen automatisch gelöscht (Einstellung «Protokoll»). Nächste automatische Bereinigung: %2$s."
+msgstr "Le voci vengono eliminate automaticamente dopo %1$d giorni (impostazione «Registro»). Prossima pulizia automatica: %2$s."
+
+#. translators: 1: days, 2: next cleanup
+#: inc/admin/settings-security.php:238
+msgid "noch nicht geplant"
+msgstr "non ancora pianificata"
+
+#. translators: %d: days
+#: inc/admin/settings-security.php:241
+#, php-format
+msgid "Mails in der Warteschlange liegen verschlüsselt in der Datenbank, bis der Anbieter sie annimmt. Endgültig fehlgeschlagene Mails behalten ihren Inhalt %d Tage (Einstellung «Zustellung»), dann wird er gelöscht."
+msgstr "Le e-mail in coda restano cifrate nel database finché il provider non le accetta. Le e-mail fallite definitivamente conservano il loro contenuto per %d giorni (impostazione «Consegna»), poi viene eliminato."
+
+#: inc/admin/settings-security.php:243
+msgid "Personenbezogene Daten exportieren"
+msgstr "Esporta dati personali"
+
+#: inc/admin/settings-security.php:243
+msgid "Personenbezogene Daten löschen"
+msgstr "Elimina dati personali"
+
+#: inc/admin/settings-security.php:243
+msgid "Textvorschlag für die Datenschutzerklärung"
+msgstr "Proposta di testo per l'informativa sulla privacy"
+
+#: inc/admin/settings-security.php:254
+#: inc/admin/settings-view.php:29
+#: inc/admin/settings-view.php:141
+msgid "Verschlüsselung"
+msgstr "Cifratura"
+
+#: inc/admin/settings-security.php:254
+msgid "Passwörter und Schlüssel sind in der Datenbank verschlüsselt gespeichert."
+msgstr "Password e chiavi sono salvate cifrate nel database."
+
+#: inc/admin/settings-security.php:256
+msgid "Verschlüsselung verfügbar: ja"
+msgstr "Cifratura disponibile: sì"
+
+#: inc/admin/settings-security.php:256
+msgid "Verschlüsselung verfügbar: nein. Auf diesem Server fehlt libsodium, Zugangsdaten lassen sich nicht speichern."
+msgstr "Cifratura disponibile: no. Su questo server manca libsodium, le credenziali non possono essere salvate."
+
+#: inc/admin/settings-security.php:258
+msgid "Konstante MLAB_SMTP_KEY aus der wp-config.php"
+msgstr "Costante MLAB_SMTP_KEY da wp-config.php"
+
+#: inc/admin/settings-security.php:258
+msgid "Sicherheitsschlüssel (Salts) der Website"
+msgstr "Chiavi di sicurezza (salt) del sito"
+
+#. translators: 1: key source, 2: short key id
+#: inc/admin/settings-security.php:260
+#, php-format
+msgid "Schlüsselquelle: %1$s (Kennung %2$s)"
+msgstr "Fonte della chiave: %1$s (ID %2$s)"
+
+#. translators: 1: readable count, 2: unreadable count
+#: inc/admin/settings-security.php:263
+#, php-format
+msgid "Gespeicherte Zugangsdaten: %1$d lesbar, %2$d nicht lesbar"
+msgstr "Credenziali salvate: %1$d leggibili, %2$d non leggibili"
+
+#: inc/admin/settings-security.php:266
+msgid "Zugangsdaten mit aktuellem Schlüssel neu verschlüsseln"
+msgstr "Ricifrare le credenziali con la chiave attuale"
+
+#: inc/admin/settings-security.php:267
+msgid "Lesbare Zugangsdaten werden mit dem aktuellen Schlüssel neu gespeichert. Nicht lesbare bleiben unverändert."
+msgstr "Le credenziali leggibili vengono salvate di nuovo con la chiave attuale. Quelle non leggibili restano invariate."
+
+#: inc/admin/settings-security.php:267
+msgid "Alle lesbaren Zugangsdaten sind schon mit dem aktuellen Schlüssel verschlüsselt."
+msgstr "Tutte le credenziali leggibili sono già cifrate con la chiave attuale."
+
+#: inc/admin/settings-security.php:268
+msgid "Hilfe zu MLAB_SMTP_KEY: Mit dieser Konstante in der wp-config.php wählen Sie einen eigenen Schlüssel, unabhängig von den WordPress-Salts. Ändern Sie sie oder die Salts, ohne den alten Wert aufzubewahren, werden die gespeicherten Zugangsdaten unlesbar und müssen neu eingegeben werden. Das Plugin erzeugt nie von sich aus einen neuen Schlüssel. Die Schritte zur Wiederherstellung stehen in der Datei docs/upgrade-and-recovery.md des Plugins."
+msgstr "Guida a MLAB_SMTP_KEY: con questa costante nel file wp-config.php sceglie una chiave propria, indipendente dai salt di WordPress. Se modifica la costante o i salt senza conservare il valore precedente, le credenziali salvate diventano illeggibili e devono essere inserite di nuovo. Il plugin non crea mai da sé una nuova chiave. I passaggi per il ripristino si trovano nel file docs/upgrade-and-recovery.md del plugin."
+
+#: inc/admin/settings-security.php:282
+msgid "Der Schlüssel hat sich geändert."
+msgstr "La chiave è cambiata."
+
+#: inc/admin/settings-security.php:283
+msgid "Die gespeicherten Daten sind beschädigt."
+msgstr "I dati salvati sono danneggiati."
+
+#: inc/admin/settings-security.php:284
+msgid "Die Verschlüsselung ist auf diesem Server nicht verfügbar."
+msgstr "La cifratura non è disponibile su questo server."
+
+#: inc/admin/settings-security.php:288
+msgid "Bitte neu eingeben."
+msgstr "Inserisca di nuovo."
+
+#: inc/admin/settings-security.php:288
+msgid "Zur Eingabe"
+msgstr "Vai all'inserimento"
+
+#: inc/admin/settings-security.php:300
+msgid "Microsoft 365: Client-Secret"
+msgstr "Microsoft 365: client secret"
+
+#: inc/admin/settings-security.php:301
+msgid "Google: Client-Secret"
+msgstr "Google: client secret"
+
+#: inc/admin/settings-security.php:302
+msgid "Google: Anmeldung"
+msgstr "Google: accesso"
+
+#: inc/admin/settings-security.php:303
+msgid "Resend: API-Key"
+msgstr "Resend: chiave API"
+
+#: inc/admin/settings-security.php:304
+msgid "Resend: Signing Secret (Hauptkonto)"
+msgstr "Resend: Signing Secret (account principale)"
+
+#: inc/admin/settings-security.php:305
+msgid "Ersatzweg Resend: API-Key"
+msgstr "Via di riserva Resend: chiave API"
+
+#: inc/admin/settings-security.php:306
+msgid "Ersatzweg Resend: Signing Secret"
+msgstr "Via di riserva Resend: Signing Secret"
+
+#: inc/admin/settings-security.php:307
+msgid "SMTP: Passwort"
+msgstr "SMTP: password"
+
+#: inc/admin/settings-security.php:308
+msgid "Ersatzweg SMTP: Passwort"
+msgstr "Via di riserva SMTP: password"
+
+#: inc/admin/settings-security.php:309
+msgid "Alarmierung: Signatur-Secret"
+msgstr "Allarmi: segreto di firma"
+
+#: inc/admin/settings-view.php:21
+#: inc/admin/settings-view.php:331
+msgid "Zustellung"
+msgstr "Consegna"
+
+#: inc/admin/settings-view.php:22
+msgid "Zustellbestätigung"
+msgstr "Conferma di consegna"
+
+#: inc/admin/settings-view.php:24
+msgid "Staging"
+msgstr "Staging"
+
+#: inc/admin/settings-view.php:25
+msgid "Alarmierung"
+msgstr "Allarmi"
+
+#: inc/admin/settings-view.php:26
+#: inc/admin/settings-view.php:182
+#: inc/health.php:238
+msgid "Benachrichtigung"
+msgstr "Notifica"
+
+#: inc/admin/settings-view.php:30
+#: inc/admin/settings-view.php:269
+msgid "Aus wp-config.php"
+msgstr "Da wp-config.php"
+
+#: inc/admin/settings-view.php:38
+msgid "Hier stellen Sie ein, wie Mails versendet, geschützt und überwacht werden. Alles auf dieser Seite wird mit «Änderungen speichern» unten gespeichert. Die einzelnen Knöpfe (testen, bestätigen, herunterladen, neu verschlüsseln) wirken sofort."
+msgstr "Qui imposta come vengono inviate, protette e monitorate le e-mail. Tutto in questa pagina viene salvato con «Salva modifiche» in basso. I singoli pulsanti (prova, conferma, scarica, ricifra) agiscono subito."
+
+#: inc/admin/settings-view.php:39
+msgid "Inhalt dieser Seite"
+msgstr "Contenuto di questa pagina"
+
+#: inc/admin/settings-view.php:50
+msgid "Änderungen speichern"
+msgstr "Salva modifiche"
+
+#: inc/admin/settings-view.php:61
+msgid "Über welchen Dienst die Website Mails versendet."
+msgstr "Tramite quale servizio il sito invia le e-mail."
+
+#: inc/admin/settings-view.php:63
+msgid "Noch nicht eingerichtet."
+msgstr "Non ancora configurato."
+
+#: inc/admin/settings-view.php:69
+msgid "Ändern"
+msgstr "Modifica"
+
+#: inc/admin/settings-view.php:78
+msgid "Springt ein, wenn die Hauptverbindung ausfällt oder eine Mail ablehnt."
+msgstr "Subentra se la connessione principale non funziona o se un'e-mail viene respinta."
+
+#: inc/admin/settings-view.php:81
+msgid "Ersatzweg verwenden"
+msgstr "Usa la via di riserva"
+
+#: inc/admin/settings-view.php:83
+msgid "Ersatzweg über"
+msgstr "Via di riserva tramite"
+
+#: inc/admin/settings-view.php:102
+msgid "Ersatzweg prüfen und testen"
+msgstr "Verificare e testare la via di riserva"
+
+#: inc/admin/settings-view.php:127
+#: inc/admin/wizard.php:290
+msgid "Server"
+msgstr "Server"
+
+#: inc/admin/settings-view.php:130
+#: inc/admin/wizard.php:295
+msgid "Port"
+msgstr "Porta"
+
+#: inc/admin/settings-view.php:145
+#: inc/admin/wizard.php:304
+msgid "Der Server verlangt Benutzername und Passwort"
+msgstr "Il server richiede nome utente e password"
+
+#: inc/admin/settings-view.php:146
+#: inc/admin/wizard.php:305
+msgid "Benutzername"
+msgstr "Nome utente"
+
+#: inc/admin/settings-view.php:147
+#: inc/admin/wizard.php:306
+msgid "Passwort"
+msgstr "Password"
+
+#: inc/admin/settings-view.php:156
+msgid "API-Key von Resend"
+msgstr "Chiave API di Resend"
+
+#: inc/admin/settings-view.php:160
+msgid "Beginnt mit «re_». Die Domain Ihrer Absender-Adresse muss bei Resend verifiziert sein, und der Ersatzweg sendet immer mit dieser Adresse."
+msgstr "Inizia con «re_». Il dominio dell'indirizzo mittente deve essere verificato presso Resend, e la via di riserva invia sempre con questo indirizzo."
+
+#: inc/admin/settings-view.php:172
+msgid "STARTTLS (Port 587, empfohlen)"
+msgstr "STARTTLS (porta 587, consigliato)"
+
+#: inc/admin/settings-view.php:173
+msgid "SSL/TLS (Port 465)"
+msgstr "SSL/TLS (porta 465)"
+
+#: inc/admin/settings-view.php:174
+msgid "Keine (nicht empfohlen)"
+msgstr "Nessuna (non consigliata)"
+
+#: inc/admin/settings-view.php:182
+msgid "Damit Sie erfahren, wenn Mails nicht ankommen."
+msgstr "Per essere informato se le e-mail non arrivano."
+
+#: inc/admin/settings-view.php:183
+msgid "Bei Fehlern benachrichtigen"
+msgstr "Avvisa in caso di errori"
+
+#: inc/admin/settings-view.php:191
+msgid "Leer lassen für die Administrator-Adresse der Website. Die Nachricht geht über den Ersatzweg, falls die Hauptverbindung ausfällt."
+msgstr "Lasci vuoto per l'indirizzo dell'amministratore del sito. Il messaggio passa dalla via di riserva, se la connessione principale non funziona."
+
+#: inc/admin/settings-view.php:196
+msgid "Wann"
+msgstr "Quando"
+
+#: inc/admin/settings-view.php:199
+msgid "Sofort beim ersten Fehler, danach höchstens 1× pro Stunde"
+msgstr "Subito al primo errore, poi al massimo 1 volta all'ora"
+
+#: inc/admin/settings-view.php:200
+msgid "Tägliche Zusammenfassung"
+msgstr "Riepilogo giornaliero"
+
+#: inc/admin/settings-view.php:214
+msgid "Name und Adresse, die Empfänger sehen."
+msgstr "Nome e indirizzo che vedono i destinatari."
+
+#: inc/admin/settings-view.php:216
+#: inc/admin/wizard.php:383
+msgid "Absender-Name"
+msgstr "Nome del mittente"
+
+#: inc/admin/settings-view.php:228
+#: inc/admin/wizard.php:401
+msgid "Antworten gehen an (optional)"
+msgstr "Le risposte vanno a (facoltativo)"
+
+#: inc/admin/settings-view.php:231
+#: inc/admin/wizard.php:404
+msgid "z. B. info@ihre-domain.ch"
+msgstr "ad es. info@il-suo-dominio.ch"
+
+#: inc/admin/settings-view.php:234
+msgid "Absender auch verwenden, wenn ein anderes Plugin einen eigenen setzt"
+msgstr "Usa anche questo mittente se un altro plugin ne imposta uno proprio"
+
+#: inc/admin/settings-view.php:243
+msgid "Empfänger, Betreff und Ergebnis, nie der Inhalt."
+msgstr "Destinatario, oggetto ed esito, mai il contenuto."
+
+#: inc/admin/settings-view.php:244
+msgid "Versand protokollieren"
+msgstr "Registra l'invio"
+
+#: inc/admin/settings-view.php:248
+msgid "Aufbewahren"
+msgstr "Conservare"
+
+#: inc/admin/settings-view.php:251
+#: inc/admin/settings-view.php:364
+msgid "7 Tage"
+msgstr "7 giorni"
+
+#: inc/admin/settings-view.php:252
+msgid "30 Tage"
+msgstr "30 giorni"
+
+#: inc/admin/settings-view.php:253
+msgid "90 Tage"
+msgstr "90 giorni"
+
+#: inc/admin/settings-view.php:269
+msgid "Diese Werte sind in der Datei gesetzt und lassen sich hier nicht ändern."
+msgstr "Questi valori sono impostati nel file e non possono essere modificati qui."
+
+#: inc/admin/settings-view.php:272
+msgid "gesetzt"
+msgstr "impostato"
+
+#: inc/admin/settings-view.php:282
+msgid "Zustellbestätigung (Resend)"
+msgstr "Conferma di consegna (Resend)"
+
+#: inc/admin/settings-view.php:282
+msgid "Resend meldet zurück, ob eine Mail beim Empfänger angekommen ist. Ohne diese Meldung gilt eine Mail nur als «angenommen»."
+msgstr "Resend comunica se un'e-mail è arrivata al destinatario. Senza questa comunicazione un'e-mail risulta solo «accettata»."
+
+#: inc/admin/settings-view.php:288
+msgid "Hauptkonto und Ersatzkonto brauchen je einen eigenen Webhook mit eigener Adresse und eigenem Signing Secret."
+msgstr "Account principale e account di riserva necessitano ciascuno di un proprio webhook con indirizzo e Signing Secret propri."
+
+#: inc/admin/settings-view.php:290
+msgid "Hauptkonto"
+msgstr "Account principale"
+
+#: inc/admin/settings-view.php:291
+msgid "Ersatzkonto"
+msgstr "Account di riserva"
+
+#: inc/admin/settings-view.php:298
+msgid "Signing Secret"
+msgstr "Signing Secret"
+
+#. translators: %s: time span like "5 Minuten"
+#: inc/admin/settings-view.php:306
+#, php-format
+msgid "Letztes Ereignis vor %s."
+msgstr "Ultimo evento ricevuto %s fa."
+
+#. translators: %s: time span like "5 Minuten"
+#: inc/admin/settings-view.php:306
+msgid "Noch kein Ereignis empfangen."
+msgstr "Nessun evento ancora ricevuto."
+
+#: inc/admin/settings-view.php:319
+msgid "Bei Resend im Menü «Webhooks» öffnen und «Add Webhook» wählen."
+msgstr "Apra in Resend il menu «Webhooks» e selezioni «Add Webhook»."
+
+#: inc/admin/settings-view.php:320
+msgid "Die Adresse des Kontos unten als «Endpoint URL» einfügen (Haupt- und Ersatzkonto je mit ihrer eigenen Adresse)."
+msgstr "Inserisca l'indirizzo del rispettivo account qui sotto come «Endpoint URL» (account principale e di riserva, ciascuno con il proprio indirizzo)."
+
+#: inc/admin/settings-view.php:321
+msgid "Diese sechs Ereignisse ankreuzen: email.sent, email.delivered, email.delivery_delayed, email.bounced, email.complained, email.failed. Öffnen und Klicks werden nicht gebraucht."
+msgstr "Selezioni questi sei eventi: email.sent, email.delivered, email.delivery_delayed, email.bounced, email.complained, email.failed. Le aperture e i clic non servono."
+
+#: inc/admin/settings-view.php:322
+msgid "Webhook speichern, dann auf der Seite des Webhooks das «Signing Secret» (beginnt mit «whsec_») kopieren und hier einfügen."
+msgstr "Salvi il webhook, poi copi dalla pagina del webhook il «Signing Secret» (inizia con «whsec_») e lo inserisca qui."
+
+#: inc/admin/settings-view.php:323
+msgid "Änderungen speichern. Beim nächsten Versand erscheint hier das letzte empfangene Ereignis."
+msgstr "Salvi le modifiche. Al prossimo invio compare qui l'ultimo evento ricevuto."
+
+#: inc/admin/settings-view.php:331
+msgid "Wann eine Mail als versendet gilt und was bei Störungen passiert."
+msgstr "Quando un'e-mail è considerata inviata e che cosa succede in caso di guasti."
+
+#: inc/admin/settings-view.php:335
+msgid "Versandart"
+msgstr "Modalità di invio"
+
+#: inc/admin/settings-view.php:338
+msgid "Sofort senden (Standard)"
+msgstr "Invio immediato (predefinito)"
+
+#: inc/admin/settings-view.php:339
+msgid "Über die Warteschlange senden"
+msgstr "Invia tramite la coda"
+
+#: inc/admin/settings-view.php:341
+msgid "Sofort: wp_mail() meldet «gesendet» nur, wenn der Anbieter die Mail angenommen hat. Warteschlange: wp_mail() meldet «gesendet», sobald die Mail sicher gespeichert ist. Das heisst nur «zum Versand angenommen», nicht «versendet»: Der Versand folgt im Hintergrund, Fehler zeigt erst das Protokoll. Mails mit sehr grossen Anhängen (über 10 MB) werden immer sofort gesendet."
+msgstr "Immediato: wp_mail() segnala «inviata» solo se il provider ha accettato l'e-mail. Coda: wp_mail() segnala «inviata» non appena l'e-mail è salvata in modo sicuro. Significa quindi solo «accettata per l'invio», non «inviata»: l'invio avviene in background, gli errori compaiono solo nel registro. Le e-mail con allegati molto grandi (oltre 10 MB) vengono sempre inviate subito."
+
+#: inc/admin/settings-view.php:344
+msgid "Im Hintergrund wiederholen (nur bei «Sofort senden»)"
+msgstr "Ripeti in background (solo con «Invio immediato»)"
+
+#: inc/admin/settings-view.php:345
+msgid "Schlägt der Versand vorübergehend fehl (Hauptweg und Ersatzweg), legt das Plugin die Mail in die Warteschlange, und wp_mail() meldet «angenommen» statt eines Fehlers. Aus (Standard): wp_mail() meldet den Fehler sofort."
+msgstr "Se l'invio fallisce temporaneamente (via principale e via di riserva), il plugin mette l'e-mail in coda e wp_mail() segnala «accettata» invece di un errore. Disattivo (predefinito): wp_mail() segnala subito l'errore."
+
+#: inc/admin/settings-view.php:346
+msgid "Bei unklarem Ergebnis auf den Ersatzweg wechseln (Sofort senden)"
+msgstr "In caso di esito incerto, passa alla via di riserva (invio immediato)"
+
+#: inc/admin/settings-view.php:347
+msgid "Bei unklarem Ergebnis auch für Mails aus der Warteschlange auf den Ersatzweg wechseln"
+msgstr "In caso di esito incerto, passa alla via di riserva anche per le e-mail in coda"
+
+#: inc/admin/settings-view.php:348
+msgid "Unklar heisst: Die Anfrage ging raus, die Antwort fehlt. Der Anbieter kann die Mail trotzdem angenommen haben, ein Wechsel kann dann ein Duplikat erzeugen. Unklare Mails werden nie automatisch erneut gesendet, ausser über Resend mit demselben Idempotenz-Schlüssel innerhalb von 23 Stunden."
+msgstr "Incerto significa: la richiesta è partita, ma manca la risposta. Il provider potrebbe aver comunque accettato l'e-mail; un cambio di via può quindi creare un duplicato. Le e-mail con esito incerto non vengono mai inviate di nuovo automaticamente, salvo tramite Resend con la stessa chiave di idempotenza entro 23 ore."
+
+#: inc/admin/settings-view.php:351
+msgid "Höchstzahl der Versuche"
+msgstr "Numero massimo di tentativi"
+
+#: inc/admin/settings-view.php:354
+msgid "Abstand zwischen den Versuchen: 1 Minute, dann jeweils verdoppelt, höchstens 6 Stunden. Eine Retry-After-Angabe des Anbieters hat Vorrang."
+msgstr "Intervallo tra i tentativi: 1 minuto, poi raddoppiato ogni volta, al massimo 6 ore. Un'indicazione Retry-After del provider ha la precedenza."
+
+#: inc/admin/settings-view.php:359
+msgid "Inhalt endgültig fehlgeschlagener Mails aufbewahren"
+msgstr "Conservare il contenuto delle e-mail fallite definitivamente"
+
+#: inc/admin/settings-view.php:362
+msgid "1 Tag"
+msgstr "1 giorno"
+
+#: inc/admin/settings-view.php:363
+msgid "3 Tage"
+msgstr "3 giorni"
+
+#: inc/admin/settings-view.php:365
+msgid "14 Tage (Höchstwert)"
+msgstr "14 giorni (massimo)"
+
+#: inc/admin/settings-view.php:367
+msgid "Verschlüsselt gespeichert, nur damit sich die Mail manuell wiederholen lässt. Nach der Annahme durch den Anbieter wird der Inhalt sofort gelöscht."
+msgstr "Salvato cifrato, solo per consentire di ripetere manualmente l'invio. Dopo l'accettazione da parte del provider, il contenuto viene eliminato subito."
+
+#: inc/admin/settings-view.php:371
+msgid "Grenze: Einstellungen, die ein anderes Plugin nur am Mailer-Objekt setzt (zum Beispiel ein DKIM-Schlüssel), gelten nicht für Mails aus der Warteschlange. Die Warteschlange läuft über WP-Cron; ein System-Cron ist zuverlässiger."
+msgstr "Limite: le impostazioni che un altro plugin imposta solo sull'oggetto mailer (ad esempio una chiave DKIM) non valgono per le e-mail in coda. La coda viene eseguita tramite WP-Cron; un cron di sistema è più affidabile."
+
+#: inc/admin/wizard.php:44
+msgid "E-Mail-Versand einrichten"
+msgstr "Configura l'invio e-mail"
+
+#. translators: 1: current step, 2: number of steps
+#: inc/admin/wizard.php:58
+#, php-format
+msgid "Schritt %1$d von %2$d"
+msgstr "Passo %1$d di %2$d"
+
+#: inc/admin/wizard.php:104
+msgid "Wie soll Ihre Website Mails versenden?"
+msgstr "Come deve inviare le e-mail il sito?"
+
+#: inc/admin/wizard.php:104
+msgid "Wählen Sie den Dienst, über den die Mails verschickt werden. Haben Sie bereits Microsoft 365 oder Google, nehmen Sie diesen: So kommen die Mails am zuverlässigsten an."
+msgstr "Scelga il servizio con cui inviare le e-mail. Se ha già Microsoft 365 o Google, usi questo: così le e-mail arrivano nel modo più affidabile."
+
+#. translators: 1: domain, 2: provider name
+#: inc/admin/wizard.php:108
+#, php-format
+msgid "Für %1$s haben wir %2$s erkannt."
+msgstr "Per %1$s abbiamo riconosciuto %2$s."
+
+#. translators: %s: MX host
+#: inc/admin/wizard.php:108
+#, php-format
+msgid "Gefunden im Mail-Eintrag der Domain (MX: %s)"
+msgstr "Trovato nel record e-mail del dominio (MX: %s)"
+
+#: inc/admin/wizard.php:111
+msgid "Mailanbieter"
+msgstr "Provider di posta"
+
+#: inc/admin/wizard.php:133
+msgid "Erkannt"
+msgstr "Riconosciuto"
+
+#: inc/admin/wizard.php:166
+msgid "Prüfen Sie zuerst die Verbindung. Erst danach können Sie weiter."
+msgstr "Verifichi prima la connessione. Solo dopo può proseguire."
+
+#: inc/admin/wizard.php:210
+msgid "Mit Microsoft 365 verbinden"
+msgstr "Collegare a Microsoft 365"
+
+#: inc/admin/wizard.php:210
+msgid "Legen Sie einmalig in Microsoft Entra eine App an und tragen Sie unten ihre Angaben ein. Die Website meldet sich damit an, ohne Passwort eines Mitarbeiters."
+msgstr "Crei una sola volta un'app in Microsoft Entra e inserisca qui sotto i suoi dati. Il sito accede così senza la password di un collaboratore."
+
+#: inc/admin/wizard.php:212
+msgid "Vorbereitung in Microsoft Entra"
+msgstr "Preparazione in Microsoft Entra"
+
+#: inc/admin/wizard.php:214
+msgid "App registrieren"
+msgstr "Registrare l'app"
+
+#: inc/admin/wizard.php:214
+msgid "Entra › App-Registrierungen › Neue Registrierung. Name:"
+msgstr "Entra › Registrazioni app › Nuova registrazione. Nome:"
+
+#: inc/admin/wizard.php:215
+msgid "Berechtigung hinzufügen"
+msgstr "Aggiungere autorizzazione"
+
+#: inc/admin/wizard.php:215
+msgid "API-Berechtigungen › Microsoft Graph › Anwendungsberechtigungen › Mail.Send, dann «Administratorzustimmung erteilen»."
+msgstr "Autorizzazioni API › Microsoft Graph › Autorizzazioni applicazione › Mail.Send, poi «Concedi consenso amministratore»."
+
+#: inc/admin/wizard.php:216
+msgid "Geheimen Schlüssel erstellen"
+msgstr "Creare il segreto client"
+
+#: inc/admin/wizard.php:216
+msgid "Zertifikate & Geheimnisse › Neuer geheimer Clientschlüssel. Kopieren Sie den Wert, nicht die ID. Wählen Sie eine Laufzeit von 24 Monaten und tragen Sie das Ablaufdatum unten ein."
+msgstr "Certificati e segreti › Nuovo segreto client. Copi il valore, non l'ID. Scelga una durata di 24 mesi e inserisca la data di scadenza qui sotto."
+
+#: inc/admin/wizard.php:218
+msgid "Auf ein Postfach beschränken (empfohlen)"
+msgstr "Limitare a una casella di posta (consigliato)"
+
+#: inc/admin/wizard.php:219
+msgid "Sonst darf die App aus jedem Postfach der Firma senden. Befehl für Exchange Online PowerShell:"
+msgstr "Altrimenti l'app può inviare da qualsiasi casella dell'azienda. Comando per Exchange Online PowerShell:"
+
+#: inc/admin/wizard.php:221
+msgid "Ersetzen Sie die beiden Platzhalter durch die Anwendungs-ID und das Absender-Postfach."
+msgstr "Sostituisca i due segnaposto con l'ID applicazione e la casella del mittente."
+
+#: inc/admin/wizard.php:225
+msgid "Microsoft Entra öffnen"
+msgstr "Apri Microsoft Entra"
+
+#: inc/admin/wizard.php:228
+msgid "Verzeichnis-ID (Mandant)"
+msgstr "ID directory (tenant)"
+
+#: inc/admin/wizard.php:228
+msgid "Steht auf der Übersichtsseite der App."
+msgstr "Si trova nella pagina di panoramica dell'app."
+
+#: inc/admin/wizard.php:229
+msgid "Anwendungs-ID"
+msgstr "ID applicazione"
+
+#: inc/admin/wizard.php:230
+msgid "Geheimer Schlüssel (Wert)"
+msgstr "Segreto client (valore)"
+
+#: inc/admin/wizard.php:233
+msgid "Schlüssel gültig bis"
+msgstr "Chiave valida fino al"
+
+#: inc/admin/wizard.php:236
+msgid "Wir erinnern Sie 30 Tage vorher."
+msgstr "Le ricorderemo 30 giorni prima."
+
+#: inc/admin/wizard.php:239
+msgid "Postfach, aus dem gesendet wird"
+msgstr "Casella di posta da cui inviare"
+
+#: inc/admin/wizard.php:248
+msgid "Mit Google verbinden"
+msgstr "Collegare a Google"
+
+#: inc/admin/wizard.php:248
+msgid "Legen Sie einmalig in der Google Cloud Console einen Zugang an, tragen Sie unten Client-ID und Secret ein und melden Sie sich danach mit Ihrem Google-Konto an."
+msgstr "Crei una sola volta un accesso nella Google Cloud Console, inserisca qui sotto client ID e secret e poi acceda con il suo account Google."
+
+#: inc/admin/wizard.php:250
+msgid "Vorbereitung in Google Cloud"
+msgstr "Preparazione in Google Cloud"
+
+#: inc/admin/wizard.php:252
+msgid "Gmail API aktivieren"
+msgstr "Attivare Gmail API"
+
+#: inc/admin/wizard.php:252
+msgid "APIs & Dienste › Bibliothek › Gmail API › Aktivieren."
+msgstr "API e servizi › Libreria › Gmail API › Attiva."
+
+#: inc/admin/wizard.php:253
+msgid "OAuth-Client anlegen"
+msgstr "Creare client OAuth"
+
+#: inc/admin/wizard.php:253
+msgid "Anmeldedaten › OAuth-Client-ID › Typ «Webanwendung». Als Weiterleitungs-URI eintragen:"
+msgstr "Credenziali › ID client OAuth › tipo «Applicazione web». Inserisca come URI di reindirizzamento:"
+
+#: inc/admin/wizard.php:254
+msgid "App veröffentlichen"
+msgstr "Pubblicare l'app"
+
+#: inc/admin/wizard.php:254
+msgid "OAuth-Zustimmungsbildschirm › «In Produktion». Wichtig: Im Testmodus läuft der Zugriff nach 7 Tagen ab."
+msgstr "Schermata di consenso OAuth › «In produzione». Importante: in modalità di test l'accesso scade dopo 7 giorni."
+
+#: inc/admin/wizard.php:257
+msgid "Google Cloud öffnen"
+msgstr "Apri Google Cloud"
+
+#: inc/admin/wizard.php:260
+msgid "Client-ID"
+msgstr "Client ID"
+
+#: inc/admin/wizard.php:261
+msgid "Client-Secret"
+msgstr "Client secret"
+
+#: inc/admin/wizard.php:272
+msgid "Mit Google anmelden"
+msgstr "Accedi con Google"
+
+#. translators: %s: Google account
+#: inc/admin/wizard.php:278
+#, php-format
+msgid "Verbunden als %s"
+msgstr "Collegato come %s"
+
+#. translators: %s: Google account
+#: inc/admin/wizard.php:278
+msgid "Verbunden"
+msgstr "Collegato"
+
+#: inc/admin/wizard.php:279
+msgid "Anderes Konto"
+msgstr "Altro account"
+
+#: inc/admin/wizard.php:287
+msgid "Mit Ihrem Mailserver verbinden"
+msgstr "Collegare il proprio server di posta"
+
+#: inc/admin/wizard.php:287
+msgid "Wählen Sie unten Ihren Hoster, dann tragen wir Server und Port ein. Benutzername und Passwort finden Sie im Kundencenter Ihres Hosters, meist unter «E-Mail-Programm einrichten»."
+msgstr "Scelga sotto il proprio hoster: inseriremo server e porta. Nome utente e password si trovano nell'area clienti del proprio hoster, di solito sotto «Configurare il programma e-mail»."
+
+#: inc/admin/wizard.php:305
+msgid "Meist die vollständige Mailadresse."
+msgstr "Di solito l'indirizzo e-mail completo."
+
+#: inc/admin/wizard.php:316
+msgid "Hoster"
+msgstr "Hoster"
+
+#: inc/admin/wizard.php:317
+msgid "Bitte wählen"
+msgstr "Selezioni"
+
+#: inc/admin/wizard.php:329
+msgid "Füllt Server und Verbindung automatisch aus."
+msgstr "Compila automaticamente server e connessione."
+
+#: inc/admin/wizard.php:343
+msgid "Von wem kommen die Mails?"
+msgstr "Chi invia le e-mail?"
+
+#: inc/admin/wizard.php:343
+msgid "Name und Adresse sehen Empfänger im Posteingang. Die Vorschau unten zeigt, wie es aussieht."
+msgstr "Nome e indirizzo vengono visualizzati dai destinatari nella casella di posta. L'anteprima sotto mostra com'è."
+
+#: inc/admin/wizard.php:349
+msgid "Vorschau"
+msgstr "Anteprima"
+
+#: inc/admin/wizard.php:386
+msgid "Übernommen aus dem Namen der Website."
+msgstr "Ripreso dal nome del sito."
+
+#: inc/admin/wizard.php:396
+msgid "Muss ein vorhandenes Postfach sein und sollte zur Domain passen, sonst landen Mails im Spam."
+msgstr "Deve essere una casella di posta esistente e dovrebbe corrispondere al dominio, altrimenti le e-mail finiscono nello spam."
+
+#: inc/admin/wizard.php:405
+msgid "Nützlich, wenn das Absender-Postfach niemand liest."
+msgstr "Utile se la casella del mittente non viene letta da nessuno."
+
+#: inc/admin/wizard.php:417
+msgid "Wir senden eine Testmail an die Adresse unten. Kommt sie an, schliessen Sie die Einrichtung ab. Kommt sie nicht an, sagt Ihnen die Meldung, was zu tun ist."
+msgstr "Inviamo un'e-mail di prova all'indirizzo qui sotto. Se arriva, completi la configurazione. Se non arriva, il messaggio le indicherà cosa fare."
+
+#: inc/admin/wizard.php:421
+msgid "Einrichtung abschliessen"
+msgstr "Completare la configurazione"
+
+#: inc/admin/wizard.php:421
+msgid "Zuerst eine Testmail senden"
+msgstr "Invii prima un'e-mail di prova"
+
+#: inc/alerts.php:36
+msgid "Hauptweg gestört"
+msgstr "Via principale in difficoltà"
+
+#: inc/alerts.php:37
+msgid "Ersatzweg aktiv"
+msgstr "Via di riserva attiva"
+
+#: inc/alerts.php:38
+#: inc/health.php:324
+msgid "Warteschlange staut sich"
+msgstr "La coda si sta accumulando"
+
+#: inc/alerts.php:39
+#: inc/health.php:354
+msgid "Endgültige Fehler"
+msgstr "Errori definitivi"
+
+#: inc/alerts.php:204
+msgid "Es ist keine Adresse für den Alarm eingetragen."
+msgstr "Nessun indirizzo è inserito per gli allarmi."
+
+#. translators: %s: error text
+#: inc/alerts.php:219
+#, php-format
+msgid "Der Alarm konnte nicht gesendet werden: %s"
+msgstr "Impossibile inviare l'allarme: %s"
+
+#. translators: %d: HTTP status code
+#: inc/alerts.php:228
+#, php-format
+msgid "Der Alarm wurde zugestellt (HTTP %d)."
+msgstr "L'allarme è stato consegnato (HTTP %d)."
+
+#. translators: %d: HTTP status code
+#: inc/alerts.php:228
+#, php-format
+msgid "Die Gegenstelle hat den Alarm abgelehnt (HTTP %d)."
+msgstr "Il destinatario ha respinto l'allarme (HTTP %d)."
+
+#: inc/alerts.php:247
+msgid "Der Test-Alarm konnte nicht gesendet werden."
+msgstr "Impossibile inviare l'allarme di prova."
+
+#. translators: %s: error text.
+#: inc/alerts.php:269
+#, php-format
+msgid "Der Hauptweg meldet einen Fehler: %s"
+msgstr "La via principale segnala un errore: %s"
+
+#: inc/alerts.php:277
+msgid "Mails werden zurzeit über den Ersatzweg gesendet."
+msgstr "Le e-mail vengono attualmente inviate tramite la via di riserva."
+
+#: inc/alerts.php:303
+msgid "Mindestens eine E-Mail konnte endgültig nicht zugestellt werden."
+msgstr "Almeno un'e-mail non ha potuto essere consegnata definitivamente."
+
+#: inc/alerts.php:318
+msgid "Die Warteschlange wird nicht abgearbeitet."
+msgstr "La coda non viene elaborata."
+
+#: inc/alerts.php:367
+msgid "Die Alarmierung ist gespeichert."
+msgstr "L'allarme è stato salvato."
+
+#: inc/check.php:20
+msgid "Der Ersatzweg ist noch nicht vollständig eingetragen. Bitte Server (Mailserver) oder API-Key (Resend) ergänzen."
+msgstr "La via di riserva non è ancora completa. Completi il server (server di posta) o la chiave API (Resend)."
+
+#: inc/check.php:23
+msgid "Die Verbindung ist noch nicht vollständig eingetragen. Bitte alle Pflichtfelder ausfüllen und speichern."
+msgstr "La connessione non è ancora completa. Compili tutti i campi obbligatori e salvi."
+
+#: inc/check.php:94
+msgid "Die Verbindung zum Mailserver ist fehlgeschlagen."
+msgstr "Connessione al server di posta non riuscita."
+
+#: inc/check.php:109
+msgid "Das Plugin ist noch nicht eingerichtet, es wurde keine Testmail versendet. Bitte zuerst die Verbindung eintragen und speichern."
+msgstr "Il plugin non è ancora configurato, quindi non è stata inviata alcuna e-mail di prova. Inserisca prima la connessione e la salvi."
+
+#. translators: %s: site name
+#: inc/check.php:125
+#, php-format
+msgid "Testmail von %s"
+msgstr "E-mail di prova da %s"
+
+#: inc/check.php:126
+msgid "Diese Nachricht bestätigt, dass der E-Mail-Versand funktioniert."
+msgstr "Questo messaggio conferma che l'invio di e-mail funziona."
+
+#: inc/check.php:134
+#: inc/engine-send.php:255
+msgid "Unbekannter Fehler."
+msgstr "Errore sconosciuto."
+
+#: inc/check.php:178
+msgid "Resend kennt den API-Key nicht. Er wurde gelöscht oder falsch kopiert. Erstellen Sie bei Resend unter «API Keys» einen neuen Key und tragen Sie ihn im Assistenten ein."
+msgstr "Resend non riconosce la chiave API. È stata eliminata oppure copiata in modo errato. Crei una nuova chiave presso Resend in «API Keys» e la inserisca nella procedura guidata."
+
+#: inc/check.php:183
+msgid "Der API-Key ist bei Resend nicht aktiv oder gesperrt. Erstellen Sie einen neuen Key oder wenden Sie sich an den Resend-Support."
+msgstr "La chiave API non è attiva o è bloccata presso Resend. Crei una nuova chiave oppure si rivolga all'assistenza di Resend."
+
+#: inc/check.php:188
+msgid "Mit der Testadresse von Resend (resend.dev) ist nur der Versand an die eigene Adresse Ihres Resend-Kontos erlaubt. Verifizieren Sie eine eigene Domain bei Resend und verwenden Sie eine Absender-Adresse dieser Domain."
+msgstr "Con l'indirizzo di test di Resend (resend.dev) è consentito inviare solo all'indirizzo del proprio account Resend. Verifichi un dominio proprio presso Resend e usi un indirizzo mittente di questo dominio."
+
+#: inc/check.php:193
+msgid "Die Domain der Absender-Adresse ist bei Resend nicht verifiziert. Tragen Sie die DNS-Einträge bei Ihrem Domain-Anbieter ein (Einrichtungs-Assistent, Schritt «Absender») oder verwenden Sie eine Adresse einer verifizierten Domain."
+msgstr "Il dominio dell'indirizzo mittente non è verificato presso Resend. Inserisca le voci DNS presso il provider del dominio (procedura guidata, passaggio «Mittente») oppure usi un indirizzo di un dominio verificato."
+
+#: inc/check.php:198
+msgid "Das Mail-Kontingent bei Resend ist aufgebraucht (Tages- oder Monatslimit des Tarifs). Mails gehen über den Ersatzweg, sofern er eingerichtet ist. Das Tageslimit gilt bis 00:00 UTC, für mehr Mails hilft ein Tarifwechsel bei Resend."
+msgstr "Il contingente di e-mail di Resend è esaurito (limite giornaliero o mensile della tariffa). Le e-mail passano dalla via di riserva, se configurata. Il limite giornaliero vale fino alle 00:00 UTC; per inviare più e-mail serve un cambio di tariffa presso Resend."
+
+#: inc/check.php:203
+msgid "Die Website sendet zu viele Mails auf einmal (Resend erlaubt 10 Anfragen pro Sekunde). Mails gehen über den Ersatzweg, sofern er eingerichtet ist."
+msgstr "Il sito invia troppe e-mail contemporaneamente (Resend consente 10 richieste al secondo). Le e-mail passano dalla via di riserva, se configurata."
+
+#: inc/check.php:208
+msgid "Resend ist vorübergehend gestört. Prüfen Sie resend-status.com. Mails gehen über den Ersatzweg, sofern er eingerichtet ist."
+msgstr "Resend è temporaneamente in difficoltà. Controlli resend-status.com. Le e-mail passano dalla via di riserva, se configurata."
+
+#: inc/check.php:213
+msgid "Resend ist von diesem Server aus nicht erreichbar (api.resend.com). Prüfen Sie, ob der Hoster ausgehende HTTPS-Verbindungen sperrt, und versuchen Sie es erneut."
+msgstr "Resend non è raggiungibile da questo server (api.resend.com). Verifichi se l'hosting blocca le connessioni HTTPS in uscita e riprovi."
+
+#: inc/check.php:218
+msgid "Resend hat die Mail abgelehnt, weil Angaben darin ungültig sind (zum Beispiel Absender, Empfänger oder Anhang). Die technische Meldung unten nennt das Feld."
+msgstr "Resend ha respinto l'e-mail perché alcuni dati non sono validi (ad esempio mittente, destinatario o allegato). Il messaggio tecnico qui sotto indica il campo."
+
+#: inc/check.php:232
+msgid "Google hat den Zugriff widerrufen oder ist abgelaufen. Das passiert, wenn die Google-App noch im Testmodus ist (Ablauf nach 7 Tagen). Stellen Sie die App in der Google Cloud Console auf «In Produktion» und verbinden Sie Google danach neu."
+msgstr "Google ha revocato l'accesso o è scaduto. Succede quando l'app Google è ancora in modalità di test (scadenza dopo 7 giorni). Imposti l'app nella Google Cloud Console su «In produzione» e poi colleghi di nuovo Google."
+
+#: inc/check.php:236
+msgid "Das Client-Secret ist falsch oder abgelaufen. Erstellen Sie beim Anbieter ein neues Secret und tragen Sie es unter «Einstellungen» ein."
+msgstr "Il client secret è errato o scaduto. Crei un nuovo secret presso il provider e lo inserisca in «Impostazioni»."
+
+#: inc/check.php:241
+msgid "Microsoft 365 verweigert den Zugriff. Prüfen Sie, ob die Berechtigung «Mail.Send» (Anwendungsberechtigung) hinzugefügt und die Administratorzustimmung erteilt wurde und ob die Zugriffsrichtlinie das Postfach zulässt."
+msgstr "Microsoft 365 nega l'accesso. Verifichi che l'autorizzazione «Mail.Send» (autorizzazione applicazione) sia stata aggiunta e che il consenso dell'amministratore sia stato concesso, e che la policy di accesso consenta la casella di posta."
+
+#: inc/check.php:246
+msgid "Google verweigert den Zugriff. Prüfen Sie, ob die Gmail API aktiviert ist, und verbinden Sie Google bei Bedarf neu."
+msgstr "Google nega l'accesso. Verifichi che Gmail API sia attivata e, se necessario, colleghi di nuovo Google."
+
+#: inc/check.php:251
+msgid "Das Postfach der Absender-Adresse existiert in Microsoft 365 nicht. Tragen Sie unter «Einstellungen › Absender» die Adresse eines vorhandenen Postfachs ein."
+msgstr "La casella di posta dell'indirizzo mittente non esiste in Microsoft 365. Inserisca in «Impostazioni › Mittente» l'indirizzo di una casella esistente."
+
+#: inc/check.php:255
+msgid "Die Mail ist zu gross für diesen Versandweg. Verkleinern Sie die Anhänge oder aktivieren Sie den Ersatzweg über einen eigenen Mailserver."
+msgstr "L'e-mail è troppo grande per questa via di invio. Riduca gli allegati oppure attivi la via di riserva tramite un server di posta proprio."
+
+#: inc/check.php:259
+msgid "Benutzername oder Passwort stimmen nicht. Bitte beide neu eingeben und speichern."
+msgstr "Nome utente o password non corretti. Li inserisca di nuovo entrambi e salvi."
+
+#: inc/check.php:263
+msgid "Der Mailserver ist nicht erreichbar. Prüfen Sie Server, Port und Verschlüsselung (587 = STARTTLS, 465 = SSL/TLS). Manche Hostings sperren ausgehende SMTP-Verbindungen, dann hilft nur Microsoft 365 oder Google."
+msgstr "Il server di posta non è raggiungibile. Verifichi server, porta e cifratura (587 = STARTTLS, 465 = SSL/TLS). Alcuni hosting bloccano le connessioni SMTP in uscita: in quel caso aiuta solo Microsoft 365 o Google."
+
+#: inc/check.php:267
+msgid "Der Server lehnt die Absender-Adresse ab. Verwenden Sie eine Adresse, die zum Mailkonto gehört, oder erlauben Sie dem Konto, mit dieser Adresse zu senden."
+msgstr "Il server rifiuta l'indirizzo mittente. Usi un indirizzo che appartiene all'account di posta, oppure consenta all'account di inviare con questo indirizzo."
+
+#: inc/check.php:288
+#: inc/check.php:305
+msgid "Ersatzweg: "
+msgstr "Via di riserva:"
+
+#: inc/check.php:323
+msgid "Ersatzweg: Er ist noch nicht vollständig eingetragen, es wurde keine Testmail versendet."
+msgstr "Via di riserva: non è ancora completa, non è stata inviata alcuna e-mail di prova."
+
+#. translators: %s: site name
+#: inc/check.php:341
+#, php-format
+msgid "Testmail über den Ersatzweg von %s"
+msgstr "E-mail di prova tramite la via di riserva da %s"
+
+#: inc/check.php:342
+msgid "Diese Nachricht bestätigt, dass der Ersatzweg Mails versenden kann."
+msgstr "Questo messaggio conferma che la via di riserva può inviare e-mail."
+
+#: inc/check.php:351
+msgid "Ersatzweg: Unbekannter Fehler."
+msgstr "Via di riserva: errore sconosciuto."
+
+#: inc/class-mlab-smtp-mailer.php:199
+msgid "Der Ersatzweg ist nicht eingerichtet."
+msgstr "La via di riserva non è configurata."
+
+#: inc/detect.php:113
+msgid "Anderer Anbieter"
+msgstr "Altro provider"
+
+#. translators: %s: error of the main route
+#: inc/engine-send.php:346
+#, php-format
+msgid "Hauptweg unklar (fallback_after_unclear): %s"
+msgstr "Via principale incerta (fallback_after_unclear): %s"
+
+#. translators: 1: error of the main route, 2: error of the fallback route
+#: inc/engine-send.php:352
+#, php-format
+msgid "Hauptweg: %1$s | Ersatzweg: %2$s"
+msgstr "Via principale: %1$s | Via di riserva: %2$s"
+
+#. translators: %s: error of the fallback route
+#: inc/engine-send.php:355
+#, php-format
+msgid "Ersatzweg: %s"
+msgstr "Via di riserva: %s"
+
+#: inc/engine-worker.php:30
+msgid "Jede Minute (MomentumLab SMTP)"
+msgstr "Ogni minuto (MomentumLab SMTP)"
+
+#: inc/engine-worker.php:141
+msgid "Die gespeicherte Nachricht ist nicht mehr vorhanden."
+msgstr "L'e-mail salvata non è più presente."
+
+#: inc/engine-worker.php:152
+msgid "Der Versand wurde von einer Erweiterung zurückgestellt."
+msgstr "L'invio è stato posticipato da un'estensione."
+
+#: inc/engine-worker.php:159
+msgid "Idempotenz-Fenster abgelaufen, bitte manuell prüfen."
+msgstr "Finestra di idempotenza scaduta, verifichi manualmente."
+
+#: inc/engine-worker.php:168
+msgid "Der Weg mit dem unklaren Ergebnis ist nicht mehr verfügbar, bitte manuell prüfen."
+msgstr "La via con esito incerto non è più disponibile, verifichi manualmente."
+
+#: inc/engine-worker.php:176
+msgid "Der Anbieter hat um eine Pause gebeten (Retry-After)."
+msgstr "Il provider ha chiesto una pausa (Retry-After)."
+
+#: inc/engine-worker.php:271
+msgid "Ein früherer Versuch war unklar, bitte manuell prüfen."
+msgstr "Un tentativo precedente era incerto, verificare manualmente."
+
+#: inc/engine-worker.php:280
+msgid "Die Höchstzahl der Versuche ist erreicht."
+msgstr "È stato raggiunto il numero massimo di tentativi."
+
+#: inc/engine-worker.php:435
+#: inc/engine-worker.php:499
+msgid "Die Nachricht hat einen anderen Status, die Aktion ist nicht mehr möglich."
+msgstr "Il messaggio ha un altro stato, l'azione non è più possibile."
+
+#: inc/engine-worker.php:439
+msgid "Der Inhalt der Nachricht wird nicht mehr aufbewahrt, sie kann nicht erneut gesendet werden."
+msgstr "Il contenuto del messaggio non viene più conservato, non può essere inviato di nuovo."
+
+#: inc/engine-worker.php:462
+msgid "Die Nachricht wurde in der Zwischenzeit geändert."
+msgstr "Il messaggio è stato modificato nel frattempo."
+
+#: inc/engine-worker.php:496
+msgid "Manuell als zugestellt markiert."
+msgstr "Segnato manualmente come consegnato."
+
+#: inc/engine-worker.php:538
+msgid "Unbekannte Aktion."
+msgstr "Azione sconosciuta."
+
+#: inc/engine-worker.php:601
+msgid "WP-Cron ist abgeschaltet (DISABLE_WP_CRON). Die Warteschlange läuft nur, wenn ein System-Cron wp-cron.php aufruft."
+msgstr "WP-Cron è disattivato (DISABLE_WP_CRON). La coda viene eseguita solo se un cron di sistema richiama wp-cron.php."
+
+#: inc/engine-worker.php:603
+msgid "Das Cron-Ereignis der Warteschlange ist nicht geplant. Es wird beim nächsten Seitenaufruf neu angelegt."
+msgstr "L'evento cron della coda non è pianificato. Verrà ricreato al prossimo caricamento della pagina."
+
+#. translators: %s: time since the last run
+#: inc/engine-worker.php:607
+#, php-format
+msgid "Der Worker lief zuletzt vor %s."
+msgstr "Il worker è stato eseguito per l'ultima volta %s fa."
+
+#: inc/engine-worker.php:608
+msgid "Der Worker lief noch nie."
+msgstr "Il worker non è mai stato eseguito."
+
+#: inc/engine-worker.php:610
+msgid "Empfehlung: einen System-Cron einrichten, der jede Minute «wget -q -O - https://ihre-domain.ch/wp-cron.php?doing_wp_cron» oder «wp cron event run --due-now» aufruft, und WP-Cron mit DISABLE_WP_CRON abschalten."
+msgstr "Consigliato: configurare un cron di sistema che richiami ogni minuto «wget -q -O - https://il-suo-dominio.ch/wp-cron.php?doing_wp_cron» oppure «wp cron event run --due-now», e disattivare WP-Cron con DISABLE_WP_CRON."
+
+#. translators: %s: file name
+#: inc/engine.php:265
+#: inc/resend.php:202
+#, php-format
+msgid "Der Anhang «%s» konnte nicht gelesen werden."
+msgstr "Impossibile leggere l'allegato «%s»."
+
+#: inc/engine.php:301
+#: inc/store.php:1118
+msgid "Die Nachricht ist für die Warteschlange zu gross."
+msgstr "L'e-mail è troppo grande per la coda."
+
+#: inc/google.php:115
+msgid "Client-ID oder Client-Secret fehlt. Bitte beide eintragen, speichern und die Verbindung dann erneut starten."
+msgstr "Manca il client ID o il client secret. Inserisca entrambi, salvi e poi avvii di nuovo il collegamento."
+
+#: inc/google.php:150
+msgid "Der Link ist abgelaufen oder wurde schon verwendet. Bitte die Verbindung mit Google erneut starten."
+msgstr "Il link è scaduto o è già stato utilizzato. Avvii di nuovo il collegamento con Google."
+
+#: inc/google.php:153
+msgid "Google hat die Verbindung nicht bestätigt. Bitte erneut starten und den Zugriff erlauben."
+msgstr "Google non ha confermato il collegamento. Lo avvii di nuovo e consenta l'accesso."
+
+#: inc/google.php:169
+msgid "Mit Google verbunden."
+msgstr "Collegato a Google."
+
+#: inc/google.php:195
+msgid "Google hat keine dauerhafte Freigabe erteilt. Bitte den Zugriff unter myaccount.google.com/permissions entfernen und die Verbindung erneut starten."
+msgstr "Google non ha concesso un'autorizzazione permanente. Rimuova l'accesso su myaccount.google.com/permissions e avvii di nuovo il collegamento."
+
+#: inc/google.php:231
+msgid "Die Verbindung zu Google wurde getrennt."
+msgstr "Il collegamento a Google è stato interrotto."
+
+#: inc/google.php:245
+msgid "Google ist noch nicht verbunden. Bitte unter «Einstellungen» die Verbindung mit Google herstellen."
+msgstr "Google non è ancora collegato. Colleghi Google in «Impostazioni»."
+
+#: inc/health.php:71
+msgid "Der letzte Versand war erfolgreich."
+msgstr "L'ultimo invio è riuscito."
+
+#: inc/health.php:83
+msgid "Zugangsdaten nicht lesbar"
+msgstr "Credenziali non leggibili"
+
+#: inc/health.php:83
+msgid "Gespeicherte Passwörter oder Schlüssel können nicht mehr entschlüsselt werden, zum Beispiel nach einem Wechsel der WordPress-Schlüssel. Bitte geben Sie sie in den Einstellungen neu ein."
+msgstr "Password o chiavi salvate non possono più essere decifrate, ad esempio dopo una modifica delle chiavi di WordPress. Le inserisca di nuovo nelle impostazioni."
+
+#: inc/health.php:87
+msgid "Zugangsdaten fehlen"
+msgstr "Credenziali mancanti"
+
+#: inc/health.php:87
+msgid "Assistent öffnen"
+msgstr "Apri la procedura guidata"
+
+#: inc/health.php:98
+msgid "Ablauf des Client-Secrets"
+msgstr "Scadenza del client secret"
+
+#: inc/health.php:99
+msgid "Datum eintragen"
+msgstr "Inserire la data"
+
+#: inc/health.php:102
+msgid "Das Ablaufdatum ist nicht erfasst. Tragen Sie es ein, damit Sie 30 Tage vorher erinnert werden. Sie finden es in Microsoft Entra unter «Zertifikate & Geheimnisse»."
+msgstr "La data di scadenza non è registrata. La inserisca per ricevere un promemoria 30 giorni prima. La trova in Microsoft Entra alla voce «Certificati e segreti»."
+
+#: inc/health.php:105
+msgid "Das Secret ist abgelaufen. Erstellen Sie in Microsoft Entra ein neues und tragen Sie es ein."
+msgstr "Il secret è scaduto. Crei in Microsoft Entra un nuovo secret e lo inserisca."
+
+#. translators: %d: number of days
+#: inc/health.php:105
+#: inc/health.php:109
+msgid "Secret erneuern"
+msgstr "Rinnovare il secret"
+
+#. translators: %d: number of days
+#: inc/health.php:109
+#, php-format
+msgid "Das Secret läuft in %d Tag ab. Erstellen Sie rechtzeitig ein neues."
+msgid_plural "Das Secret läuft in %d Tagen ab. Erstellen Sie rechtzeitig ein neues."
+msgstr[0] "Il secret scade tra %d giorno. Crei tempestivamente un nuovo secret."
+msgstr[1] "Il secret scade tra %d giorni. Crei tempestivamente un nuovo secret."
+
+#. translators: %d: number of days
+#: inc/health.php:112
+#, php-format
+msgid "Das Secret ist noch %d Tage gültig."
+msgstr "Il secret è ancora valido per %d giorni."
+
+#: inc/health.php:121
+msgid "Google-Zugriff"
+msgstr "Accesso Google"
+
+#: inc/health.php:127
+msgid "Neu verbinden"
+msgstr "Ricollegare"
+
+#: inc/health.php:137
+msgid "Verbunden. Die Google-App muss in der Google Cloud Console auf «In Produktion» stehen, sonst läuft der Zugriff nach 7 Tagen ab."
+msgstr "Collegato. L'app Google deve essere su «In produzione» nella Google Cloud Console, altrimenti l'accesso scade dopo 7 giorni."
+
+#: inc/health.php:174
+msgid "Resend-Domain"
+msgstr "Dominio Resend"
+
+#: inc/health.php:185
+msgid "Domain prüfen"
+msgstr "Verificare il dominio"
+
+#: inc/health.php:194
+msgid "SPF-Eintrag"
+msgstr "Voce SPF"
+
+#: inc/health.php:198
+msgid "Der SPF-Eintrag konnte nicht geprüft werden, weil die DNS-Abfrage auf diesem Server nicht möglich ist. Prüfen Sie ihn bei Ihrem Domain-Anbieter."
+msgstr "La voce SPF non ha potuto essere verificata, perché la query DNS non è possibile su questo server. La verifichi presso il provider del dominio."
+
+#. translators: %s: domain
+#: inc/health.php:203
+#, php-format
+msgid "Für %s gibt es keinen SPF-Eintrag. Ohne ihn landen Mails eher im Spam. Ergänzen Sie ihn bei Ihrem Domain-Anbieter als TXT-Eintrag."
+msgstr "Per %s non esiste una voce SPF. Senza di essa le e-mail finiscono più facilmente nello spam. La aggiunga presso il provider del dominio come record TXT."
+
+#. translators: %s: SPF include to add
+#: inc/health.php:208
+#, php-format
+msgid "Der SPF-Eintrag erlaubt Ihren Anbieter noch nicht. Ergänzen Sie «%s» im bestehenden Eintrag."
+msgstr "La voce SPF non consente ancora il provider. Aggiunga «%s» alla voce esistente."
+
+#: inc/health.php:210
+msgid "Der SPF-Eintrag ist vorhanden."
+msgstr "La voce SPF è presente."
+
+#: inc/health.php:219
+msgid "DMARC-Eintrag"
+msgstr "Voce DMARC"
+
+#: inc/health.php:222
+msgid "Der DMARC-Eintrag konnte nicht geprüft werden, weil die DNS-Abfrage auf diesem Server nicht möglich ist. Prüfen Sie ihn bei Ihrem Domain-Anbieter."
+msgstr "La voce DMARC non ha potuto essere verificata, perché la query DNS non è possibile su questo server. La verifichi presso il provider del dominio."
+
+#: inc/health.php:226
+msgid "Der DMARC-Eintrag ist vorhanden."
+msgstr "La voce DMARC è presente."
+
+#: inc/health.php:229
+msgid "Es gibt keinen DMARC-Eintrag. Er schützt Ihre Domain vor Missbrauch und verbessert die Zustellung. Ergänzen Sie bei Ihrem Domain-Anbieter einen TXT-Eintrag für _dmarc."
+msgstr "Non esiste una voce DMARC. Protegge il dominio da abusi e migliora la consegna. Aggiunga presso il provider del dominio un record TXT per _dmarc."
+
+#. translators: %s: e-mail address
+#: inc/health.php:241
+#, php-format
+msgid "Bei Störungen wird %s benachrichtigt."
+msgstr "In caso di guasti viene avvisato %s."
+
+#: inc/health.php:243
+msgid "Die Benachrichtigung ist ausgeschaltet. Sie erfahren dann nicht, wenn Mails nicht mehr ankommen."
+msgstr "L'avviso è disattivato. In questo caso non saprà se le e-mail smettono di arrivare."
+
+#: inc/health.php:243
+msgid "Einschalten"
+msgstr "Attiva"
+
+#: inc/health.php:256
+msgid "Es ist kein Ersatzweg eingerichtet. Fällt der Hauptweg aus, gehen Mails verloren. Empfohlen: ein zweiter Mailserver."
+msgstr "Non è configurata alcuna via di riserva. Se la via principale non funziona, le e-mail vanno perse. Consigliato: un secondo server di posta."
+
+#: inc/health.php:256
+msgid "Einrichten"
+msgstr "Configura"
+
+#: inc/health.php:259
+msgid "Getestet: Fällt der Hauptweg aus, stellt der Ersatzweg die Mails zu."
+msgstr "Testata: se la via principale non funziona, la via di riserva consegna le e-mail."
+
+#: inc/health.php:261
+msgid "Prüfen und testen"
+msgstr "Verificare e testare"
+
+#: inc/health.php:268
+msgid "Ohne Verschlüsselung gehen Passwort und Mailinhalt im Klartext über das Netz und können mitgelesen werden. Wählen Sie «STARTTLS» (Port 587) oder «SSL/TLS» (Port 465). Das Zertifikat des Servers wird dabei immer geprüft."
+msgstr "Senza cifratura password e contenuto delle e-mail viaggiano in chiaro sulla rete e possono essere letti. Scelga «STARTTLS» (porta 587) o «SSL/TLS» (porta 465). In questi casi il certificato del server viene sempre verificato."
+
+#: inc/health.php:280
+msgid "Unverschlüsselte Verbindung"
+msgstr "Connessione non cifrata"
+
+#: inc/health.php:280
+msgid "Verbindung ändern"
+msgstr "Modifica connessione"
+
+#: inc/health.php:292
+msgid "Ersatzweg ohne Verschlüsselung"
+msgstr "Via di riserva senza cifratura"
+
+#: inc/health.php:292
+msgid "Ersatzweg ändern"
+msgstr "Modifica via di riserva"
+
+#. translators: 1: minutes, 2: cron explanation
+#: inc/health.php:320
+#, php-format
+msgid "Die älteste fällige Nachricht wartet seit %1$d Minuten. %2$s"
+msgstr "La più vecchia e-mail scaduta attende da %1$d minuti. %2$s"
+
+#: inc/health.php:324
+#: inc/health.php:339
+#: inc/health.php:354
+msgid "Protokoll öffnen"
+msgstr "Apri registro"
+
+#. translators: %d: number of messages
+#: inc/health.php:338
+#, php-format
+msgid "%d Nachricht hat einen unklaren Versandstatus: Der Anbieter hat möglicherweise angenommen. Sie wird nicht automatisch erneut gesendet."
+msgid_plural "%d Nachrichten haben einen unklaren Versandstatus: Der Anbieter hat möglicherweise angenommen. Sie werden nicht automatisch erneut gesendet."
+msgstr[0] "%d messaggio ha uno stato di invio incerto: il provider potrebbe averlo accettato. Non viene inviato di nuovo automaticamente."
+msgstr[1] "%d messaggi hanno uno stato di invio incerto: il provider potrebbe averli accettati. Non vengono inviati di nuovo automaticamente."
+
+#. translators: %d: number of messages
+#: inc/health.php:353
+#, php-format
+msgid "%d Nachricht konnte endgültig nicht zugestellt werden."
+msgid_plural "%d Nachrichten konnten endgültig nicht zugestellt werden."
+msgstr[0] "%d messaggio non ha potuto essere consegnato definitivamente."
+msgstr[1] "%d messaggi non hanno potuto essere consegnati definitivamente."
+
+#. translators: 1: HTTP status code, 2: error message of the provider
+#: inc/http.php:36
+#, php-format
+msgid "Der Anbieter hat mit Fehler %1$d geantwortet: %2$s"
+msgstr "Il provider ha risposto con errore %1$d: %2$s"
+
+#: inc/http.php:174
+msgid "Die Antwort des Anbieters enthält kein Zugriffstoken."
+msgstr "La risposta del provider non contiene alcun token di accesso."
+
+#. translators: %s: size limit in megabytes
+#: inc/http.php:296
+#, php-format
+msgid "Die Nachricht ist zu gross für den Anbieter (Grenze: %s MB). Bitte Anhänge verkleinern oder den Ersatzweg aktivieren."
+msgstr "Il messaggio è troppo grande per il provider (limite: %s MB). Riduca gli allegati oppure attivi la via di riserva."
+
+#: inc/log-migrate.php:185
+msgid "MomentumLab SMTP:"
+msgstr "MomentumLab SMTP:"
+
+#: inc/log-migrate.php:186
+msgid "Das alte Versandprotokoll konnte nicht vollständig übernommen werden. Die alten Einträge bleiben erhalten, die Übernahme wird automatisch wiederholt. Besteht der Fehler weiter, prüfen Sie die Datenbankrechte oder wenden Sie sich an den Support."
+msgstr "Il vecchio registro di invio non ha potuto essere trasferito completamente. Le vecchie voci restano conservate, il trasferimento viene ripetuto automaticamente. Se l'errore persiste, verifichi i permessi del database oppure si rivolga all'assistenza."
+
+#: inc/mailer.php:253
+msgid "Es ist keine Absender-Adresse hinterlegt. Bitte unter «Einstellungen › Absender» die Adresse eintragen, aus der gesendet werden soll."
+msgstr "Non è stato impostato alcun indirizzo mittente. Inserisca in «Impostazioni › Mittente» l'indirizzo da cui inviare."
+
+#. translators: %s: site name
+#: inc/notify.php:138
+#, php-format
+msgid "[%s] E-Mail-Versand: Hauptweg gestört"
+msgstr "[%s] Invio e-mail: via principale in difficoltà"
+
+#. translators: %s: site name
+#: inc/notify.php:138
+#, php-format
+msgid "[%s] E-Mail-Versand: Mails werden nicht gesendet"
+msgstr "[%s] Invio e-mail: le e-mail non vengono inviate"
+
+#: inc/notify.php:150
+msgid "Der Hauptweg für den E-Mail-Versand Ihrer Website ist gestört. Der Ersatzweg stellt die Mails derzeit zu."
+msgstr "La via principale per l'invio e-mail del sito è in difficoltà. La via di riserva consegna attualmente le e-mail."
+
+#: inc/notify.php:151
+msgid "Mails Ihrer Website werden zurzeit nicht gesendet."
+msgstr "Le e-mail del sito non vengono attualmente inviate."
+
+#: inc/notify.php:153
+msgid "Fehler:"
+msgstr "Errore:"
+
+#: inc/notify.php:155
+msgid "Was zu tun ist:"
+msgstr "Cosa fare:"
+
+#: inc/notify.php:158
+msgid "Details finden Sie hier:"
+msgstr "Dettagli qui:"
+
+#. translators: %s: site name
+#: inc/notify.php:225
+#, php-format
+msgid "[%s] Microsoft-365-Secret läuft ab"
+msgstr "[%s] Il secret di Microsoft 365 sta per scadere"
+
+#: inc/notify.php:238
+msgid "Das Client-Secret für Microsoft 365 ist abgelaufen. Mails werden nicht mehr gesendet."
+msgstr "Il client secret per Microsoft 365 è scaduto. Le e-mail non vengono più inviate."
+
+#. translators: %d: number of days
+#: inc/notify.php:240
+#, php-format
+msgid "Das Client-Secret für Microsoft 365 läuft in %d Tag ab."
+msgid_plural "Das Client-Secret für Microsoft 365 läuft in %d Tagen ab."
+msgstr[0] "Il client secret per Microsoft 365 scade tra %d giorno."
+msgstr[1] "Il client secret per Microsoft 365 scade tra %d giorni."
+
+#: inc/notify.php:241
+msgid "Erstellen Sie in Microsoft Entra ein neues Secret und tragen Sie es samt Ablaufdatum hier ein:"
+msgstr "Crei in Microsoft Entra un nuovo secret e lo inserisca qui, con la data di scadenza:"
+
+#: inc/notify.php:270
+msgid "Details ansehen"
+msgstr "Visualizza dettagli"
+
+#: inc/notify.php:286
+msgid "E-Mail-Versand: MomentumLab SMTP ist noch nicht eingerichtet. Bis dahin versendet WordPress Mails über den Webserver, und viele landen im Spam."
+msgstr "Invio e-mail: MomentumLab SMTP non è ancora configurato. Fino ad allora WordPress invia le e-mail tramite il server web, e molte finiscono nello spam."
+
+#: inc/notify.php:288
+msgid "Jetzt einrichten"
+msgstr "Configura ora"
+
+#: inc/notify.php:290
+msgid "Hinweis ausblenden"
+msgstr "Nascondi avviso"
+
+#: inc/options.php:263
+msgid "Server und Port dürfen auf einer Multisite nur Netzwerk-Administratoren ändern. Der bisherige Wert bleibt erhalten."
+msgstr "Su una multisite, server e porta possono essere modificati solo dagli amministratori di rete. Il valore precedente resta invariato."
+
+#: inc/options.php:353
+msgid "Das ist kein Signing Secret von Resend. Es beginnt mit «whsec_» und steht auf der Seite des Webhooks bei Resend. Der bisherige Wert bleibt erhalten."
+msgstr "Non è un Signing Secret di Resend. Inizia con «whsec_» e si trova nella pagina del webhook su Resend. Il valore precedente resta invariato."
+
+#: inc/options.php:371
+msgid "Das ist kein Resend-API-Key. Ein Key beginnt mit «re_». Bitte bei Resend unter «API Keys» einen Key erstellen und vollständig kopieren. Der bisherige Wert bleibt erhalten."
+msgstr "Non è una chiave API di Resend. Una chiave inizia con «re_». Crei una chiave presso Resend in «API Keys» e la copi per intero. Il valore precedente resta invariato."
+
+#: inc/options.php:392
+msgid "Antwortadresse"
+msgstr "Indirizzo di risposta"
+
+#: inc/options.php:393
+msgid "Adresse für Benachrichtigungen"
+msgstr "Indirizzo per le notifiche"
+
+#. translators: 1: field name, 2: the entered value
+#: inc/options.php:396
+#, php-format
+msgid "«%2$s» ist keine gültige E-Mail-Adresse (%1$s). Der bisherige Wert bleibt erhalten. Bitte im Format name@beispiel.ch eingeben."
+msgstr "«%2$s» non è un indirizzo e-mail valido (%1$s). Il valore precedente resta invariato. Lo inserisca nel formato nome@esempio.ch."
+
+#: inc/options.php:414
+msgid "Das Ablaufdatum ist ungültig. Bitte im Format JJJJ-MM-TT eingeben, zum Beispiel 2028-11-13. Der bisherige Wert bleibt erhalten."
+msgstr "La data di scadenza non è valida. La inserisca nel formato AAAA-MM-GG, ad esempio 2028-11-13. Il valore precedente resta invariato."
+
+#: inc/privacy.php:25
+#: inc/privacy.php:39
+msgid "MomentumLab SMTP: Versandprotokoll"
+msgstr "MomentumLab SMTP: registro di invio"
+
+#: inc/privacy.php:82
+msgid "Nachrichten, die über MomentumLab SMTP an diese Adresse gesendet wurden (ohne Inhalt)."
+msgstr "Messaggi inviati tramite MomentumLab SMTP a questo indirizzo (senza contenuto)."
+
+#: inc/privacy.php:90
+msgid "Betreff"
+msgstr "Oggetto"
+
+#: inc/privacy.php:94
+msgid "Status"
+msgstr "Stato"
+
+#: inc/privacy.php:98
+msgid "Erstellt"
+msgstr "Creato"
+
+#: inc/privacy.php:102
+msgid "Abgeschlossen"
+msgstr "Completato"
+
+#: inc/privacy.php:140
+msgid "E-Mail-Versand (MomentumLab SMTP)"
+msgstr "Invio e-mail (MomentumLab SMTP)"
+
+#: inc/privacy.php:141
+msgid "Vorschlag für Ihre Datenschutzerklärung. Passen Sie den Text an Ihre Verhältnisse an."
+msgstr "Proposta per l'informativa sulla privacy. Adatti il testo alla sua situazione."
+
+#: inc/privacy.php:142
+msgid "Unsere Website versendet E-Mails (zum Beispiel Bestätigungen, Passwort-Zurücksetzung und Benachrichtigungen) über den von uns gewählten Mailserver oder E-Mail-Dienst. Dabei werden die Empfängeradresse und die Nachricht an diesen Dienst übermittelt."
+msgstr "Il nostro sito invia e-mail (ad esempio conferme, reimpostazione della password e notifiche) tramite il server di posta o il servizio e-mail da noi scelto. In questo modo l'indirizzo del destinatario e il messaggio vengono trasmessi a tale servizio."
+
+#. translators: %d: number of days
+#: inc/privacy.php:145
+#, php-format
+msgid "Im Versandprotokoll speichern wir je Nachricht die Empfängeradresse, den Betreff, den Versandstatus, Zeitpunkte und gegebenenfalls eine Fehlermeldung. Den Nachrichteninhalt und Anhänge speichern wir standardmässig nicht. Die Protokolleinträge werden nach %d Tagen automatisch gelöscht."
+msgstr "Nel registro di invio salviamo per ogni messaggio l'indirizzo del destinatario, l'oggetto, lo stato di invio, gli orari ed eventualmente un messaggio di errore. Il contenuto dei messaggi e gli allegati di norma non vengono salvati. Le voci del registro vengono eliminate automaticamente dopo %d giorni."
+
+#: inc/privacy.php:148
+msgid "Nur wenn Nachrichten im Hintergrund versendet oder wiederholt werden, liegt die fertige Nachricht samt Anhängen bis zur Annahme durch den Dienst verschlüsselt in der Datenbank und wird danach gelöscht. Auskunft und Löschung erfolgen über die Werkzeuge von WordPress für den Export und das Löschen personenbezogener Daten."
+msgstr "Solo se i messaggi vengono inviati in background o ripetuti, il messaggio pronto con gli allegati resta cifrato nel database fino all'accettazione da parte del servizio e viene eliminato successivamente. Informazioni ed eliminazione avvengono tramite gli strumenti di WordPress per l'esportazione e la cancellazione dei dati personali."
+
+#: inc/readiness.php:164
+msgid "Der Ersatzweg"
+msgstr "La via di riserva"
+
+#: inc/readiness.php:164
+msgid "Der Hauptweg"
+msgstr "La via principale"
+
+#. translators: %s: Der Ersatzweg or Der Hauptweg
+#: inc/readiness.php:167
+msgid "Nicht eingetragen"
+msgstr "Da configurare"
+
+#. translators: %s: Der Ersatzweg or Der Hauptweg
+#: inc/readiness.php:167
+#, php-format
+msgid "%s ist noch nicht vollständig eingetragen."
+msgstr "%s: configurazione non ancora completa."
+
+#. translators: %s: Der Ersatzweg or Der Hauptweg
+#: inc/readiness.php:171
+#, php-format
+msgid "Seit der letzten Prüfung hat sich etwas geändert (Zugangsdaten, Absender oder Domain). %s muss erneut geprüft und getestet werden."
+msgstr "Dall'ultima verifica è cambiato qualcosa (credenziali, mittente o dominio). %s: serve una nuova verifica e un nuovo test."
+
+#. translators: %s: Der Ersatzweg or Der Hauptweg
+#: inc/readiness.php:175
+msgid "Getestet"
+msgstr "Test eseguito"
+
+#. translators: %s: Der Ersatzweg or Der Hauptweg
+#: inc/readiness.php:175
+#, php-format
+msgid "%s hat eine Testmail erfolgreich angenommen."
+msgstr "%s ha accettato con successo un'e-mail di prova."
+
+#. translators: %s: Der Ersatzweg or Der Hauptweg
+#: inc/readiness.php:179
+msgid "Geprüft, nicht getestet"
+msgstr "Verifica eseguita, test mancante"
+
+#. translators: %s: Der Ersatzweg or Der Hauptweg
+#: inc/readiness.php:179
+#, php-format
+msgid "%s ist erreichbar, aber es wurde noch keine Testmail erfolgreich angenommen."
+msgstr "%s è raggiungibile, ma nessuna e-mail di prova è ancora stata accettata."
+
+#. translators: %s: Der Ersatzweg or Der Hauptweg
+#: inc/readiness.php:182
+msgid "Eingetragen, nicht geprüft"
+msgstr "Configurazione inserita, non verificata"
+
+#. translators: %s: Der Ersatzweg or Der Hauptweg
+#: inc/readiness.php:182
+#, php-format
+msgid "%s ist eingetragen, aber noch nicht geprüft. Eingetragen heisst nicht, dass er funktioniert."
+msgstr "%s: configurazione inserita ma non ancora verificata. Inserirla non significa che funzioni."
+
+#: inc/readiness.php:214
+msgid "Ist der Ersatzweg tatsächlich getestet?"
+msgstr "La via di riserva è davvero testata?"
+
+#: inc/readiness.php:220
+msgid "Der Ersatzweg ist getestet, aber noch nicht eingeschaltet. Fällt der Hauptweg aus, springt er nicht ein."
+msgstr "La via di riserva è testata, ma non ancora attiva. Se la via principale non funziona, non subentra."
+
+#: inc/resend.php:114
+msgid "Es ist noch kein Resend-API-Key eingetragen. Bitte im Assistenten unter «Verbinden» den Key eingeben."
+msgstr "Non è ancora stata inserita una chiave API di Resend. La inserisca nella procedura guidata alla voce «Collegare»."
+
+#: inc/resend.php:120
+msgid "Die Nachricht enthält Zeichen, die nicht übertragen werden können. Bitte Betreff und Text prüfen."
+msgstr "Il messaggio contiene caratteri che non possono essere trasmessi. Controlli oggetto e testo."
+
+#. translators: %d: largest number of recipients
+#: inc/resend.php:249
+#, php-format
+msgid "Resend erlaubt höchstens %d Empfänger pro Mail. Bitte die Mail auf mehrere Nachrichten aufteilen."
+msgstr "Resend consente al massimo %d destinatari per e-mail. Divida l'e-mail in più messaggi."
+
+#: inc/resend.php:399
+msgid "Der Key ist gültig. Er darf nur Mails senden, das ist die sicherste Einstellung. Ob die Absender-Domain verifiziert ist, zeigt die Testmail."
+msgstr "La chiave è valida. Può solo inviare e-mail: è l'impostazione più sicura. Se il dominio del mittente è verificato, lo mostra l'e-mail di prova."
+
+#: inc/resend.php:401
+msgid "Verbunden. Resend hat den API-Key akzeptiert."
+msgstr "Collegato. Resend ha accettato la chiave API."
+
+#. translators: %s: domain
+#: inc/resend.php:616
+#, php-format
+msgid "Domain %s bei Resend"
+msgstr "Dominio %s presso Resend"
+
+#. translators: %s: list of domains
+#: inc/resend.php:628
+#, php-format
+msgid "Verifiziert sind: %s."
+msgstr "Verificati sono: %s."
+
+#: inc/resend.php:644
+msgid "Die Domain ist verifiziert. Mails können gesendet werden."
+msgstr "Il dominio è verificato. Le e-mail possono essere inviate."
+
+#: inc/resend.php:645
+msgid "Die Testadresse von Resend sendet nur an die eigene Adresse Ihres Resend-Kontos. Für Mails an andere Empfänger eine eigene Domain verifizieren."
+msgstr "L'indirizzo di test di Resend invia solo all'indirizzo del proprio account Resend. Per inviare e-mail ad altri destinatari, verifichi un dominio proprio."
+
+#: inc/resend.php:646
+msgid "Der Key darf nur senden. Darum lässt sich nicht vorab prüfen, ob die Domain verifiziert ist. Die Testmail zeigt es."
+msgstr "La chiave può solo inviare. Per questo non è possibile verificare in anticipo se il dominio è verificato. Lo mostra l'e-mail di prova."
+
+#: inc/resend.php:647
+msgid "Die Domain ist nur teilweise verifiziert. Der Versand klappt meist, prüfen Sie aber die DNS-Einträge unten."
+msgstr "Il dominio è verificato solo in parte. L'invio di solito funziona, ma controlli le voci DNS qui sotto."
+
+#: inc/resend.php:648
+msgid "Die Domain ist noch nicht verifiziert. Tragen Sie die DNS-Einträge unten bei Ihrem Domain-Anbieter ein und wählen Sie «Nochmals prüfen». Die Prüfung dauert meist wenige Minuten, in Ausnahmen bis zu 72 Stunden."
+msgstr "Il dominio non è ancora verificato. Inserisca le voci DNS qui sotto presso il provider del dominio e selezioni «Verificare di nuovo». La verifica di solito richiede pochi minuti, in casi eccezionali fino a 72 ore."
+
+#: inc/resend.php:649
+msgid "Resend findet die DNS-Einträge der Domain nicht. Prüfen Sie die Einträge unten bei Ihrem Domain-Anbieter und wählen Sie danach «Nochmals prüfen»."
+msgstr "Resend non trova le voci DNS del dominio. Controlli le voci qui sotto presso il provider del dominio, poi selezioni «Verificare di nuovo»."
+
+#: inc/resend.php:650
+msgid "Die Domain ist bei Resend nicht angelegt. Legen Sie sie dort unter «Domains» an, tragen Sie die DNS-Einträge ein und wählen Sie «Nochmals prüfen». Oder verwenden Sie eine Absender-Adresse einer verifizierten Domain."
+msgstr "Il dominio non è registrato presso Resend. Lo crei lì alla voce «Domains», inserisca le voci DNS e selezioni «Verificare di nuovo». Oppure usi un indirizzo mittente di un dominio verificato."
+
+#: inc/resend.php:651
+msgid "Der Domain-Status konnte bei Resend nicht abgerufen werden. Der Versand ist davon nicht betroffen, die Testmail zeigt, ob alles stimmt."
+msgstr "Lo stato del dominio non ha potuto essere recuperato da Resend. L'invio non ne è interessato: l'e-mail di prova mostra se tutto è corretto."
+
+#: inc/security.php:127
+msgid "Auf diesem Server ist die Verschlüsselung (libsodium) nicht verfügbar. Zugangsdaten werden deshalb nicht gespeichert. Bitte beim Hoster die PHP-Erweiterung «sodium» aktivieren lassen."
+msgstr "Su questo server la cifratura (libsodium) non è disponibile. Per questo le credenziali non vengono salvate. Faccia attivare dal proprio hoster l'estensione PHP «sodium»."
+
+#: inc/security.php:207
+msgid "Das ist keine gültige Adresse. Bitte mit https:// beginnen, zum Beispiel https://alarm.beispiel.ch/hook."
+msgstr "Non è un indirizzo valido. Inizi con https://, ad esempio https://allarme.esempio.ch/hook."
+
+#: inc/security.php:210
+msgid "Aus Sicherheitsgründen sind nur Adressen mit https:// erlaubt."
+msgstr "Per motivi di sicurezza sono consentiti solo indirizzi con https://."
+
+#: inc/security.php:213
+msgid "Die Adresse darf keinen Benutzernamen und kein Passwort enthalten."
+msgstr "L'indirizzo non può contenere un nome utente né una password."
+
+#: inc/security.php:217
+msgid "Dieser Port ist nicht erlaubt. Erlaubt sind 443 und 8443."
+msgstr "Questa porta non è consentita. Sono consentite le porte 443 e 8443."
+
+#: inc/security.php:225
+msgid "Der Servername lässt sich nicht auflösen. Bitte Schreibweise prüfen."
+msgstr "Il nome del server non può essere risolto. Controlli la grafia."
+
+#: inc/security.php:229
+msgid "Die Adresse zeigt auf ein internes Netz. Aus Sicherheitsgründen sind nur öffentlich erreichbare Server erlaubt."
+msgstr "L'indirizzo rimanda a una rete interna. Per motivi di sicurezza sono consentiti solo server raggiungibili pubblicamente."
+
+#: inc/staging.php:103
+msgid "Dieser Modus ist unbekannt."
+msgstr "Questa modalità è sconosciuta."
+
+#: inc/staging.php:106
+msgid "Die Testadresse ist keine gültige E-Mail-Adresse."
+msgstr "L'indirizzo di test non è un indirizzo e-mail valido."
+
+#: inc/staging.php:109
+msgid "Zum Umleiten wird eine gültige Testadresse gebraucht."
+msgstr "Per il reindirizzamento serve un indirizzo di test valido."
+
+#: inc/staging.php:145
+msgid "Die Adresse der Website hat sich seit der Einrichtung geändert. Das sieht nach einer Kopie aus."
+msgstr "L'indirizzo del sito è cambiato dalla configurazione. Sembra una copia."
+
+#. translators: %s: environment type such as staging
+#: inc/staging.php:154
+#, php-format
+msgid "WordPress meldet die Umgebung «%s» und nicht «production»."
+msgstr "WordPress segnala l'ambiente «%s» e non «production»."
+
+#: inc/staging.php:190
+msgid "Pfad oder Datenbank des Servers haben sich geändert. Mails werden weiter versendet. Bitte prüfen, ob das gewollt ist."
+msgstr "Percorso o database del server sono cambiati. Le e-mail continuano a essere inviate. Verifichi che sia voluto."
+
+#: inc/staging.php:214
+msgid "Es ist keine gültige Testadresse eingetragen. "
+msgstr "Non è inserito alcun indirizzo di test valido."
+
+#: inc/staging.php:216
+msgid "Es werden keine E-Mails versendet, bis ein Administrator bestätigt, dass dies die produktive Website ist, oder das Umleiten wählt."
+msgstr "Nessuna e-mail viene inviata finché un amministratore non conferma che questo è il sito di produzione, oppure non sceglie il reindirizzamento."
+
+#. translators: %s: test address
+#: inc/staging.php:220
+#, php-format
+msgid "Alle E-Mails gehen an die Testadresse %s. Kopien (Cc, Bcc) entfallen."
+msgstr "Tutte le e-mail vanno all'indirizzo di test %s. Le copie (Cc, Bcc) vengono omesse."
+
+#: inc/staging.php:222
+msgid "Der Versand ist nicht eingeschränkt."
+msgstr "L'invio non è limitato."
+
+#: inc/staging.php:254
+msgid "Der Versand ist durch den Staging-Schutz blockiert. Es wurde nichts gesendet."
+msgstr "L'invio è bloccato dalla protezione staging. Non è stato inviato nulla."
+
+#: inc/staging.php:312
+#: inc/staging.php:313
+msgid "Staging-Umleitung. Ursprüngliche Empfänger:"
+msgstr "Reindirizzamento staging. Destinatari originali:"
+
+#: inc/staging.php:393
+msgid "E-Mail-Versand blockiert (Staging-Schutz)."
+msgstr "Invio e-mail bloccato (protezione staging)."
+
+#: inc/staging.php:393
+msgid "E-Mails werden umgeleitet (Staging-Schutz)."
+msgstr "Le e-mail vengono reindirizzate (protezione staging)."
+
+#: inc/staging.php:468
+msgid "Bestätigt. Der Versand ist freigegeben."
+msgstr "Confermato. L'invio è autorizzato."
+
+#: inc/staging.php:482
+msgid "Der Staging-Schutz ist gespeichert."
+msgstr "La protezione staging è stata salvata."
+
+#: inc/state.php:72
+msgid "Zugangsdaten nicht lesbar / fehlen – bitte im Assistenten neu eingeben."
+msgstr "Credenziali non leggibili o mancanti: le inserisca di nuovo nella procedura guidata."
+
+#: inc/state.php:144
+msgid "Der Versand funktioniert"
+msgstr "L'invio funziona"
+
+#: inc/state.php:145
+msgid "Es wurde noch keine Mail über das Plugin versendet. Senden Sie eine Testmail, um den Versand zu prüfen."
+msgstr "Non è ancora stata inviata alcuna e-mail tramite il plugin. Invii un'e-mail di prova per verificare l'invio."
+
+#: inc/state.php:154
+msgid "Noch nicht eingerichtet"
+msgstr "Non ancora configurato"
+
+#: inc/state.php:155
+msgid "WordPress versendet Mails direkt über den Webserver. Starten Sie die Einrichtung, damit sie zuverlässig ankommen."
+msgstr "WordPress invia le e-mail direttamente tramite il server web. Avvii la configurazione perché arrivino in modo affidabile."
+
+#: inc/state.php:164
+#: inc/state.php:188
+msgid "Der Versand ist gestört"
+msgstr "L'invio è in difficoltà"
+
+#: inc/state.php:179
+msgid "Hauptweg gestört, Ersatzweg stellt zu"
+msgstr "Via principale in difficoltà, la via di riserva consegna"
+
+#: inc/store.php:676
+msgid "Der Worker wurde wiederholt vor dem Senden unterbrochen, die Nachricht wird nicht weiter versucht."
+msgstr "Il worker è stato interrotto più volte prima dell'invio: il messaggio non viene ritentato."
+
+#: inc/store.php:692
+msgid "Der Versand wurde unterbrochen, ob der Anbieter die Nachricht angenommen hat, ist unklar."
+msgstr "L'invio è stato interrotto; non è chiaro se il provider abbia accettato il messaggio."
+
+#: inc/store.php:1111
+msgid "Die Nachricht konnte nicht gespeichert werden."
+msgstr "Il messaggio non ha potuto essere salvato."
+
+#: inc/store.php:1172
+msgid "Die gespeicherte Nachricht ist nicht mehr lesbar (Schlüssel geändert)."
+msgstr "Il messaggio salvato non è più leggibile (chiave modificata)."
+
+#: inc/support-report.php:22
+msgid "Umgebung"
+msgstr "Ambiente"
+
+#: inc/support-report.php:23
+msgid "Versandwege"
+msgstr "Vie di invio"
+
+#: inc/support-report.php:24
+msgid "Einstellungen (ja/nein)"
+msgstr "Impostazioni (sì/no)"
+
+#: inc/support-report.php:25
+msgid "Gesundheitsprüfung"
+msgstr "Verifica dello stato"
+
+#: inc/support-report.php:26
+msgid "Nachrichten pro Status"
+msgstr "Messaggi per stato"
+
+#: inc/support-report.php:27
+msgid "Datenbank und Migration"
+msgstr "Database e migrazione"
+
+#: inc/support-report.php:28
+msgid "Cron"
+msgstr "Cron"
+
+#: inc/support-report.php:29
+msgid "Gesetzte Konstanten (nur Namen)"
+msgstr "Costanti impostate (solo nomi)"
+
+#: inc/support-report.php:30
+msgid "Letzte 20 Protokolleinträge"
+msgstr "Ultime 20 voci del registro"
+
+#: inc/updater.php:54
+msgid "Updates sind nicht aktiv: In wp-config.php fehlt die Konstante MLAB_SMTP_GITHUB_TOKEN."
+msgstr "Gli aggiornamenti non sono attivi: in wp-config.php manca la costante MLAB_SMTP_GITHUB_TOKEN."

@@ -16,16 +16,22 @@ assert_same( 'fr_FR', apply_filters( 'plugin_locale', 'fr_CH', 'mlab-smtp' ), 'p
 assert_same( 'fr_CH', apply_filters( 'plugin_locale', 'fr_CH', 'andere-domain' ), 'plugin_locale filter leaves other text domains alone' );
 
 // Sind die Dateien da, müssen sie wirklich laden und übersetzen.
-$dir = dirname( __DIR__, 2 ) . '/languages';
-foreach ( array( 'en_US' => 'Übersicht', 'fr_FR' => 'Übersicht', 'it_IT' => 'Übersicht' ) as $locale => $source ) {
+// Die Sprache wird über den Filter «locale» gesetzt: switch_to_locale() wechselt nur zu installierten WordPress-Sprachen.
+foreach ( array( 'en_US' => 'Overview', 'fr_FR' => 'Aperçu', 'it_IT' => 'Panoramica' ) as $locale => $expected_start ) {
 	if ( ! is_file( "$dir/mlab-smtp-$locale.mo" ) ) {
 		echo "SKIP: mlab-smtp-$locale.mo fehlt noch\n";
 		continue;
 	}
+	$set = static fn() => $locale;
+	add_filter( 'locale', $set, 100 );
 	unload_textdomain( 'mlab-smtp' );
-	switch_to_locale( $locale );
 	mlab_smtp_load_textdomain();
-	assert_true( __( $source, 'mlab-smtp' ) !== $source, "{$locale}: «{$source}» wird übersetzt" ); // phpcs:ignore WordPress.WP.I18n -- Test.
-	restore_previous_locale();
+	$text = __( 'Übersicht', 'mlab-smtp' ); // phpcs:ignore WordPress.WP.I18n -- Test.
+	assert_true( '' !== $text && 'Übersicht' !== $text, "{$locale}: «Übersicht» wird übersetzt ({$text})" );
+	remove_filter( 'locale', $set, 100 );
 }
+// Zurück zur Vorgabe der Tests.
+unload_textdomain( 'mlab-smtp' );
+mlab_smtp_load_textdomain();
+assert_same( 'Übersicht', __( 'Übersicht', 'mlab-smtp' ), 'back to German source texts' ); // phpcs:ignore WordPress.WP.I18n -- Test.
 t_finish();

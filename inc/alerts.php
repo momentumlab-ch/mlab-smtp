@@ -274,7 +274,7 @@ function mlab_smtp_alerts_on_failure( $error = '', $fallback = false ): void {
 			'fallback_active',
 			array(
 				'count' => $count,
-				'text'  => __( 'Mails gehen über den Ersatzweg hinaus.', 'mlab-smtp' ),
+				'text'  => __( 'Mails werden zurzeit über den Ersatzweg gesendet.', 'mlab-smtp' ),
 			)
 		);
 	}

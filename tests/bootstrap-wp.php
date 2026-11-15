@@ -22,3 +22,9 @@ if ( ! defined( 'MLAB_SMTP_VERSION' ) ) {
 	fwrite( STDERR, "Plugin mlab-smtp ist nicht aktiv. bash tests/env/setup.sh erneut ausführen.\n" );
 	exit( 2 );
 }
+
+// Die Tests prüfen die deutschen Quelltexte. Die Testumgebung läuft mit der Standardsprache Englisch, und das Plugin
+// würde dann die englische Übersetzung laden. Darum läuft jeder Test auf Deutsch, ausser er wechselt selbst die Sprache.
+add_filter( 'locale', static fn() => 'de_DE', 99 );
+unload_textdomain( 'mlab-smtp' );
+mlab_smtp_load_textdomain();

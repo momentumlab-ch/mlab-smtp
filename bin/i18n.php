@@ -152,7 +152,7 @@ foreach ( LOCALES as $locale => $plural ) {
 			++$open;
 			continue;
 		}
-		if ( $tr->hasFlag( 'fuzzy' ) ) {
+		if ( in_array( 'fuzzy', $tr->getFlags(), true ) ) {
 			$errors[] = "$id ist Fuzzy";
 		}
 		$forms = array( $tr->getTranslation() );
