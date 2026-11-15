@@ -104,6 +104,8 @@ function mlab_smtp_log_find( string $id ): ?array {
 function mlab_smtp_log_purge(): void {
 	$days = max( 1, (int) mlab_smtp_get( 'log_retention' ) );
 	mlab_smtp_migration_run();
+	// The old copy first: a later migration step must not import what the retention period already removed.
+	mlab_smtp_legacy_log_prune( $days );
 	mlab_smtp_store_purge( mlab_smtp_store_now() - $days * DAY_IN_SECONDS );
 	mlab_smtp_store_sweep();
 }
@@ -111,11 +113,16 @@ function mlab_smtp_log_purge(): void {
 /**
  * Empties the log. Messages that still wait for sending stay.
  */
-function mlab_smtp_log_clear(): void {
+function mlab_smtp_log_clear(): bool {
+	// The old copy first, under the migration lock: otherwise an open migration would bring the entries back.
+	if ( ! mlab_smtp_legacy_log_clear() ) {
+		return false;
+	}
 	$ids = mlab_smtp_store_finished_ids( 0, 500 );
 	while ( $ids && mlab_smtp_store_delete_ids( $ids ) > 0 ) {
 		$ids = mlab_smtp_store_finished_ids( 0, 500 );
 	}
+	return array() === mlab_smtp_store_finished_ids( 0, 1 );
 }
 
 /**

@@ -9,7 +9,7 @@ $old = array();
 for ( $i = 1; $i <= 250; $i++ ) {
 	$old[] = array(
 		'id'       => 1 === $i % 10 ? '' : wp_generate_uuid4(),
-		'time'     => 1700000000 + $i,
+		'time'     => time() - 3600 + $i,
 		'to'       => "legacy$i@example.test, second$i@example.test",
 		'subject'  => "Alt $i",
 		'ok'       => 0 !== $i % 7,
@@ -69,7 +69,7 @@ assert_same( $before, serialize( get_option( MLAB_SMTP_LOG_OPTION ) ), 'old opti
 // Inhalt der Übernahme.
 $row = mlab_smtp_log_find( $old[1]['id'] );
 assert_same( 'legacy2@example.test, second2@example.test', $row['to'], 'recipients migrated' );
-assert_same( 1700000002, $row['time'], 'time preserved' );
+assert_same( (int) $old[1]['time'], $row['time'], 'time preserved' );
 $failed = mlab_smtp_log_find( $old[6]['id'] );
 assert_same( 'failed', $failed['status'], 'failed entry keeps its status' );
 assert_true( ! str_contains( $failed['error'], 'abcdefghijklmnopqrstuvwxyz0123456789' ), 'migrated error is redacted' );

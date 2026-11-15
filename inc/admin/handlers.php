@@ -298,8 +298,11 @@ function mlab_smtp_handle_test(): void {
  */
 function mlab_smtp_handle_clear_log(): void {
 	mlab_smtp_guard( 'mlab_smtp_clear_log_confirmed' );
-	mlab_smtp_log_clear();
-	mlab_smtp_flash( 'success', __( 'Das Protokoll wurde geleert.', 'mlab-smtp' ) );
+	if ( mlab_smtp_log_clear() ) {
+		mlab_smtp_flash( 'success', __( 'Das Protokoll wurde geleert.', 'mlab-smtp' ) );
+	} else {
+		mlab_smtp_flash( 'error', __( 'Das Protokoll konnte nicht vollständig geleert werden. Bitte versuchen Sie es noch einmal.', 'mlab-smtp' ) );
+	}
 	mlab_smtp_back( array( 'view' => 'log' ) );
 }
 
