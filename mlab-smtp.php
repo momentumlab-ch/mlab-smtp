@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MomentumLab SMTP
  * Description: Sends WordPress emails via your own mail server (SMTP), Microsoft 365, Google or Resend.
- * Version: 1.5.1
+ * Version: 1.5.2
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: MomentumLab
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MLAB_SMTP_VERSION', '1.5.1' );
+define( 'MLAB_SMTP_VERSION', '1.5.2' );
 define( 'MLAB_SMTP_FILE', __FILE__ );
 define( 'MLAB_SMTP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MLAB_SMTP_URL', plugin_dir_url( __FILE__ ) );

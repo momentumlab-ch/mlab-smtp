@@ -4,7 +4,7 @@ Tags: smtp, email, microsoft 365, gmail, resend
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -152,6 +152,11 @@ In the current GitHub distribution, WordPress contacts GitHub to check the plugi
 [GitHub terms](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service) | [GitHub privacy](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)
 
 == Changelog ==
+
+= 1.5.2 =
+* Fixed: Duplicate manual update links in the plugin list.
+* Improved: Resend console links now appear below their matching setup instruction.
+* Fixed: Untested backup routes can no longer skip the test step; the summary links directly to the required test and back to settings.
 
 = 1.5.1 =
 * New: Clear English plugin description, installation steps, FAQ and external-service disclosures.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.2
+
+- Fixed: Register the updater once and keep a single manual update link per plugin row.
+- Fixed: Resend domain and API-key links belong to their respective setup instructions.
+- Fixed: Require a current successful backup test before continuing; offer a direct test action and a way back to settings from the summary. Incomplete test steps are no longer marked complete.
+
 ## 1.5.1
 
 - Improved: English plugin details, installation instructions, FAQ and external-service disclosures.

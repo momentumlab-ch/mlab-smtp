@@ -180,24 +180,33 @@ function mlab_smtp_render_check_button( string $label ): void {
 function mlab_smtp_render_guide( string $summary, callable $steps, string $link, string $button ): void {
 	echo '<details class="mlab-guide" open><summary>' . esc_html( $summary ) . '</summary><ol class="mlab-todo">';
 	$steps();
-	echo '</ol><a class="button" href="' . esc_url( $link ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $button ) . mlab_smtp_ui_svg( 'external' ) . '</a></details>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
+	echo '</ol>';
+	if ( '' !== $link ) {
+		echo '<a class="button" href="' . esc_url( $link ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $button ) . mlab_smtp_ui_svg( 'external' ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
+	}
+	echo '</details>';
 }
 
 /**
  * Prints one numbered guide item.
  *
- * @param string $title Item title.
- * @param string $text  Description (plain text).
- * @param string $copy  Optional text to copy.
- * @param string $after Optional plain text after the copy snippet.
+ * @param string $title  Item title.
+ * @param string $text   Description (plain text).
+ * @param string $copy   Optional text to copy.
+ * @param string $after  Optional plain text after the copy snippet.
+ * @param string $link   Optional provider-console URL for this item.
+ * @param string $button Label of the provider-console link.
  */
-function mlab_smtp_render_guide_item( string $title, string $text, string $copy = '', string $after = '' ): void {
+function mlab_smtp_render_guide_item( string $title, string $text, string $copy = '', string $after = '', string $link = '', string $button = '' ): void {
 	echo '<li><div><h3>' . esc_html( $title ) . '</h3><p class="mlab-muted">' . esc_html( $text ) . '</p>';
 	if ( '' !== $copy ) {
 		mlab_smtp_ui_copy( $copy );
 	}
 	if ( '' !== $after ) {
 		echo '<p class="mlab-muted">' . esc_html( $after ) . '</p>';
+	}
+	if ( '' !== $link ) {
+		echo '<p><a class="button" href="' . esc_url( $link ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $button ) . mlab_smtp_ui_svg( 'external' ) . '</a></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	}
 	echo '</div></li>';
 }

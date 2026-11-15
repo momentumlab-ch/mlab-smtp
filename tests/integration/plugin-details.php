@@ -15,3 +15,19 @@ assert_true( ! str_contains( $info->sections['screenshots'], 'githubusercontent.
 $size = getimagesize( MLAB_SMTP_DIR . 'assets/screenshots/screenshot-1.png' );
 assert_true( is_array( $size ) && $size[0] > 0 && $size[1] > 0, 'the bundled screenshot is a valid image' );
 assert_same( MLAB_SMTP_VERSION, $info->version, 'the metadata version is unchanged by the screenshot filter' );
+
+// Registering the updater repeatedly must not register additional checker instances.
+global $wp_filter;
+$before = count( $wp_filter['admin_init']->callbacks[10] ?? array() );
+mlab_smtp_register_updater();
+mlab_smtp_register_updater();
+assert_same( $before, count( $wp_filter['admin_init']->callbacks[10] ?? array() ), 'repeated updater registration does not add another admin checker' );
+$url = admin_url( 'plugins.php?puc_check_for_updates=1&puc_slug=mlab-smtp' );
+$one = '<a href="' . esc_url( $url . '&_wpnonce=one' ) . '">Check for updates</a>';
+$two = '<a href="' . esc_url( $url . '&_wpnonce=two' ) . '">Check for updates</a>';
+$other = '<a href="' . esc_url( admin_url( 'plugins.php?puc_check_for_updates=1&puc_slug=other-plugin' ) ) . '">Other update</a>';
+$links = array( 'Version', $one, 'Details', $two, $other );
+$result = mlab_smtp_unique_update_link( $links, plugin_basename( MLAB_SMTP_FILE ) );
+assert_same( array( 'Version', $one, 'Details', $other ), array_values( $result ), 'only this plugin duplicate manual update action is removed' );
+assert_same( $links, mlab_smtp_unique_update_link( $links, 'other/plugin.php' ), 'other plugin rows are preserved' );
+assert_same( $result, mlab_smtp_unique_update_link( $result, plugin_basename( MLAB_SMTP_FILE ) ), 'deduplication is idempotent' );
