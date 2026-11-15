@@ -40,7 +40,7 @@ Vorgehen: alte `wp-config.php`-Werte (Salts oder `MLAB_SMTP_KEY`) wieder einsetz
 
 **`MLAB_SMTP_KEY`**
 - Optionale Konstante in `wp-config.php`: `define( 'MLAB_SMTP_KEY', '<langer zufälliger Text>' );`. Sie entkoppelt die Verschlüsselung von den Salts. Neu gespeicherte Secrets werden mit diesem Schlüssel verschlüsselt (`enc2:` mit Schlüssel-Kennung).
-- Werte, die vorher mit dem Salt-Schlüssel verschlüsselt wurden, bleiben lesbar: der Salt-Schlüssel dient als Ersatzschlüssel.
+- Werte, die vorher mit dem Salt-Schlüssel verschlüsselt wurden, bleiben lesbar: der Salt-Schlüssel dient als Ersatzschlüssel. Unter «Einstellungen › Verschlüsselung» verschlüsselt der Knopf «Zugangsdaten mit aktuellem Schlüssel neu verschlüsseln» alle lesbaren Werte mit dem neuen Schlüssel. Nicht lesbare bleiben unverändert und werden dort gezählt, sie müssen neu eingegeben werden. Es wird nie ein Schlüssel erzeugt.
 - Den Wert wie ein Passwort sichern (Passwortmanager, Backup von `wp-config.php`). Ohne ihn sind die damit verschlüsselten Werte verloren. Er gehört nicht ins Repository.
 - Auch die Queue-Nachrichten (Nutzlast) sind verschlüsselt: ändert sich der Schlüssel, können wartende Nachrichten nicht mehr gesendet werden und müssen neu ausgelöst werden.
 

@@ -6,7 +6,8 @@ Modi: `aus`, `blockieren`, `umleiten` (an eine Testadresse), `automatisch` (Stan
 Automatisch blockiert, wenn die Adresse der Website (`home_url()`) nicht mehr zur gespeicherten passt oder WordPress eine Umgebung ausser `production` meldet. Ein Administrator bestätigt mit «Das ist die produktive Website» oder wählt «umleiten». Ändern sich nur Pfad, Datenbank-Host oder Datenbankname, gibt es nur eine Warnung, der Versand läuft weiter.
 
 - Blockiert: kein Provider-Aufruf, `wp_mail()` liefert `false`, `wp_mail_failed` wird ausgelöst, das Protokoll zeigt den Status `blocked`.
-- Umgeleitet: Empfänger wird die Testadresse, Cc und Bcc entfallen, Betreff beginnt mit `[Staging] `, am Ende steht die Liste der ursprünglichen Empfänger.
+- Umgeleitet: Empfänger wird die Testadresse, Cc und Bcc entfallen, Betreff beginnt mit `[Staging] `, am Ende steht die Liste der ursprünglichen Empfänger, **nur maskiert** (`k***@e***.ch`), damit echte Adressen nicht zum Anbieter gelangen. Die Umleitung hat das letzte Wort: Auch Filter anderer Plugins, die später Cc, Bcc oder Empfänger ergänzen, ändern nichts mehr.
+- Warteschlange: Der Worker prüft den Staging-Schutz vor jedem Senden. Eine Nachricht, die aus einer anderen Umgebung stammt (zum Beispiel aus einem Produktiv-Klon, erkennbar an der Adresse der Website beim Einreihen), wird nicht gesendet. Sie bekommt den Status `blocked`, ihr Inhalt wird gelöscht, und auch «erneut versuchen» ändert daran nichts. Im Modus `blockieren` gilt das für jede wartende Nachricht, auch für eigene, die vor dem Umschalten eingereiht wurden. Im Modus `umleiten` laufen nur Nachrichten dieser Umgebung weiter, die bereits umgeleitet eingereiht wurden. Im Modus `aus` wird gesendet.
 - Ein Hinweis erscheint auf allen Admin-Seiten, solange blockiert, umgeleitet oder unbestätigt.
 
 Optionen: `mlab_smtp_staging` (kein Autoload). Filter `mlab_smtp_environment_type` überschreibt den Umgebungstyp.
