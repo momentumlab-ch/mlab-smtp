@@ -1857,3 +1857,26 @@
 		min-height: var(--mlab-tap);
 	}
 }
+
+@media (max-width: 600px) {
+	.mlab-smtp .mlab-stack > *,
+	.mlab-smtp .mlab-two > *,
+	.mlab-smtp .mlab-toolbar > * {
+		min-width: 0;
+		max-width: 100%;
+	}
+
+	.mlab-smtp .mlab-segmented {
+		display: flex;
+		flex-wrap: wrap;
+		overflow-x: visible;
+	}
+
+	.mlab-smtp .mlab-tabs {
+		flex-wrap: wrap;
+	}
+
+	.mlab-smtp .mlab-two {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}

@@ -90,16 +90,16 @@ function mlab_smtp_render_queue(): void {
 	$summary = mlab_smtp_engine_summary();
 	mlab_smtp_render_queue_notes( $summary, $filter );
 	mlab_smtp_render_queue_toolbar( $filter );
-	$list = mlab_smtp_store_list(
+	$result = mlab_smtp_store_list(
 		array(
 			'status'   => $filters[ $filter ][1],
 			'page'     => max( 1, absint( mlab_smtp_query( 'paged', '1' ) ) ),
 			'per_page' => 20,
 		)
 	);
-	mlab_smtp_render_queue_list( $list, $filter );
+	mlab_smtp_render_queue_list( $result, $filter );
 	mlab_smtp_ui_pagination(
-		$list,
+		$result,
 		array(
 			'view'   => 'queue',
 			'filter' => $filter,
