@@ -106,7 +106,7 @@ class Mlab_Smtp_Mailer extends \PHPMailer\PHPMailer\PHPMailer {
 		$info    = array(
 			'smtp_code'  => (int) ( $error['smtp_code'] ?? 0 ),
 			'smtp_phase' => 'command',
-			'partial'    => str_starts_with( $message, $this->lang( 'recipients_failed' ) ),
+			'partial'    => $this->is_partial( $message ),
 		);
 		if ( str_starts_with( $message, $this->lang( 'data_not_accepted' ) ) ) {
 			$info['smtp_phase'] = str_starts_with( (string) ( $error['error'] ?? '' ), 'DATA END' ) ? 'data_end' : 'data';
@@ -116,6 +116,28 @@ class Mlab_Smtp_Mailer extends \PHPMailer\PHPMailer\PHPMailer {
 		// An SMTP error after the DATA command may already have delivered the message (wholly or to some recipients): no fallback.
 		$info['no_fallback'] = $info['partial'] || in_array( $info['smtp_phase'], array( 'data', 'data_end' ), true );
 		return $info;
+	}
+
+	/**
+	 * True when only SOME recipients were refused. PHPMailer throws recipients_failed also when every recipient was refused
+	 * (the DATA command is then skipped and nothing was delivered): that is no partial delivery.
+	 *
+	 * @param string $message Message of the exception.
+	 */
+	private function is_partial( string $message ): bool {
+		$prefix = $this->lang( 'recipients_failed' );
+		if ( ! str_starts_with( $message, $prefix ) ) {
+			return false;
+		}
+		$tail   = strtolower( substr( $message, strlen( $prefix ) ) );
+		$total  = array_keys( $this->getAllRecipientAddresses() );
+		$failed = 0;
+		foreach ( $total as $address ) {
+			if ( str_contains( $tail, strtolower( (string) $address ) ) ) {
+				++$failed;
+			}
+		}
+		return ! ( $failed > 0 && $failed >= count( $total ) );
 	}
 
 	/**
