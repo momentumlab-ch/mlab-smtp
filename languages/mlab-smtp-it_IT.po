@@ -992,8 +992,8 @@ msgstr[1] "%d e-mail hanno uno stato di invio incerto"
 
 #. translators: %d: number of messages
 #: inc/admin/overview.php:185
-msgid "Der Anbieter hat sie möglicherweise angenommen. Bitte entscheiden Sie, ob sie erneut gesendet werden soll."
-msgstr "Il provider potrebbe averle accettate. Decida se inviarle di nuovo."
+msgid "Der Anbieter hat möglicherweise angenommen. Bitte entscheiden Sie, ob erneut gesendet werden soll."
+msgstr "Il provider potrebbe aver accettato l'invio. Decida se inviare di nuovo."
 
 #. translators: %d: number of messages
 #: inc/admin/overview.php:185

@@ -280,7 +280,7 @@ function mlab_smtp_render_set_locked(): void {
  */
 function mlab_smtp_render_set_webhooks(): void {
 	mlab_smtp_ui_row_open( __( 'Zustellbestätigung (Resend)', 'mlab-smtp' ), __( 'Resend meldet zurück, ob eine Mail beim Empfänger angekommen ist. Ohne diese Meldung gilt eine Mail nur als «angenommen».', 'mlab-smtp' ) );
-	echo '<ol class="mlab-steps">';
+	echo '<ol class="mlab-plainlist">';
 	foreach ( mlab_smtp_webhook_steps() as $step ) {
 		echo '<li>' . esc_html( $step ) . '</li>';
 	}

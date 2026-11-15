@@ -1617,17 +1617,6 @@
 	.mlab-smtp .mlab-route-states {
 		grid-template-columns: 1fr;
 	}
-
-	/* Sieben Schritte passen nicht nebeneinander: nur der aktuelle zeigt seinen Namen (steht auch im Schrittzähler). */
-	.mlab-smtp .mlab-fbflow .mlab-stepper li:not(.is-now) .mlab-step-label {
-		border: 0;
-		clip-path: inset(50%);
-		height: 1px;
-		overflow: hidden;
-		position: absolute;
-		white-space: nowrap;
-		width: 1px;
-	}
 }
 
 /* === Einstellungen: Inhaltsverzeichnis und Anker (WP6b-B) === */
@@ -1879,4 +1868,111 @@
 	.mlab-smtp .mlab-two {
 		grid-template-columns: minmax(0, 1fr);
 	}
+}
+
+/* Sieben Schritte passen nicht nebeneinander: nur der aktuelle zeigt seinen Namen (steht auch im Schrittzähler). */
+.mlab-smtp .mlab-fbflow .mlab-stepper li:not(.is-now) .mlab-step-label {
+	border: 0;
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+.mlab-smtp .mlab-fbflow .mlab-stepper {
+	flex-wrap: nowrap;
+	max-width: 100%;
+}
+
+.mlab-smtp .mlab-fbflow .mlab-stepper li.is-now {
+	flex: 0 1 auto;
+	min-width: 0;
+}
+
+.mlab-smtp .mlab-fbflow .mlab-stepper li.is-now .mlab-step-label {
+	overflow-wrap: anywhere;
+}
+
+/* Hinweislisten in den Einstellungen: einfache senkrechte Liste, kein Schrittbalken. */
+.mlab-smtp ul.mlab-plainlist {
+	list-style: disc;
+}
+
+.mlab-smtp ol.mlab-plainlist {
+	list-style: decimal;
+}
+
+.mlab-smtp .mlab-plainlist {
+	margin: 0 0 var(--mlab-s-2);
+	padding-left: 22px;
+}
+
+.mlab-smtp .mlab-plainlist li {
+	margin: 0 0 var(--mlab-s-1);
+	overflow-wrap: anywhere;
+}
+
+/* Erklärende Texte brechen um, nichts wird mit Auslassungspunkten gekürzt. */
+.mlab-smtp .mlab-li-main > *,
+.mlab-smtp .mlab-todo-item .mlab-li-main > *,
+.mlab-smtp .mlab-qmain .mlab-li-main > * {
+	overflow: visible;
+	overflow-wrap: anywhere;
+	text-overflow: clip;
+	white-space: normal;
+}
+
+.mlab-smtp .mlab-todo-item .mlab-muted {
+	white-space: normal;
+}
+
+/* Inhaltsverzeichnis der Einstellungen: umbrechende Reihe gleichmässiger Knöpfe. */
+.mlab-smtp .mlab-index ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mlab-s-1);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.mlab-smtp .mlab-index li {
+	margin: 0;
+}
+
+.mlab-smtp .mlab-index a {
+	align-items: center;
+	background: var(--mlab-surface-2);
+	border-radius: 999px;
+	color: var(--mlab-fg-2);
+	display: inline-flex;
+	min-height: var(--mlab-tap);
+	padding: 0 var(--mlab-s-2);
+	text-decoration: none;
+}
+
+.mlab-smtp .mlab-index a:hover {
+	background: var(--mlab-accent-soft);
+}
+
+.mlab-smtp .mlab-index a:focus-visible {
+	outline: 2px solid var(--mlab-accent);
+	outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+	.mlab-smtp .button {
+		height: auto;
+		line-height: 1.4;
+		max-width: 100%;
+		padding-bottom: 10px;
+		padding-top: 10px;
+		white-space: normal;
+	}
+}
+
+.mlab-smtp .mlab-index {
+	margin: var(--mlab-s-2) 0 var(--mlab-s-3);
 }

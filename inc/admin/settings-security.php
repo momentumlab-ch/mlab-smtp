@@ -143,7 +143,7 @@ function mlab_smtp_render_staging_fields( array $status ): void {
  * What each staging mode does.
  */
 function mlab_smtp_render_staging_help(): void {
-	echo '<ul class="mlab-steps mlab-muted">';
+	echo '<ul class="mlab-plainlist mlab-muted">';
 	$items = array(
 		__( 'Automatisch erkennen: Sieht die Website aus wie eine Kopie (andere Adresse als bei der Einrichtung oder keine produktive Umgebung), werden Mails blockiert, bis ein Administrator bestätigt.', 'mlab-smtp' ),
 		__( 'Aus: Mails werden immer normal versendet.', 'mlab-smtp' ),
@@ -252,7 +252,7 @@ function mlab_smtp_render_set_encryption(): void {
 	$todo   = array_filter( $items, static fn( array $i ): bool => in_array( $i['status'], array( 'old_key', 'plain' ), true ) );
 	$crypto = mlab_smtp_crypto_available();
 	mlab_smtp_ui_row_open( __( 'Verschlüsselung', 'mlab-smtp' ), __( 'Passwörter und Schlüssel sind in der Datenbank verschlüsselt gespeichert.', 'mlab-smtp' ) );
-	echo '<ul class="mlab-steps">';
+	echo '<ul class="mlab-plainlist">';
 	echo '<li>' . esc_html( $crypto ? __( 'Verschlüsselung verfügbar: ja', 'mlab-smtp' ) : __( 'Verschlüsselung verfügbar: nein. Auf diesem Server fehlt libsodium, Zugangsdaten lassen sich nicht speichern.', 'mlab-smtp' ) ) . '</li>';
 	if ( $crypto ) {
 		$source = defined( 'MLAB_SMTP_KEY' ) && '' !== (string) constant( 'MLAB_SMTP_KEY' ) ? __( 'Konstante MLAB_SMTP_KEY aus der wp-config.php', 'mlab-smtp' ) : __( 'Sicherheitsschlüssel (Salts) der Website', 'mlab-smtp' );

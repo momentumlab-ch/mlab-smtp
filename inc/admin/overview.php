@@ -182,7 +182,7 @@ function mlab_smtp_overview_todos( array $status, ?array $engine ): array {
 	}
 	if ( $engine && $engine['unclear'] > 0 ) {
 		/* translators: %d: number of messages */
-		$add( 'warn', sprintf( _n( '%d Mail hat einen unklaren Versandstatus', '%d Mails haben einen unklaren Versandstatus', $engine['unclear'], 'mlab-smtp' ), $engine['unclear'] ), __( 'Der Anbieter hat sie möglicherweise angenommen. Bitte entscheiden Sie, ob sie erneut gesendet werden soll.', 'mlab-smtp' ), __( 'Unklare Mails ansehen', 'mlab-smtp' ), $queue( 'unclear' ) );
+		$add( 'warn', sprintf( _n( '%d Mail hat einen unklaren Versandstatus', '%d Mails haben einen unklaren Versandstatus', $engine['unclear'], 'mlab-smtp' ), $engine['unclear'] ), __( 'Der Anbieter hat möglicherweise angenommen. Bitte entscheiden Sie, ob erneut gesendet werden soll.', 'mlab-smtp' ), __( 'Unklare Mails ansehen', 'mlab-smtp' ), $queue( 'unclear' ) );
 	}
 	if ( $engine && $engine['stale'] ) {
 		$add( 'warn', __( 'Wartende E-Mails werden nicht abgearbeitet', 'mlab-smtp' ), $engine['cron_text'], __( 'Wartende E-Mails ansehen', 'mlab-smtp' ), $queue( 'all' ) );
@@ -363,7 +363,7 @@ function mlab_smtp_render_steps(): void {
 	$steps = array(
 		array( __( 'Verbindung', 'mlab-smtp' ), mlab_smtp_has_credentials() ),
 		array( __( 'Absender', 'mlab-smtp' ), '' !== (string) mlab_smtp_get( 'from_email' ) ),
-		array( __( 'Testmail', 'mlab-smtp' ), (bool) mlab_smtp_state_get()['last_success'] ),
+		array( __( 'Testmail', 'mlab-smtp' ), mlab_smtp_route_state( 'primary' )['getestet'] ),
 	);
 	echo '<ol class="mlab-card mlab-steps" aria-label="' . esc_attr__( 'Einrichtung', 'mlab-smtp' ) . '">';
 	foreach ( $steps as $index => $step ) {

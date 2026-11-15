@@ -22,6 +22,16 @@ assert_contains( 'Noch keine Nachrichten.', $text, 'all ok: empty recent list is
 assert_true( 1 === preg_match_all( '/<h2[^>]*class="mlab-kicker"/', $html ), 'one banner question' );
 assert_true( strpos( $html, 'mlab-kicker' ) < strpos( $html, 'mlab-todolist' ) && strpos( $html, 'mlab-todolist' ) < strpos( $html, 'mlab-cards' ), 'order: banner, to-do, cards' );
 
+// 1b. Checkliste folgt dem Bereitschaftsmodell, nicht dem alten Flag.
+$html = ui_render( 'mlab_smtp_render_steps' );
+assert_true( ! str_contains( $html, 'Testmail<span class="screen-reader-text"> Erledigt' ) === false, 'checklist: test mail step done when the main route is tested' );
+ui_all_ok();
+mlab_smtp_state_set( array( 'last_success' => 0 ) );
+assert_contains( 'Testmail<span class="screen-reader-text"> Erledigt', ui_render( 'mlab_smtp_render_steps' ), 'checklist: done without the old flag' );
+delete_option( MLAB_SMTP_READINESS_OPTION );
+mlab_smtp_state_set( array( 'last_success' => time() ) );
+assert_true( ! str_contains( ui_render( 'mlab_smtp_render_steps' ), 'Testmail<span class="screen-reader-text"> Erledigt' ), 'checklist: not done while the main route is untested' );
+
 // 2. Hauptweg gestört.
 ui_all_ok();
 mlab_smtp_state_set( array( 'failing_since' => time() - 600, 'failures_since' => 3, 'last_error' => 'invalid_grant', 'last_success' => time() - 3600 ) );

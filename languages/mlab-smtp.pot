@@ -993,7 +993,7 @@ msgstr[1] ""
 
 #. translators: %d: number of messages
 #: inc/admin/overview.php:185
-msgid "Der Anbieter hat sie möglicherweise angenommen. Bitte entscheiden Sie, ob sie erneut gesendet werden soll."
+msgid "Der Anbieter hat möglicherweise angenommen. Bitte entscheiden Sie, ob erneut gesendet werden soll."
 msgstr ""
 
 #. translators: %d: number of messages

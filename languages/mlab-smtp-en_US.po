@@ -992,8 +992,8 @@ msgstr[1] "%d emails have an unclear sending status"
 
 #. translators: %d: number of messages
 #: inc/admin/overview.php:185
-msgid "Der Anbieter hat sie möglicherweise angenommen. Bitte entscheiden Sie, ob sie erneut gesendet werden soll."
-msgstr "The provider may have accepted them. Please decide whether they should be sent again."
+msgid "Der Anbieter hat möglicherweise angenommen. Bitte entscheiden Sie, ob erneut gesendet werden soll."
+msgstr "The provider may have accepted the sending. Please decide whether to send again."
 
 #. translators: %d: number of messages
 #: inc/admin/overview.php:185
