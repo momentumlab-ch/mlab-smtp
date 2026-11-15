@@ -20,6 +20,10 @@ if ( $worker_role ) {
 		foreach ( mlab_smtp_store_claim_batch( (int) $param, 300, 1800000000 ) as $row ) {
 			$out[] = (int) $row['id'];
 		}
+	} elseif ( 'webhook' === $task ) {
+		$event_ids = array_map( 'intval', explode( ',', $param ) );
+		$event = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', mlab_smtp_table( 'events' ), $event_ids[ (int) $nr % count( $event_ids ) ] ), ARRAY_A );
+		$out[] = mlab_smtp_webhook_settle( mlab_smtp_webhook_normalize_row( $event ) );
 	} elseif ( 'insert' === $task ) {
 		for ( $i = 0; $i < (int) $param; $i++ ) {
 			$id = mlab_smtp_store_create( array( 'mode' => 'queued', 'recipients' => array( "w$nr-$i@example.test" ), 'subject' => "Worker $nr / $i", 'created_at' => 1800000000 + $i ) );
@@ -46,7 +50,7 @@ echo 'Datenbank: ' . $wpdb->get_var( 'SELECT VERSION()' ) . "\n";
  * @param int    $param Batchgröße bzw. Anzahl Inserts je Prozess.
  * @return array<int,array> Ergebnisliste je Worker (null bei Fehler).
  */
-function mlab_t_run_workers( string $task, int $n, int $param ): array {
+function mlab_t_run_workers( string $task, int $n, $param ): array {
 	$dir = sys_get_temp_dir() . '/mlab-claim-' . bin2hex( random_bytes( 4 ) );
 	mkdir( $dir, 0700 );
 	$procs = array();
@@ -164,6 +168,21 @@ $wpdb->query( "UPDATE {$wpdb->prefix}mlab_smtp_messages SET updated_at = {$now} 
 $same = mlab_smtp_store_set_status( $id, 'accepted', array(), $now );
 echo 'INFO set_status mit identischen Werten und gleichem updated_at liefert ' . var_export( $same, true ) . " (MySQL zählt geänderte Zeilen)\n";
 assert_true( true === mlab_smtp_store_set_status( $id, 'delivered', array(), $now + 1 ), 'echte Änderung zählt als Gewinn' );
+
+// 5. Echte parallele Webhook-Verarbeitung: doppelte Ereignisse und konkurrierende Statusränge.
+mlab_t_reset_store();
+$id = mlab_t_msg( array( 'status' => 'accepted' ) );
+$events = array();
+foreach ( array( 'email.sent', 'email.delivered', 'email.delivered' ) as $i => $type ) {
+	$events[] = mlab_smtp_store_add_event( array( 'provider' => 'resend', 'event_id' => "parallel-$i", 'message_id' => $id, 'type' => $type ) );
+}
+$res = mlab_t_run_workers( 'webhook', 6, implode( ',', $events ) );
+assert_true( ! in_array( null, $res, true ), 'all parallel webhook workers finish' );
+foreach ( $res as $i => $result ) {
+	assert_true( in_array( $result[0] ?? '', array( 'changed', 'unchanged' ), true ), "parallel webhook worker $i succeeds" );
+}
+assert_same( 'delivered', mlab_smtp_store_get( $id )['status'], 'parallel lower ranks cannot downgrade delivery' );
+assert_same( 3, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . ' WHERE processed_at IS NOT NULL' ), 'only the three evaluated event rows are marked processed' );
 
 mlab_t_reset_store();
 t_finish();

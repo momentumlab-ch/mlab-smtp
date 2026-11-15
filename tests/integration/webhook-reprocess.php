@@ -155,4 +155,29 @@ foreach ( $ms as $i => $m ) {
 assert_same( 260, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . ' WHERE processed_at IS NULL' ), 'orphans stay open (not marked processed)' );
 $idle = mlab_smtp_webhook_reprocess();
 assert_same( 0, $idle['checked'], 'permanent orphans are not retried before their delay (no endless restart)' );
+// 9. Vergleich desselben Rückstaus: alter Einzelabgleich gegen den begrenzten Batch, ohne echte Empfänger.
+mlab_t_reset_store();
+for ( $i = 0; $i < 200; $i++ ) {
+	wr_add( "bench-$i", 'email.delivered', "bench-missing-$i" );
+}
+$before = $wpdb->num_queries;
+$start = microtime( true );
+$rows = $wpdb->get_results( 'SELECT id, provider, type, detail FROM ' . mlab_smtp_table( 'events' ) . ' WHERE message_id IS NULL ORDER BY occurred_at ASC, id ASC LIMIT 200', ARRAY_A );
+foreach ( $rows as $row ) {
+	$info = json_decode( $row['detail'], true );
+	mlab_smtp_webhook_match( $info['email_id'], $info['mlab_id'], $row['provider'] );
+}
+mlab_smtp_webhook_purge_orphans();
+$old_queries = $wpdb->num_queries - $before;
+$old_ms = 1000 * ( microtime( true ) - $start );
+$bytes = strlen( wp_json_encode( $rows ) );
+$before = $wpdb->num_queries;
+$start = microtime( true );
+$r = mlab_smtp_webhook_reprocess( 200, 10.0 );
+$new_queries = $wpdb->num_queries - $before;
+$new_ms = 1000 * ( microtime( true ) - $start );
+assert_same( 200, $r['checked'], 'benchmark evaluates the same 200 events' );
+assert_same( 0, $r['processed'], 'unmatched benchmark events remain open' );
+assert_true( $new_queries < $old_queries, 'batched lookup needs fewer queries than the previous per-event lookup' );
+printf( "BENCH webhook: events=200, reference_json_bytes=%d, old_queries=%d, new_queries=%d, old_ms=%.3f, new_ms=%.3f\n", $bytes, $old_queries, $new_queries, $old_ms, $new_ms );
 echo "ok\n";
