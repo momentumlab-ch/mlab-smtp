@@ -70,3 +70,7 @@ bash tests/env/mysql-stop.sh [--purge]     # stoppt die Instanz, --purge löscht
 
 - Als root deaktiviert Composer Plugins. `bin/phpcs.sh` setzt `installed_paths` deshalb selbst, `setup.sh` setzt `COMPOSER_ALLOW_SUPERUSER=1`.
 - `tests/` ist von PHPCS ausgenommen (`phpcs.xml.dist`) und steht in `.distignore`, ist also nicht im Plugin-ZIP.
+
+## Screenshots
+
+`bin/seed-demo.php [normal|stoerung|staging|fb-…]` setzt Demo-Daten in der Testumgebung (Beispieladressen, kein Netzwerk). `node bin/screenshots.js` meldet sich im laufenden `tests/env`-Server an und schreibt die Bilder nach `docs/screenshots/` (Übersicht siehe dort). Der Aufruf überschreibt die Daten der Testdatenbank; Sprachwechsel läuft über ein temporäres mu-plugin, das das Skript selbst anlegt und löscht.
