@@ -236,6 +236,7 @@ function mlab_smtp_engine_try_route( $mailer, array $msg, array $route ): array 
 				'route'           => $route['route'],
 				'provider'        => $route['provider'],
 				'idem_key'        => $key,
+				'conn_hash'       => mlab_smtp_route_connection_hash( $route['route'], $route['provider'] ),
 				'mail_message_id' => $msg['message_id'],
 			)
 		);

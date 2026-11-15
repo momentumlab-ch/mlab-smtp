@@ -11,7 +11,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const MLAB_SMTP_SCHEMA_VERSION = '1.5.0.1';
+const MLAB_SMTP_SCHEMA_VERSION = '1.5.0.2';
 
 add_action( 'init', 'mlab_smtp_db_maybe_upgrade', 5 );
 add_action( 'wp_initialize_site', 'mlab_smtp_db_new_site', 20 );
@@ -112,6 +112,7 @@ function mlab_smtp_db_schema( string $collate ): array {
   error_code varchar(64) NOT NULL DEFAULT '',
   error_text text NOT NULL,
   provider_msg_id varchar(191) NOT NULL DEFAULT '',
+  conn_hash varchar(64) NOT NULL DEFAULT '',
   idem_key varchar(64) NOT NULL DEFAULT '',
   mail_message_id varchar(255) NOT NULL DEFAULT '',
   retry_after bigint(20) unsigned NOT NULL DEFAULT 0,

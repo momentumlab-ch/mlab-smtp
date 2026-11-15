@@ -170,6 +170,11 @@ function mlab_smtp_engine_process( array $row ): string {
 		if ( ! $known ) {
 			return mlab_smtp_engine_settle_final( $row, $token, 'unclear', __( 'Der Weg mit dem unklaren Ergebnis ist nicht mehr verfügbar, bitte manuell prüfen.', 'mlab-smtp' ), 'unclear' );
 		}
+		// The same route name and provider is not enough: with another account or key the first send may have gone out elsewhere.
+		$unclear_routes = mlab_smtp_engine_unclear_same_connection( $attempts );
+		if ( ! $unclear_routes ) {
+			return mlab_smtp_engine_settle_final( $row, $token, 'unclear', __( 'Die Verbindung wurde seit dem unklaren Versuch geändert, bitte manuell prüfen.', 'mlab-smtp' ), 'unclear' );
+		}
 		$routes = array_values( array_filter( $routes, static fn( $r ): bool => in_array( mlab_smtp_engine_pause_key( $r['route'], $r['provider'] ), $unclear_routes, true ) ) );
 		if ( ! $routes && 0 === $until ) {
 			$until = time() + MINUTE_IN_SECONDS;
@@ -328,6 +333,31 @@ function mlab_smtp_engine_unclear_routes( array $attempts ): array {
 		}
 	}
 	return array_values( $routes );
+}
+
+/**
+ * Unclear routes (route:provider) whose connection is still the one of every unclear attempt. An attempt without a
+ * fingerprint (stored before it existed) cannot prove it and does not count: a person decides.
+ *
+ * @param array[] $attempts Attempt rows.
+ * @return string[]
+ */
+function mlab_smtp_engine_unclear_same_connection( array $attempts ): array {
+	$trusted = array();
+	$changed = array();
+	foreach ( $attempts as $attempt ) {
+		if ( 'unknown' !== $attempt['outcome'] ) {
+			continue;
+		}
+		$key  = mlab_smtp_engine_pause_key( (string) $attempt['route'], (string) $attempt['provider'] );
+		$hash = (string) ( $attempt['conn_hash'] ?? '' );
+		if ( '' !== $hash && hash_equals( $hash, mlab_smtp_route_connection_hash( (string) $attempt['route'], (string) $attempt['provider'] ) ) ) {
+			$trusted[ $key ] = $key;
+		} else {
+			$changed[ $key ] = true;
+		}
+	}
+	return array_values( array_diff_key( $trusted, $changed ) );
 }
 
 /**

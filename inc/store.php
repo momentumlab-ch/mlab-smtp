@@ -277,6 +277,7 @@ function mlab_smtp_store_add_attempt( int $message_id, array $fields = array() )
 		'started_at'      => (int) ( $fields['started_at'] ?? $now ),
 		'error_text'      => '',
 		'idem_key'        => mlab_smtp_store_cut( (string) ( $fields['idem_key'] ?? '' ), 64 ),
+		'conn_hash'       => mlab_smtp_store_cut( (string) ( $fields['conn_hash'] ?? '' ), 64 ),
 		'mail_message_id' => mlab_smtp_store_cut( (string) ( $fields['mail_message_id'] ?? '' ), 255 ),
 	);
 	if ( isset( $fields['request_sent_at'] ) ) {

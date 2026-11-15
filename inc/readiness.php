@@ -85,6 +85,27 @@ function mlab_smtp_route_fingerprint( string $route ): string {
 }
 
 /**
+ * Non-reversible fingerprint of the connection of a route (provider, host, user, account/API key). It does not contain
+ * the sender, so a changed sender address keeps it. An attempt with an unclear result is bound to it: another
+ * account does not share the idempotency context of the first one. Salted HMAC; nothing readable is stored.
+ *
+ * @param string $route    primary or fallback.
+ * @param string $provider Provider of the route.
+ * @return string 64 hex characters.
+ */
+function mlab_smtp_route_connection_hash( string $route, string $provider ): string {
+	$route  = mlab_smtp_route_name( $route );
+	$values = array();
+	foreach ( mlab_smtp_route_connection_keys( $route, $provider ) as $key ) {
+		if ( ! str_contains( $key, 'webhook' ) ) { // The webhook secret does not decide where mail is delivered.
+			$values[ $key ] = (string) mlab_smtp_get( $key );
+		}
+	}
+	ksort( $values );
+	return hash_hmac( 'sha256', wp_json_encode( array( $route, $provider, $values ) ), wp_salt( 'auth' ) );
+}
+
+/**
  * Stored results of all routes.
  *
  * @return array<string, array<string, array>>
