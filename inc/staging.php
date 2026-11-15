@@ -345,7 +345,7 @@ function mlab_smtp_staging_redirect_mail( $atts ) {
 }
 
 /**
- * phpmailer_init at the last priority: in redirect mode only the test address stays a recipient, whatever a later hook added to the mailer.
+ * Action phpmailer_init at the last priority: in redirect mode only the test address stays a recipient, whatever a later hook added to the mailer.
  *
  * @param object $mailer PHPMailer of wp_mail().
  */

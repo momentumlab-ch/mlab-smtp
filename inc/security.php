@@ -139,9 +139,19 @@ function mlab_smtp_ip_is_internal( string $ip ): bool {
 	}
 	if ( str_contains( $ip, ':' ) ) {
 		$packed = inet_pton( $ip );
-		// IPv4-mapped (::ffff:a.b.c.d): judge the embedded IPv4 address.
-		if ( false !== $packed && 16 === strlen( $packed ) && str_starts_with( $packed, str_repeat( "\0", 10 ) . "\xff\xff" ) ) {
-			return mlab_smtp_ip_is_internal( (string) inet_ntop( substr( $packed, 12 ) ) );
+		if ( false !== $packed && 16 === strlen( $packed ) ) {
+			// IPv4-mapped (::ffff:a.b.c.d), IPv4-compatible (::a.b.c.d), NAT64 (64:ff9b::/96): the embedded IPv4 address decides.
+			if ( str_starts_with( $packed, str_repeat( "\0", 10 ) . "\xff\xff" ) || str_starts_with( $packed, str_repeat( "\0", 12 ) ) || str_starts_with( $packed, "\x00\x64\xff\x9b" . str_repeat( "\0", 8 ) ) ) {
+				return mlab_smtp_ip_is_internal( (string) inet_ntop( substr( $packed, 12 ) ) );
+			}
+			// 6to4 (2002::/16): bytes 2 to 5 hold the IPv4 address.
+			if ( str_starts_with( $packed, "\x20\x02" ) ) {
+				return mlab_smtp_ip_is_internal( (string) inet_ntop( substr( $packed, 2, 4 ) ) );
+			}
+			// Site-local fec0::/10 (deprecated, still routed in places).
+			if ( "\xfe" === $packed[0] && 0xc0 === ( ord( $packed[1] ) & 0xc0 ) ) {
+				return true;
+			}
 		}
 		$lower = strtolower( $ip );
 		return '::' === $lower || '::1' === $lower || str_starts_with( $lower, 'fc' ) || str_starts_with( $lower, 'fd' ) || str_starts_with( $lower, 'fe8' ) || str_starts_with( $lower, 'fe9' ) || str_starts_with( $lower, 'fea' ) || str_starts_with( $lower, 'feb' ) || str_starts_with( $lower, 'ff' );
@@ -201,6 +211,18 @@ function mlab_smtp_resolve_host( string $host ): array {
  * @return string|WP_Error The URL (trimmed) or a German error message.
  */
 function mlab_smtp_safe_url( string $url ) {
+	return mlab_smtp_safe_url_check( $url );
+}
+
+/**
+ * Same as mlab_smtp_safe_url(), and hands back the addresses that were checked (for pinning).
+ *
+ * @param string        $url URL as entered.
+ * @param string[]|null $ips Gets the checked addresses (null for an explicitly allowed host).
+ * @return string|WP_Error
+ */
+function mlab_smtp_safe_url_check( string $url, ?array &$ips = null ) {
+	$ips   = null;
 	$url   = trim( $url );
 	$parts = wp_parse_url( $url );
 	if ( ! is_array( $parts ) || empty( $parts['host'] ) || empty( $parts['scheme'] ) ) {
@@ -241,18 +263,69 @@ function mlab_smtp_safe_url( string $url ) {
  * @return array|WP_Error Response or error.
  */
 function mlab_smtp_safe_post( string $url, string $body, array $headers = array() ) {
-	$safe = mlab_smtp_safe_url( $url );
+	$ips  = null;
+	$safe = mlab_smtp_safe_url_check( $url, $ips );
 	if ( is_wp_error( $safe ) ) {
 		return $safe;
 	}
-	return wp_safe_remote_post(
-		$safe,
-		array(
-			'timeout'     => 5,
-			'redirection' => 0,
-			'body'        => $body,
-			'headers'     => array_merge( array( 'Content-Type' => 'application/json' ), $headers ),
-			'user-agent'  => 'mlab-smtp/' . MLAB_SMTP_VERSION,
-		)
-	);
+	$parts = (array) wp_parse_url( $safe );
+	$host  = strtolower( trim( (string) ( $parts['host'] ?? '' ), '[]' ) );
+	$pin   = null;
+	if ( $ips && false === filter_var( $host, FILTER_VALIDATE_IP ) ) {
+		/**
+		 * Whether the request can be pinned to the checked address (cURL). Without it a second resolution must match the first.
+		 *
+		 * @param bool $can True when cURL is available.
+		 */
+		if ( apply_filters( 'mlab_smtp_can_pin', function_exists( 'curl_setopt' ) ) ) {
+			$pin = $host . ':' . ( isset( $parts['port'] ) ? (int) $parts['port'] : 443 ) . ':' . $ips[0];
+		} else {
+			$again = mlab_smtp_resolve_host( $host );
+			$first = $ips;
+			sort( $first );
+			sort( $again );
+			if ( $first !== $again ) {
+				return new WP_Error( 'mlab_smtp_url', __( 'Der Servername hat sich während der Prüfung geändert. Die Anfrage wurde nicht gesendet.', 'mlab-smtp' ) );
+			}
+		}
+	}
+	$hook = null;
+	if ( null !== $pin ) {
+		$hook = static function ( $handle, $args = array(), $request_url = '' ) use ( $pin, $host ) {
+			if ( strtolower( (string) wp_parse_url( (string) $request_url, PHP_URL_HOST ) ) === $host ) {
+				curl_setopt( $handle, CURLOPT_RESOLVE, array( $pin ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Pins the checked address for this request only.
+				mlab_smtp_safe_pin_last( $pin );
+			}
+		};
+		add_action( 'http_api_curl', $hook, 10, 3 );
+	}
+	try {
+		return wp_safe_remote_post(
+			$safe,
+			array(
+				'timeout'     => 5,
+				'redirection' => 0,
+				'body'        => $body,
+				'headers'     => array_merge( array( 'Content-Type' => 'application/json' ), $headers ),
+				'user-agent'  => 'mlab-smtp/' . MLAB_SMTP_VERSION,
+			)
+		);
+	} finally {
+		if ( null !== $hook ) {
+			remove_action( 'http_api_curl', $hook, 10 );
+		}
+	}
+}
+
+/**
+ * The pin (host:port:address) applied last, for tests and support.
+ *
+ * @param string|null $set New value, null to only read.
+ */
+function mlab_smtp_safe_pin_last( ?string $set = null ): string {
+	static $last = '';
+	if ( null !== $set ) {
+		$last = $set;
+	}
+	return $last;
 }

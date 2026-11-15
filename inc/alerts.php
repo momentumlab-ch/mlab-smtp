@@ -69,6 +69,9 @@ function mlab_smtp_alerts_save( array $input ): array {
 	$stored = get_option( MLAB_SMTP_ALERTS_OPTION, array() );
 	$stored = is_array( $stored ) ? $stored : array();
 	$url    = trim( (string) ( $input['url'] ?? '' ) );
+	if ( (string) ( $stored['url'] ?? '' ) !== $url && mlab_smtp_alerts_url_change_denied() ) {
+		return array( __( 'Auf einem Multisite-Netzwerk darf nur ein Netzwerk-Administrator die Adresse des Alarm-Webhooks ändern.', 'mlab-smtp' ) );
+	}
 	if ( '' !== $url ) {
 		$safe = mlab_smtp_safe_url( $url );
 		if ( is_wp_error( $safe ) ) {
@@ -93,6 +96,21 @@ function mlab_smtp_alerts_save( array $input ): array {
 	$stored['events'] = $events;
 	update_option( MLAB_SMTP_ALERTS_OPTION, $stored, false );
 	return array();
+}
+
+/**
+ * True when the current user may not change the alert URL (multisite: same policy as the mail server host).
+ */
+function mlab_smtp_alerts_url_change_denied(): bool {
+	/**
+	 * Whether the site runs as a multisite network (tests can force it).
+	 *
+	 * @param bool $multisite Result of is_multisite().
+	 */
+	if ( ! apply_filters( 'mlab_smtp_is_multisite', is_multisite() ) ) {
+		return false;
+	}
+	return ! apply_filters( 'mlab_smtp_can_change_host', current_user_can( 'manage_network_options' ), 'alert_url' );
 }
 
 /**
