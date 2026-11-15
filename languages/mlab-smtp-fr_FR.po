@@ -3379,3 +3379,34 @@ msgstr "20 dernières entrées du journal"
 #: inc/updater.php:54
 msgid "Updates sind nicht aktiv: In wp-config.php fehlt die Konstante MLAB_SMTP_GITHUB_TOKEN."
 msgstr "Les mises à jour ne sont pas actives : la constante MLAB_SMTP_GITHUB_TOKEN est absente de wp-config.php."
+
+msgid "Der Ersatzweg ist deaktiviert. Seine Konfiguration bleibt gespeichert."
+msgstr "La voie de secours est désactivée. Sa configuration reste enregistrée."
+
+msgid "Der Ersatzweg ist in wp-config.php festgelegt. Ändern Sie zuerst die entsprechenden Konstanten."
+msgstr "La voie de secours est définie dans wp-config.php. Modifiez d’abord les constantes correspondantes."
+
+msgid "Der Ersatzweg konnte nicht vollständig geändert werden. Bitte versuchen Sie es erneut."
+msgstr "La voie de secours n’a pas pu être entièrement modifiée. Veuillez réessayer."
+
+msgid "Der Ersatzweg wurde entfernt. Hauptversand und Protokolle bleiben erhalten."
+msgstr "La voie de secours a été supprimée. L’envoi principal et les journaux sont conservés."
+
+msgid "Entfernt Server, Zugangsdaten und Prüfstatus des Ersatzwegs. Hauptversand und Protokolle bleiben erhalten."
+msgstr "Supprime le serveur, les identifiants et l’état de vérification de la voie de secours. L’envoi principal et les journaux sont conservés."
+
+msgid "Ersatzweg deaktivieren"
+msgstr "Désactiver la voie de secours"
+
+msgid "Ersatzweg endgültig entfernen"
+msgstr "Supprimer définitivement la voie de secours"
+
+msgid "Ersatzweg entfernen"
+msgstr "Supprimer la voie de secours"
+
+msgid "Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain."
+msgstr "Saisissez ici le serveur SMTP de votre fournisseur de messagerie, qui n’est pas nécessairement votre domaine d’expéditeur ou d’envoi."
+
+#, php-format
+msgid "Üblicher Port: %s. Individuell vorgegebene Ports bleiben beim Wechsel erhalten."
+msgstr "Port habituel : %s. Les ports personnalisés sont conservés lors du changement."

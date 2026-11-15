@@ -32,6 +32,10 @@ jobs:
         if: matrix.php == '8.3'
         run: bash bin/phpcs.sh
 
+      - name: JavaScript-Verhalten
+        if: matrix.php == '8.3'
+        run: node tests/js/smtp-ports.cjs
+
       - name: Testumgebung (WordPress + SQLite)
         run: bash tests/env/setup.sh
 

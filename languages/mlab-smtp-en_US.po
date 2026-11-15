@@ -3379,3 +3379,34 @@ msgstr "Last 20 log entries"
 #: inc/updater.php:54
 msgid "Updates sind nicht aktiv: In wp-config.php fehlt die Konstante MLAB_SMTP_GITHUB_TOKEN."
 msgstr "Updates are not active: the constant MLAB_SMTP_GITHUB_TOKEN is missing in wp-config.php."
+
+msgid "Der Ersatzweg ist deaktiviert. Seine Konfiguration bleibt gespeichert."
+msgstr "The backup route is disabled. Its configuration remains saved."
+
+msgid "Der Ersatzweg ist in wp-config.php festgelegt. Ändern Sie zuerst die entsprechenden Konstanten."
+msgstr "The backup route is defined in wp-config.php. Change the corresponding constants first."
+
+msgid "Der Ersatzweg konnte nicht vollständig geändert werden. Bitte versuchen Sie es erneut."
+msgstr "The backup route could not be fully updated. Please try again."
+
+msgid "Der Ersatzweg wurde entfernt. Hauptversand und Protokolle bleiben erhalten."
+msgstr "The backup route was removed. Primary sending and logs are retained."
+
+msgid "Entfernt Server, Zugangsdaten und Prüfstatus des Ersatzwegs. Hauptversand und Protokolle bleiben erhalten."
+msgstr "Removes the backup server, credentials and verification status. Primary sending and logs are retained."
+
+msgid "Ersatzweg deaktivieren"
+msgstr "Disable backup route"
+
+msgid "Ersatzweg endgültig entfernen"
+msgstr "Permanently remove backup route"
+
+msgid "Ersatzweg entfernen"
+msgstr "Remove backup route"
+
+msgid "Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain."
+msgstr "Enter your mail provider’s SMTP server here, which is not necessarily your sender or sending domain."
+
+#, php-format
+msgid "Üblicher Port: %s. Individuell vorgegebene Ports bleiben beim Wechsel erhalten."
+msgstr "Usual port: %s. Custom ports are preserved when switching."

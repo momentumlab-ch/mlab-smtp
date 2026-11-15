@@ -38,11 +38,11 @@ function mlab_smtp_render_wizard(): void {
 		4 => 'mlab_smtp_render_step_test',
 	);
 	echo '<hr class="wp-header-end">';
-	mlab_smtp_render_flash();
 	echo '<div class="mlab-wizard"><div class="mlab-card mlab-wiz"><div class="mlab-wiz-top"><span class="mlab-caption">' . esc_html__( 'Einrichtung', 'mlab-smtp' ) . '</span>';
 	echo '<a class="mlab-close" href="' . esc_url( mlab_smtp_page_url() ) . '" aria-label="' . esc_attr__( 'Abbrechen', 'mlab-smtp' ) . '">' . mlab_smtp_ui_svg( 'close' ) . '</a></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	echo '<h1>' . esc_html__( 'E-Mail-Versand einrichten', 'mlab-smtp' ) . '</h1>';
 	mlab_smtp_render_stepper( $step );
+	mlab_smtp_render_flash( true );
 	call_user_func( $steps[ $step ], $provider );
 	echo '</div></div>';
 }
@@ -180,24 +180,33 @@ function mlab_smtp_render_check_button( string $label ): void {
 function mlab_smtp_render_guide( string $summary, callable $steps, string $link, string $button ): void {
 	echo '<details class="mlab-guide" open><summary>' . esc_html( $summary ) . '</summary><ol class="mlab-todo">';
 	$steps();
-	echo '</ol><a class="button" href="' . esc_url( $link ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $button ) . mlab_smtp_ui_svg( 'external' ) . '</a></details>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
+	echo '</ol>';
+	if ( '' !== $link ) {
+		echo '<a class="button" href="' . esc_url( $link ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $button ) . mlab_smtp_ui_svg( 'external' ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
+	}
+	echo '</details>';
 }
 
 /**
  * Prints one numbered guide item.
  *
- * @param string $title Item title.
- * @param string $text  Description (plain text).
- * @param string $copy  Optional text to copy.
- * @param string $after Optional plain text after the copy snippet.
+ * @param string $title  Item title.
+ * @param string $text   Description (plain text).
+ * @param string $copy   Optional text to copy.
+ * @param string $after  Optional plain text after the copy snippet.
+ * @param string $link   Optional provider-console URL for this item.
+ * @param string $button Label of the provider-console link.
  */
-function mlab_smtp_render_guide_item( string $title, string $text, string $copy = '', string $after = '' ): void {
+function mlab_smtp_render_guide_item( string $title, string $text, string $copy = '', string $after = '', string $link = '', string $button = '' ): void {
 	echo '<li><div><h3>' . esc_html( $title ) . '</h3><p class="mlab-muted">' . esc_html( $text ) . '</p>';
 	if ( '' !== $copy ) {
 		mlab_smtp_ui_copy( $copy );
 	}
 	if ( '' !== $after ) {
 		echo '<p class="mlab-muted">' . esc_html( $after ) . '</p>';
+	}
+	if ( '' !== $link ) {
+		echo '<p><a class="button" href="' . esc_url( $link ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $button ) . mlab_smtp_ui_svg( 'external' ) . '</a></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	}
 	echo '</div></li>';
 }
@@ -287,7 +296,14 @@ function mlab_smtp_render_connect_smtp(): void {
 	echo '<h2>' . esc_html__( 'Mit Ihrem Mailserver verbinden', 'mlab-smtp' ) . '</h2><p class="mlab-muted">' . esc_html__( 'Wählen Sie unten Ihren Hoster, dann tragen wir Server und Port ein. Benutzername und Passwort finden Sie im Kundencenter Ihres Hosters, meist unter «E-Mail-Programm einrichten».', 'mlab-smtp' ) . '</p>';
 	echo '<div class="mlab-fields is-open">';
 	mlab_smtp_render_preset_select();
-	mlab_smtp_ui_field( 'smtp_host', __( 'Server', 'mlab-smtp' ), array( 'placeholder' => 'mail.ihre-domain.ch' ) );
+	mlab_smtp_ui_field(
+		'smtp_host',
+		__( 'Server', 'mlab-smtp' ),
+		array(
+			'placeholder' => 'mail.ihre-domain.ch',
+			'help'        => __( 'Hier gehört der SMTP-Server Ihres Mailanbieters hinein, nicht automatisch Ihre Absender- oder Versanddomain.', 'mlab-smtp' ),
+		)
+	);
 	mlab_smtp_ui_segmented( 'smtp_secure', __( 'Verbindung', 'mlab-smtp' ), mlab_smtp_secure_options() );
 	mlab_smtp_render_insecure_note( 'smtp_secure' );
 	mlab_smtp_ui_field(
@@ -301,6 +317,7 @@ function mlab_smtp_render_connect_smtp(): void {
 			),
 		)
 	);
+	mlab_smtp_render_smtp_port_hint( 'smtp_secure' );
 	mlab_smtp_ui_switch( 'smtp_auth', __( 'Der Server verlangt Benutzername und Passwort', 'mlab-smtp' ) );
 	mlab_smtp_ui_field( 'smtp_user', __( 'Benutzername', 'mlab-smtp' ), array( 'help' => __( 'Meist die vollständige Mailadresse.', 'mlab-smtp' ) ) );
 	mlab_smtp_ui_field( 'smtp_pass', __( 'Passwort', 'mlab-smtp' ), array( 'type' => 'password' ) );

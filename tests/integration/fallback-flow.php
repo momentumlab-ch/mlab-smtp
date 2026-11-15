@@ -176,6 +176,50 @@ assert_contains( 'name="_wpnonce"', $html, 'a step form carries a nonce' );
 assert_contains( 'value="mlab_smtp_fallback"', $html, 'a step form posts to the fallback handler' );
 unset( $_GET['step'] );
 
+// 10. Each Resend console link belongs to its numbered prerequisite, not the guide footer.
+ff_reset();
+ob_start();
+mlab_smtp_render_fb_prerequisites();
+$html = ob_get_clean();
+preg_match_all( '/<li>.*?<\/li>/s', $html, $items );
+assert_true( str_contains( $items[0][0] ?? '', MLAB_SMTP_RESEND_DOMAINS ), 'the domain console link is inside the domain instruction' );
+assert_true( ! str_contains( $items[0][0] ?? '', MLAB_SMTP_RESEND_KEYS ), 'the API-key link is not attached to the domain instruction' );
+assert_true( str_contains( $items[0][1] ?? '', MLAB_SMTP_RESEND_KEYS ), 'the API-key console link is inside the API-key instruction' );
+assert_same( 1, substr_count( $html, MLAB_SMTP_RESEND_DOMAINS ), 'the domain link is not repeated below the guide' );
+assert_same( 1, substr_count( $html, MLAB_SMTP_RESEND_KEYS ), 'the API-key link is not repeated below the guide' );
+
+// 11. An untested route cannot be skipped and the summary has an actionable way forward or out.
+mlab_smtp_readiness_record( 'fallback', 'check', true );
+ob_start();
+mlab_smtp_render_fb_test();
+$html = ob_get_clean();
+assert_true( ! str_contains( $html, esc_url( mlab_smtp_fallback_url( 7 ) ) ), 'step 6 does not offer a summary link before a successful test' );
+ob_start();
+mlab_smtp_render_fb_summary();
+$html = ob_get_clean();
+assert_true( ! str_contains( $html, 'value="activate"' ), 'an untested summary does not offer a dead activation button' );
+assert_true( str_contains( $html, 'class="button button-primary" href="' . esc_url( mlab_smtp_fallback_url( 6 ) ) ), 'the primary action returns directly to the missing test' );
+assert_contains( esc_url( mlab_smtp_page_url( array( 'view' => 'settings' ) ) ), $html, 'settings remain accessible without activating the backup' );
+ob_start();
+mlab_smtp_render_fb_stepper( 7 );
+$html = ob_get_clean();
+assert_same( 5, substr_count( $html, 'class="is-done"' ), 'an untested test-mail step is not marked complete' );
+mlab_smtp_readiness_record( 'fallback', 'test', true, 'user@example.test' );
+ob_start();
+mlab_smtp_render_fb_test();
+$html = ob_get_clean();
+assert_contains( esc_url( mlab_smtp_fallback_url( 7 ) ), $html, 'a successfully tested route can continue to the summary' );
+ob_start();
+mlab_smtp_render_fb_summary();
+$html = ob_get_clean();
+assert_contains( 'value="activate"', $html, 'a current successful test exposes the activation action' );
+assert_true( ! str_contains( $html, ' disabled' ), 'the activation action is enabled after a successful test' );
+mlab_smtp_store( array( 'fb_resend_api_key' => 're_changed_backup_1234567890' ) );
+ob_start();
+mlab_smtp_render_fb_summary();
+$html = ob_get_clean();
+assert_true( ! str_contains( $html, 'value="activate"' ), 'changed credentials require testing again' );
+
 delete_option( MLAB_SMTP_OPTION );
 delete_option( MLAB_SMTP_READINESS_OPTION );
 t_finish();

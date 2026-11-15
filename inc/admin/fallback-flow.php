@@ -86,11 +86,11 @@ function mlab_smtp_render_fallback_flow(): void {
 		7 => 'mlab_smtp_render_fb_summary',
 	);
 	echo '<hr class="wp-header-end">';
-	mlab_smtp_render_flash();
 	echo '<div class="mlab-wizard mlab-fbflow"><div class="mlab-card mlab-wiz"><div class="mlab-wiz-top"><span class="mlab-caption">' . esc_html__( 'Ersatzweg', 'mlab-smtp' ) . '</span>';
 	echo '<a class="mlab-close" href="' . esc_url( mlab_smtp_page_url( array( 'view' => 'settings' ) ) ) . '" aria-label="' . esc_attr__( 'Schliessen', 'mlab-smtp' ) . '">' . mlab_smtp_ui_svg( 'close' ) . '</a></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	echo '<h1>' . esc_html__( 'Ersatzweg einrichten', 'mlab-smtp' ) . '</h1>';
 	mlab_smtp_render_fb_stepper( $step );
+	mlab_smtp_render_flash( true );
 	if ( $step > 3 && ! mlab_smtp_fallback_filled() ) {
 		mlab_smtp_ui_hint( 'warn', __( 'Zuerst die Zugangsdaten eintragen', 'mlab-smtp' ), __( 'Der Ersatzweg ist noch nicht eingetragen. Bitte zuerst Schritt 3 abschliessen.', 'mlab-smtp' ) );
 		echo '<div class="mlab-foot"><a class="button button-primary" href="' . esc_url( mlab_smtp_fallback_url( 3 ) ) . '">' . esc_html__( 'Zu Schritt 3', 'mlab-smtp' ) . '</a></div>';
@@ -107,11 +107,15 @@ function mlab_smtp_render_fallback_flow(): void {
  */
 function mlab_smtp_render_fb_stepper( int $step ): void {
 	$labels = mlab_smtp_fallback_steps();
+	$tested = mlab_smtp_route_state( 'fallback' )['getestet'];
 	/* translators: 1: current step, 2: number of steps */
 	echo '<p class="mlab-stepcount">' . esc_html( sprintf( __( 'Schritt %1$d von %2$d: %3$s', 'mlab-smtp' ), $step, count( $labels ), $labels[ $step ] ) ) . '</p>';
 	echo '<ol class="mlab-stepper">';
 	foreach ( $labels as $number => $label ) {
 		$class = $number < $step ? 'is-done' : ( $number === $step ? 'is-now' : '' );
+		if ( 6 === $number && $step > 6 && ! $tested ) {
+			$class = '';
+		}
 		echo '<li class="' . esc_attr( $class ) . '"' . ( $number === $step ? ' aria-current="step"' : '' ) . '><span class="mlab-step-label">' . esc_html( $label ) . '</span></li>';
 	}
 	echo '</ol>';
@@ -170,13 +174,12 @@ function mlab_smtp_render_fb_prerequisites(): void {
 		mlab_smtp_render_guide(
 			__( 'So gehen Sie bei Resend vor', 'mlab-smtp' ),
 			static function (): void {
-				mlab_smtp_render_guide_item( __( 'Domain bestätigen', 'mlab-smtp' ), __( 'Öffnen Sie bei Resend «Domains», legen Sie die Domain Ihrer Absender-Adresse an und tragen Sie die DNS-Einträge bei Ihrem Domain-Anbieter ein.', 'mlab-smtp' ) );
-				mlab_smtp_render_guide_item( __( 'API-Key erstellen', 'mlab-smtp' ), __( 'Öffnen Sie «API Keys» und erstellen Sie einen neuen Key nur für den Ersatzweg. Mit der Berechtigung «Sending access» genügt er zum Senden und ist am sichersten. «Full access» zeigt zusätzlich den Domain-Status an.', 'mlab-smtp' ) );
+				mlab_smtp_render_guide_item( __( 'Domain bestätigen', 'mlab-smtp' ), __( 'Öffnen Sie bei Resend «Domains», legen Sie die Domain Ihrer Absender-Adresse an und tragen Sie die DNS-Einträge bei Ihrem Domain-Anbieter ein.', 'mlab-smtp' ), '', '', MLAB_SMTP_RESEND_DOMAINS, __( 'Domains bei Resend öffnen', 'mlab-smtp' ) );
+				mlab_smtp_render_guide_item( __( 'API-Key erstellen', 'mlab-smtp' ), __( 'Öffnen Sie «API Keys» und erstellen Sie einen neuen Key nur für den Ersatzweg. Mit der Berechtigung «Sending access» genügt er zum Senden und ist am sichersten. «Full access» zeigt zusätzlich den Domain-Status an.', 'mlab-smtp' ), '', '', MLAB_SMTP_RESEND_KEYS, __( 'API-Keys bei Resend öffnen', 'mlab-smtp' ) );
 			},
-			MLAB_SMTP_RESEND_DOMAINS,
-			__( 'Domains bei Resend öffnen', 'mlab-smtp' )
+			'',
+			''
 		);
-		echo '<p><a class="button" href="' . esc_url( MLAB_SMTP_RESEND_KEYS ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'API-Keys bei Resend öffnen', 'mlab-smtp' ) . mlab_smtp_ui_svg( 'external' ) . '</a></p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG.
 	} else {
 		echo '<p class="mlab-muted">' . esc_html__( 'Für den eigenen Mailserver brauchen Sie die Mail-Zugangsdaten Ihres Hosters: Server, Port, Benutzername und Passwort. Sie stehen im Kundencenter Ihres Hosters, meist unter «E-Mail-Programm einrichten». Am besten ist ein Postfach bei einem anderen Anbieter als der Hauptweg.', 'mlab-smtp' ) . '</p>';
 	}
@@ -284,7 +287,7 @@ function mlab_smtp_render_fb_test(): void {
 		/* translators: 1: time, 2: masked recipient */
 		echo '<p class="mlab-muted mlab-small">' . esc_html( sprintf( __( 'Letzte erfolgreiche Testmail: %1$s an %2$s.', 'mlab-smtp' ), mlab_smtp_ui_time( $state['tested_at'] ), $state['tested_to'] ) ) . '</p>';
 	}
-	mlab_smtp_render_fb_nav( 6 );
+	mlab_smtp_render_fb_nav( 6, $state['getestet'] && ! $state['veraltet'] );
 }
 
 /**
@@ -322,11 +325,16 @@ function mlab_smtp_render_fb_summary(): void {
 	echo '<p class="mlab-muted">' . esc_html( $enabled ? __( 'Der Ersatzweg ist eingeschaltet.', 'mlab-smtp' ) : __( 'Der Ersatzweg ist noch ausgeschaltet.', 'mlab-smtp' ) ) . '</p>';
 	mlab_smtp_fb_form_open( 7 );
 	$ready = $state['getestet'] && ! $state['veraltet'];
-	echo '<div class="mlab-foot"><a class="button button-link" href="' . esc_url( mlab_smtp_fallback_url( 6 ) ) . '">' . esc_html__( 'Zurück', 'mlab-smtp' ) . '</a>';
+	if ( ! $enabled && ! $ready ) {
+		echo '<p class="mlab-muted">' . esc_html__( 'Zuerst eine Testmail über den Ersatzweg senden', 'mlab-smtp' ) . '</p>';
+	}
+	echo '<div class="mlab-foot"><a class="button button-link" href="' . esc_url( $enabled || $ready ? mlab_smtp_fallback_url( 6 ) : mlab_smtp_page_url( array( 'view' => 'settings' ) ) ) . '">' . esc_html( $enabled || $ready ? __( 'Zurück', 'mlab-smtp' ) : __( 'Zu den Einstellungen', 'mlab-smtp' ) ) . '</a>';
 	if ( $enabled ) {
 		echo '<a class="button button-primary" href="' . esc_url( mlab_smtp_page_url( array( 'view' => 'settings' ) ) ) . '">' . esc_html__( 'Fertig', 'mlab-smtp' ) . '</a>';
+	} elseif ( $ready ) {
+		echo '<button type="submit" name="do" value="activate" class="button button-primary">' . esc_html__( 'Ersatzweg aktivieren', 'mlab-smtp' ) . '</button>';
 	} else {
-		echo '<button type="submit" name="do" value="activate" class="button button-primary"' . ( $ready ? '' : ' disabled title="' . esc_attr__( 'Zuerst eine Testmail über den Ersatzweg senden', 'mlab-smtp' ) . '"' ) . '>' . esc_html__( 'Ersatzweg aktivieren', 'mlab-smtp' ) . '</button>';
+		echo '<a class="button button-primary" href="' . esc_url( mlab_smtp_fallback_url( 6 ) ) . '">' . esc_html__( 'Testmail über den Ersatzweg senden', 'mlab-smtp' ) . '</a>';
 	}
 	echo '</div>';
 	mlab_smtp_ui_form_close();

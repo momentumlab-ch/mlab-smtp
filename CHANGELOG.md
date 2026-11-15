@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.5.2
+
+- Fixed: Plugin-detail screenshots use a proportional responsive preview with a link to the original image.
+
+- Improved: Setup feedback stays in the active card with accessible focus; the SMTP host and usual-port hints clarify configuration.
+- Improved: Both routes synchronise standard ports with encryption; custom and constant-controlled ports are preserved.
+- Added: Explicit disable and confirmed removal actions for the backup configuration, without deleting the primary route or delivery history.
+- Added: Gold/black/white mail identity with an outlined Montserrat wordmark, icons and both detail-banner sizes.
+
+- Fixed: Register the updater once and keep a single manual update link per plugin row.
+- Fixed: Resend domain and API-key links belong to their respective setup instructions.
+- Fixed: Require a current successful backup test before continuing; offer a direct test action and a way back to settings from the summary. Incomplete test steps are no longer marked complete.
+
 ## 1.5.1
 
 - Improved: English plugin details, installation instructions, FAQ and external-service disclosures.

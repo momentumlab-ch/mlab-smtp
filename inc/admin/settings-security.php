@@ -29,10 +29,12 @@ function mlab_smtp_render_set_action_forms(): void {
  */
 function mlab_smtp_set_actions(): array {
 	return array(
-		'staging-confirm' => 'mlab_smtp_staging_confirm',
-		'alert-test'      => 'mlab_smtp_alert_test',
-		'support-report'  => 'mlab_smtp_support_report',
-		'reencrypt'       => 'mlab_smtp_reencrypt',
+		'staging-confirm'  => 'mlab_smtp_staging_confirm',
+		'alert-test'       => 'mlab_smtp_alert_test',
+		'support-report'   => 'mlab_smtp_support_report',
+		'reencrypt'        => 'mlab_smtp_reencrypt',
+		'fallback-disable' => 'mlab_smtp_fallback_disable',
+		'fallback-remove'  => 'mlab_smtp_fallback_remove',
 	);
 }
 

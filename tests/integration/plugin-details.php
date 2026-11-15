@@ -15,3 +15,37 @@ assert_true( ! str_contains( $info->sections['screenshots'], 'githubusercontent.
 $size = getimagesize( MLAB_SMTP_DIR . 'assets/screenshots/screenshot-1.png' );
 assert_true( is_array( $size ) && $size[0] > 0 && $size[1] > 0, 'the bundled screenshot is a valid image' );
 assert_same( MLAB_SMTP_VERSION, $info->version, 'the metadata version is unchanged by the screenshot filter' );
+
+// Registering the updater repeatedly must not register additional checker instances.
+global $wp_filter;
+$before = count( $wp_filter['admin_init']->callbacks[10] ?? array() );
+mlab_smtp_register_updater();
+mlab_smtp_register_updater();
+assert_same( $before, count( $wp_filter['admin_init']->callbacks[10] ?? array() ), 'repeated updater registration does not add another admin checker' );
+$url = admin_url( 'plugins.php?puc_check_for_updates=1&puc_slug=mlab-smtp' );
+$one = '<a href="' . esc_url( $url . '&_wpnonce=one' ) . '">Check for updates</a>';
+$two = '<a href="' . esc_url( $url . '&_wpnonce=two' ) . '">Check for updates</a>';
+$other = '<a href="' . esc_url( admin_url( 'plugins.php?puc_check_for_updates=1&puc_slug=other-plugin' ) ) . '">Other update</a>';
+$links = array( 'Version', $one, 'Details', $two, $other );
+$result = mlab_smtp_unique_update_link( $links, plugin_basename( MLAB_SMTP_FILE ) );
+assert_same( array( 'Version', $one, 'Details', $other ), array_values( $result ), 'only this plugin duplicate manual update action is removed' );
+assert_same( $links, mlab_smtp_unique_update_link( $links, 'other/plugin.php' ), 'other plugin rows are preserved' );
+assert_same( $result, mlab_smtp_unique_update_link( $result, plugin_basename( MLAB_SMTP_FILE ) ), 'deduplication is idempotent' );
+
+foreach ( array( 'assets/icon-128x128.png' => array( 128, 128 ), 'assets/icon-256x256.png' => array( 256, 256 ), 'assets/banner-772x250.png' => array( 772, 250 ), 'assets/banner-1544x500.png' => array( 1544, 500 ) ) as $file => $expected ) {
+	$size = getimagesize( MLAB_SMTP_DIR . $file );
+	assert_same( $expected, array( $size[0], $size[1] ), "$file has its declared dimensions" );
+}
+assert_contains( 'banner-772x250.png', $info->banners['low'], 'the low-density banner uses the small asset' );
+assert_contains( 'banner-1544x500.png', $info->banners['high'], 'the high-density banner uses the large asset' );
+
+assert_contains( 'width="400" height="281"', $info->sections['screenshots'], 'the details image has a constrained proportional preview size' );
+assert_contains( 'class="mlab-plugin-shot-link"', $info->sections['screenshots'], 'the preview links to the full-size image' );
+assert_contains( 'target="_blank" rel="noopener noreferrer"', $info->sections['screenshots'], 'the full-size image opens safely in a separate tab' );
+$_GET = array( 'tab' => 'plugin-information', 'plugin' => 'other-plugin' );
+mlab_smtp_enqueue_assets( 'plugin-install.php' );
+assert_true( ! wp_style_is( 'mlab-smtp-details', 'enqueued' ), 'other plugin detail windows do not receive our image styles' );
+$_GET['plugin'] = 'mlab-smtp';
+mlab_smtp_enqueue_assets( 'plugin-install.php' );
+assert_true( wp_style_is( 'mlab-smtp-details', 'enqueued' ), 'the own information iframe receives responsive preview styles' );
+unset( $_GET['tab'], $_GET['plugin'] );

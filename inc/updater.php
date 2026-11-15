@@ -14,11 +14,16 @@ require_once dirname( __DIR__ ) . '/lib/plugin-update-checker/plugin-update-chec
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 add_action( 'init', 'mlab_smtp_register_updater' );
+add_filter( 'plugin_row_meta', 'mlab_smtp_unique_update_link', PHP_INT_MAX, 2 );
 
 /**
  * Registers the update checker. Private repos need the token constant in wp-config.php.
  */
 function mlab_smtp_register_updater(): void {
+	static $checker = null;
+	if ( null !== $checker ) {
+		return;
+	}
 	$private = false;
 	$token   = defined( 'MLAB_SMTP_GITHUB_TOKEN' ) ? (string) constant( 'MLAB_SMTP_GITHUB_TOKEN' ) : '';
 
@@ -67,12 +72,48 @@ function mlab_smtp_plugin_details( $info ) {
 	if ( ! is_object( $info ) ) {
 		return $info;
 	}
-	$image = '<p><img src="' . esc_url( plugins_url( 'assets/screenshots/screenshot-1.png', MLAB_SMTP_FILE ) ) . '" alt="MomentumLab SMTP English dashboard with main route, backup readiness and queue status" style="max-width:100%;height:auto;" /></p>'
-		. '<p>English interface with demonstration data. Review sending health, main and backup routes, waiting emails and issues that need attention.</p>';
+	$screenshot = esc_url( plugins_url( 'assets/screenshots/screenshot-1.png', MLAB_SMTP_FILE ) );
+	$image      = '<p><a class="mlab-plugin-shot-link" href="' . $screenshot . '" target="_blank" rel="noopener noreferrer" aria-label="Open full-size screenshot"><img class="mlab-plugin-shot" src="' . $screenshot . '" alt="MomentumLab SMTP English dashboard with main route, backup readiness and queue status" width="400" height="281" style="max-width:100%;height:auto;" /></a></p>'
+		. '<p>English interface with demonstration data. Select the preview to open the full-size screenshot.</p>';
+
+	$info->banners = array(
+		'low'  => plugins_url( 'assets/banner-772x250.png', MLAB_SMTP_FILE ),
+		'high' => plugins_url( 'assets/banner-1544x500.png', MLAB_SMTP_FILE ),
+	);
 
 	$info->sections = (array) ( $info->sections ?? array() );
 
 	$info->sections['screenshots'] = $image;
 	$info->sections['description'] = (string) ( $info->sections['description'] ?? '' ) . '<h3>Inside the plugin</h3>' . $image;
 	return $info;
+}
+
+/**
+ * Keeps one manual update action for this plugin when another integration adds the same updater link.
+ * Other plugins and unrelated metadata are preserved.
+ *
+ * @param array  $links Metadata links.
+ * @param string $file  Plugin basename.
+ * @return array
+ */
+function mlab_smtp_unique_update_link( array $links, string $file ): array {
+	if ( plugin_basename( MLAB_SMTP_FILE ) !== $file ) {
+		return $links;
+	}
+	$seen = false;
+	foreach ( $links as $key => $link ) {
+		if ( ! preg_match( '/href=["\']([^"\']+)["\']/i', (string) $link, $match ) ) {
+			continue;
+		}
+		$query = (string) wp_parse_url( html_entity_decode( $match[1], ENT_QUOTES, 'UTF-8' ), PHP_URL_QUERY );
+		wp_parse_str( $query, $args );
+		if ( 'mlab-smtp' !== ( $args['puc_slug'] ?? '' ) || empty( $args['puc_check_for_updates'] ) ) {
+			continue;
+		}
+		if ( $seen ) {
+			unset( $links[ $key ] );
+		}
+		$seen = true;
+	}
+	return $links;
 }
