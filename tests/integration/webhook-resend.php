@@ -189,8 +189,10 @@ wh_signed( 'resend', $main_secret, 'msg_o1', wh_event( 'email.delivered', 'em_la
 assert_same( 'accepted', wh_status( $late ), 'event before the provider id changes nothing yet' );
 assert_same( 1, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . " WHERE event_id = 'msg_o1' AND message_id IS NULL" ), 'orphan kept with NULL message' );
 mlab_smtp_store_set_status( $late, 'accepted', array( 'provider_msg_id' => 'em_late' ) );
-assert_same( 1, mlab_smtp_webhook_rematch(), 'rematch matches the event' );
-assert_same( 'delivered', wh_status( $late ), 'rematch applies the status' );
+assert_same( 0, mlab_smtp_webhook_rematch(), 'the background run leaves an event alone that is not due yet' );
+mlab_smtp_webhook_rematch_message( $late );
+assert_same( 'delivered', wh_status( $late ), 'the targeted rematch applies the status at once' );
+assert_same( 1, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . " WHERE event_id = 'msg_o1' AND message_id IS NOT NULL AND processed_at IS NOT NULL" ), 'the event is matched and processed' );
 $wpdb->insert( mlab_smtp_table( 'events' ), array( 'provider' => 'resend', 'event_id' => 'old', 'type' => 'email.sent', 'occurred_at' => 1, 'received_at' => time() - 8 * DAY_IN_SECONDS, 'detail' => '{}' ) );
 mlab_smtp_webhook_rematch();
 assert_same( 0, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . mlab_smtp_table( 'events' ) . " WHERE event_id = 'old'" ), 'orphans older than 7 days deleted' );

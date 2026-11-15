@@ -454,37 +454,48 @@ function mlab_smtp_store_apply_pending_events( int $id ): bool {
 	$rows  = (array) mlab_smtp_store_run(
 		static function () use ( $id ) {
 			global $wpdb;
-			return $wpdb->get_col( $wpdb->prepare( 'SELECT DISTINCT type FROM %i WHERE message_id = %d', mlab_smtp_table( 'events' ), $id ) );
+			return $wpdb->get_results( $wpdb->prepare( 'SELECT id, type, processed_at FROM %i WHERE message_id = %d', mlab_smtp_table( 'events' ), $id ), ARRAY_A );
 		},
 		array()
 	);
-	$best  = '';
-	foreach ( $rows as $type ) {
-		$status = $types[ $type ] ?? '';
+	$best    = '';
+	$pending = array(); // Only events that were read here are marked; one that arrives meanwhile stays open.
+	foreach ( $rows as $row ) {
+		$status = $types[ $row['type'] ] ?? '';
 		if ( '' !== $status && (int) mlab_smtp_store_rank( $status ) > (int) mlab_smtp_store_rank( $best ) ) {
 			$best = $status;
 		}
+		if ( null === $row['processed_at'] ) {
+			$pending[] = (int) $row['id'];
+		}
 	}
 	if ( '' === $best ) {
-		return false;
+		$result = 'unchanged';
+	} else {
+		$result = mlab_smtp_store_apply_event_result( $id, $best );
 	}
-	$result = mlab_smtp_store_apply_event_result( $id, $best );
-	if ( ! in_array( $result, array( 'error', 'deferred' ), true ) ) {
-		mlab_smtp_store_mark_events_processed( $id );
+	if ( $pending && ! in_array( $result, array( 'error', 'deferred' ), true ) ) {
+		mlab_smtp_store_mark_events_processed( $pending );
 	}
 	return 'changed' === $result;
 }
 
 /**
- * Marks the events of a message as processed (their status effect is applied or needs no change).
+ * Marks events as processed (their status effect is applied or needs no change).
  *
- * @param int $id Message id.
+ * @param int[] $event_ids Event row ids.
+ * @return bool False when the update failed.
  */
-function mlab_smtp_store_mark_events_processed( int $id ): bool {
+function mlab_smtp_store_mark_events_processed( array $event_ids ): bool {
+	$event_ids = array_values( array_filter( array_map( 'intval', $event_ids ) ) );
+	if ( ! $event_ids ) {
+		return true;
+	}
 	return false !== mlab_smtp_store_run(
-		static function () use ( $id ) {
+		static function () use ( $event_ids ) {
 			global $wpdb;
-			return $wpdb->query( $wpdb->prepare( 'UPDATE %i SET processed_at = %d WHERE message_id = %d AND processed_at IS NULL', mlab_smtp_table( 'events' ), mlab_smtp_store_now(), $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
+			$in = implode( ',', array_fill( 0, count( $event_ids ), '%d' ) );
+			return $wpdb->query( $wpdb->prepare( "UPDATE %i SET processed_at = %d WHERE processed_at IS NULL AND id IN ($in)", array_merge( array( mlab_smtp_table( 'events' ), mlab_smtp_store_now() ), $event_ids ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name, placeholders only.
 		}
 	);
 }
@@ -768,8 +779,8 @@ function mlab_smtp_store_swept( array $message, array $set ): void {
 	if ( function_exists( 'mlab_smtp_engine_changed' ) ) {
 		mlab_smtp_engine_changed( $id, $status, 'processing', 'worker' );
 	}
-	if ( ! empty( $set['provider_msg_id'] ) && function_exists( 'mlab_smtp_webhook_rematch' ) ) {
-		mlab_smtp_webhook_rematch();
+	if ( ! empty( $set['provider_msg_id'] ) && function_exists( 'mlab_smtp_webhook_rematch_message' ) ) {
+		mlab_smtp_webhook_rematch_message( $id );
 	}
 	if ( in_array( $status, array( 'accepted', 'partial' ), true ) ) {
 		do_action(
@@ -1221,6 +1232,8 @@ function mlab_smtp_store_add_event( array $event ) {
 		'occurred_at' => (int) ( $event['occurred_at'] ?? mlab_smtp_store_now() ),
 		'received_at' => mlab_smtp_store_now(),
 		'detail'      => mlab_smtp_store_text( $event['detail'] ?? '', 500 ),
+		'ref_email'   => mlab_smtp_store_cut( (string) ( $event['ref_email'] ?? '' ), 100 ),
+		'ref_uuid'    => mlab_smtp_store_cut( (string) ( $event['ref_uuid'] ?? '' ), 32 ),
 	);
 	if ( ! empty( $event['message_id'] ) ) {
 		$row['message_id'] = (int) $event['message_id'];

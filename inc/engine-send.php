@@ -472,8 +472,8 @@ function mlab_smtp_engine_set_status( int $id, string $status, array $fields, st
 	if ( $ok && (string) ( $old['status'] ?? '' ) !== $status ) {
 		mlab_smtp_engine_changed( $id, $status, (string) ( $old['status'] ?? '' ), $source );
 	}
-	if ( $ok && ! empty( $fields['provider_msg_id'] ) && function_exists( 'mlab_smtp_webhook_rematch' ) ) {
-		mlab_smtp_webhook_rematch();
+	if ( $ok && ! empty( $fields['provider_msg_id'] ) && function_exists( 'mlab_smtp_webhook_rematch_message' ) ) {
+		mlab_smtp_webhook_rematch_message( $id );
 	}
 	return $ok;
 }

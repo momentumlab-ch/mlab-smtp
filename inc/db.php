@@ -11,7 +11,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const MLAB_SMTP_SCHEMA_VERSION = '1.5.0.2';
+const MLAB_SMTP_SCHEMA_VERSION = '1.5.0.3';
 
 add_action( 'init', 'mlab_smtp_db_maybe_upgrade', 5 );
 add_action( 'wp_initialize_site', 'mlab_smtp_db_new_site', 20 );
@@ -128,11 +128,18 @@ function mlab_smtp_db_schema( string $collate ): array {
   occurred_at bigint(20) unsigned NOT NULL DEFAULT 0,
   received_at bigint(20) unsigned NOT NULL DEFAULT 0,
   processed_at bigint(20) unsigned DEFAULT NULL,
+  retry_at bigint(20) unsigned NOT NULL DEFAULT 0,
+  tries smallint(5) unsigned NOT NULL DEFAULT 0,
+  ref_email varchar(100) NOT NULL DEFAULT '',
+  ref_uuid char(32) NOT NULL DEFAULT '',
   detail text NOT NULL,
   PRIMARY KEY  (id),
   UNIQUE KEY provider_event (provider,event_id),
   KEY message_id (message_id),
-  KEY received_at (received_at)
+  KEY received_at (received_at),
+  KEY due (processed_at,retry_at,id),
+  KEY ref_email (ref_email),
+  KEY ref_uuid (ref_uuid)
 ) $collate;",
 		"CREATE TABLE {$t['recipients']} (
   id bigint(20) unsigned NOT NULL AUTO_INCREMENT,

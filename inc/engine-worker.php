@@ -65,6 +65,9 @@ function mlab_smtp_engine_spawn(): void {
  */
 function mlab_smtp_engine_cron(): void {
 	mlab_smtp_process_queue();
+	if ( function_exists( 'mlab_smtp_webhook_reprocess' ) && mlab_smtp_db_ready() ) {
+		mlab_smtp_webhook_reprocess(); // Bounded: due events only, 50 per run, 4 seconds.
+	}
 }
 
 /**
@@ -393,8 +396,8 @@ function mlab_smtp_engine_settle_done( array $row, string $token, array $snapsho
 		return 'lost';
 	}
 	mlab_smtp_engine_changed( $id, $status, 'processing', 'worker' );
-	if ( '' !== $o['provider_msg_id'] && function_exists( 'mlab_smtp_webhook_rematch' ) ) {
-		mlab_smtp_webhook_rematch();
+	if ( '' !== $o['provider_msg_id'] && function_exists( 'mlab_smtp_webhook_rematch_message' ) ) {
+		mlab_smtp_webhook_rematch_message( $id );
 	}
 	$msg = array(
 		'id'   => $id,
