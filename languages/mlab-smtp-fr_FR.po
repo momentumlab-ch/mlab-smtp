@@ -20,7 +20,7 @@ msgstr "MomentumLab SMTP"
 
 #. Description of the plugin
 #: mlab-smtp.php:4
-msgid "Versendet WordPress-E-Mails über einen eigenen Mailserver (SMTP), Microsoft 365, Google oder Resend."
+msgid "Sends WordPress emails via your own mail server (SMTP), Microsoft 365, Google or Resend."
 msgstr "Envoie les e-mails de WordPress via votre propre serveur de messagerie (SMTP), Microsoft 365, Google ou Resend."
 
 #. Author of the plugin

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.1
+
+- Improved: English plugin details, installation instructions, FAQ and external-service disclosures.
+- Added: Bundled English dashboard screenshot in the plugin details and a directory screenshot caption.
+- Updated: WordPress.org submission checklist; the GitHub update channel remains in place.
+
 ## 1.5.0
 
 Grosser Release: dauerhafte Warteschlange, nachvollziehbare Zustellung, Datenschutz, Sicherheitshärtung, vier Sprachen. Bestehende Einrichtungen funktionieren unverändert weiter (SMTP, Microsoft 365, Google, Resend). Anleitung zum Update und zur Wiederherstellung: `docs/upgrade-and-recovery.md`.

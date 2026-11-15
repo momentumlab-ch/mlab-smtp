@@ -1,39 +1,37 @@
-# Veröffentlichung im WordPress.org-Plugin-Verzeichnis
+# WordPress.org submission preparation
 
-Stand 1.5.0: **Es wird nichts davon umgesetzt.** Das Plugin wird über GitHub-Releases ausgeliefert. Diese Liste hält fest, was für eine Einreichung zu ändern wäre. `bin/plugin-check.sh` meldet die verzeichnisrelevanten Funde unter `MLAB_PLUGIN_CHECK_DIRECTORY=1` mit.
+Status for 1.5.1: the English listing content is prepared. The plugin is still distributed through GitHub Releases. This change does not submit, publish or approve a WordPress.org listing.
 
-## Muss geändert werden
-| Thema | Heute | Für das Verzeichnis |
-| --- | --- | --- |
-| Update-Checker | `lib/plugin-update-checker`, Header `Update URI`, `inc/updater.php` | Entfernen, auch den Header `Update URI`. Das Verzeichnis liefert Updates aus (Plugin Check: `plugin_updater_detected`). Die GitHub-Variante bräuchte einen eigenen Build ohne Updater. |
-| Sprache von `readme.txt` | Deutsch | Englisch, Standardsprache des Verzeichnisses (Plugin Check: `readme_*_non_official_language`). Deutsch, Französisch, Italienisch kommen über translate.wordpress.org. |
-| Quelltext-Sprache | Deutsche Quelltexte, Übersetzungen en_US/fr_FR/it_IT als Dateien | Englische Quelltexte (`__( 'English', 'mlab-smtp' )`), Übersetzungen über translate.wordpress.org. Eigene `.po/.mo` sind dann nur noch Ersatz. |
-| i18n-Laden | `load_plugin_textdomain()` auf `init` | Ab WordPress 4.6 lädt das Verzeichnis Übersetzungen selbst. Im Verzeichnis kann der Aufruf entfallen. Er bleibt bis dahin (Locale-Zuordnung en/fr/it), die Warnung `load_plugin_textdomainFound` ist per `phpcs:ignore` begründet. |
-| Datenbankabfragen | Tabellen- und Spaltennamen über `%i` in `$wpdb->prepare()` | erledigt, keine `UnescapedDBParameter`-Warnung mehr im eigenen Code. Bleibende `phpcs:ignore` (Listen-WHERE in `store.php`, SET-Liste in `mlab_smtp_store_cas`) sind begründet: Spalten stehen auf einer Positivliste, Werte sind vorbereitet. |
-| Hooknamen | `wp_mail_failed`, `phpmailer_init`, `wp_mail_succeeded` werden ausgelöst | erledigt: Core-Hooks, bewusst, mit engem `phpcs:ignore` und Begründung. Eigene Hooks tragen `mlab_smtp_`, der dynamische Name im Worker ist in zwei feste Aufrufe aufgelöst. |
-| Tags | höchstens 5 | erledigt |
-| Marke | «MomentumLab SMTP», Slug `mlab-smtp` | Der Name enthält keine fremde Marke im Anfang (Microsoft, Google, Resend kommen nur als Beschreibung vor: «Versand über …»). Logos, Namen und Farben dieser Firmen im Plugin nicht verwenden. Slug und Name sind frei, sofern kein Dritter sie hält. |
-| Lizenz | GPL-2.0-or-later, MIT-Code in `lib/` | GPL-kompatibel, Details in `docs/licenses.md`. Mit dem Updater entfällt das meiste. |
-| Assets | keine Verzeichnisbilder | Icon (128/256), Banner (772x250, 1544x500) und Screenshots in `/assets` des SVN-Repositorys, nicht im Plugin-ZIP. Screenshots in `readme.txt` beschreiben. |
-| Sicherheit | Capability- und Nonce-Prüfung, Escaping | Plugin Check mit allen Kategorien (`security`) sauber halten. |
+## Prepared
 
-## Offenlegung externer Dienste (readme.txt, Abschnitt «External services»)
-Das Verzeichnis verlangt für jeden Dienst: was gesendet wird, wann, und Links zu Nutzungsbedingungen und Datenschutz. Zu nennen:
-- **Resend** (`api.resend.com`): Mailinhalt, Absender, Empfänger, Anhänge beim Versand; Domain-Abfragen bei der Prüfung; Zustellereignisse kommen als Webhook zurück. Nur wenn Resend gewählt ist.
-- **Microsoft** (`login.microsoftonline.com`, `graph.microsoft.com`): Token-Anfrage und Mailversand über Graph, nur bei Anbieter Microsoft 365.
-- **Google** (`accounts.google.com`, `oauth2.googleapis.com`, `gmail.googleapis.com`): OAuth-Anmeldung und Mailversand, nur bei Anbieter Google.
-- **Eigener Mailserver (SMTP):** kein Drittdienst des Plugins, die Zieladresse legt der Betreiber fest.
-- **Alarm-Webhook:** frei konfigurierte URL des Betreibers, empfängt Statusmeldungen (ohne Nachrichteninhalt).
-- **GitHub** (`api.github.com`): heute der Update-Kanal. Entfällt mit dem Updater.
-Es gibt weder Telemetrie noch Tracking von Öffnen und Klicks.
+- English `readme.txt`: description, four supported sending routes, installation, FAQ, screenshots, external services, changelog and upgrade notices.
+- English main-file description; existing English, French and Italian catalogs remain consistent.
+- Real English dashboard screenshot with demonstration data, bundled at `assets/screenshots/screenshot-1.png`. The GitHub plugin-details modal shows the image locally, including in the Description tab.
+- An honest distinction between queued, provider-accepted and confirmed-delivery states; no inbox-placement guarantee.
+- Disclosure of provider data flows, optional alerts and the current GitHub update service, with provider terms and privacy links.
 
-## Datenschutz
-- Im Protokoll stehen Empfänger, Betreff, Status und Fehler, kein Inhalt. Aufbewahrung 7/30/90 Tage, Bereinigung täglich.
-- Die Warteschlange speichert die Nutzlast verschlüsselt und löscht sie nach Annahme.
-- WordPress-Datenschutz-Exporter und -Eraser sowie ein Textvorschlag für die Datenschutzerklärung sind eingebunden (`inc/privacy.php`). Der Vorschlag muss die externen Dienste nennen.
-- `uninstall.php` entfernt Optionen, Tabellen und Transients.
+## Remaining before submission
 
-## Ablauf der Einreichung
-1. Verzeichnis-Build ohne Updater und mit englischem readme erzeugen (eigener Zweig oder Build-Schritt).
-2. `bash bin/plugin-check.sh` mit `MLAB_PLUGIN_CHECK_DIRECTORY=1` und `MLAB_PLUGIN_CHECK_STRICT=1`, bis keine ERROR-Funde bleiben.
-3. ZIP auf https://wordpress.org/plugins/developers/add/ einreichen, Rückfragen des Review-Teams abwarten, danach SVN.
+| Item | Required action |
+| --- | --- |
+| Update channel | Build a separate WordPress.org distribution without `inc/updater.php`, its module-loader reference, `lib/plugin-update-checker` and the `Update URI` header. Do not disable updates for existing GitHub installations. WordPress.org supplies updates for its distribution. |
+| External-service disclosure | In the directory build remove the GitHub update-service subsection and the GitHub-distribution installation paragraph, because that build must not contact GitHub for updates. Preserve disclosures for the actual sending and alert services. |
+| Screenshot asset | Copy `assets/screenshots/screenshot-1.png` to the **top-level SVN** `assets/screenshot-1.png`, alongside `trunk/` and `tags/`. The numbered caption in `readme.txt` corresponds to this asset. Do not use a remote GitHub image URL in the directory listing. |
+| Icons and banner | Prepare original MomentumLab branding if desired: `icon-128x128.png`, `icon-256x256.png`, `banner-772x250.png` and `banner-1544x500.png` in the SVN assets directory. No third-party provider logos as the plugin's own branding. |
+| Contributor account | Verify that the `Contributors` value is the intended **WordPress.org username**. A GitHub login or display name is not proof that the WordPress.org account exists. |
+| Translation workflow | Review compatibility with WordPress.org language packs. English source strings are recommended for the wider translation community; the current admin source language remains German with bundled translations. Do not claim that this task converted the entire UI source language. |
+| Directory validation | Run Plugin Check against the actual directory build with directory rules enabled, without the current exceptions for the external updater. Address review findings in the distributed code, including bundled dependencies. |
+| Submission | Validate the readme, submit the directory ZIP for review, respond to the review team, then upload code and assets to the assigned SVN repository after approval. Do not reuse the GitHub release ZIP unchanged. |
+
+## Privacy and verification
+
+The normal delivery log contains recipient information, subject, status, times and diagnostics, not message bodies or attachments. Optional pending queue payloads are encrypted and cleared after acceptance or expiry. Retention, WordPress data export/erasure and the privacy-policy suggestion remain available. There is no plugin telemetry or opening/click tracking.
+
+A listing is not a guarantee of email delivery, provider approval or WordPress.org acceptance. Run the release checks on the exact artifact to be submitted.
+
+## References
+
+- [Readme format](https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/)
+- [Plugin assets and screenshot naming](https://developer.wordpress.org/plugins/wordpress-org/plugin-assets/)
+- [Detailed plugin guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/)
+- [Common submission issues, including external updaters](https://developer.wordpress.org/plugins/wordpress-org/common-issues/)

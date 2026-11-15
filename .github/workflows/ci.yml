@@ -107,4 +107,4 @@ jobs:
         env:
           MLAB_CHECK_STRICT: '1'
           MLAB_REQUIRE_LOCALES: '1'
-        run: bash bin/check.sh 1.5.0
+        run: bash bin/check.sh
