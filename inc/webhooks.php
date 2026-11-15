@@ -186,7 +186,7 @@ function mlab_smtp_webhook_process( string $provider, string $event_id, array $p
 	$type = (string) $payload['type'];
 	$info = mlab_smtp_webhook_summary( $payload );
 	try {
-		$message = mlab_smtp_webhook_match( $info['email_id'], $info['mlab_id'] );
+		$message = mlab_smtp_webhook_match( $info['email_id'], $info['mlab_id'], $provider );
 		$stored  = mlab_smtp_store_add_event(
 			array(
 				'provider'    => $provider,
@@ -260,9 +260,10 @@ function mlab_smtp_webhook_summary( array $payload ): array {
  *
  * @param string $email_id Resend email id.
  * @param string $mlab_id  UUID without dashes.
+ * @param string $provider Webhook endpoint (resend = primary route, resend-fallback = fallback route), empty for no route check.
  * @return int|null Message id.
  */
-function mlab_smtp_webhook_match( string $email_id, string $mlab_id ): ?int {
+function mlab_smtp_webhook_match( string $email_id, string $mlab_id, string $provider = '' ): ?int {
 	$row = null;
 	if ( 32 === strlen( $mlab_id ) ) {
 		$uuid = substr( $mlab_id, 0, 8 ) . '-' . substr( $mlab_id, 8, 4 ) . '-' . substr( $mlab_id, 12, 4 ) . '-' . substr( $mlab_id, 16, 4 ) . '-' . substr( $mlab_id, 20 );
@@ -271,7 +272,31 @@ function mlab_smtp_webhook_match( string $email_id, string $mlab_id ): ?int {
 	if ( ! $row && '' !== $email_id ) {
 		$row = mlab_smtp_store_find( $email_id, 'provider_msg_id' );
 	}
+	if ( $row && '' !== $provider && ! mlab_smtp_webhook_route_fits( $row, $provider ) ) {
+		return null; // The event was signed for the other account: it must not change this message.
+	}
 	return $row ? (int) $row['id'] : null;
+}
+
+/**
+ * True when the message was sent through the route that belongs to the webhook endpoint with provider resend.
+ * Rows without attempt rows (older ones) are judged by their fallback flag.
+ *
+ * @param array  $row      Message row.
+ * @param string $provider resend (primary route) or resend-fallback (fallback route).
+ */
+function mlab_smtp_webhook_route_fits( array $row, string $provider ): bool {
+	$route    = 'resend-fallback' === $provider ? 'fallback' : 'primary';
+	$attempts = mlab_smtp_store_attempts( (int) $row['id'] );
+	if ( ! $attempts ) {
+		return ( 'fallback' === $route ) === ! empty( $row['fallback'] );
+	}
+	foreach ( $attempts as $attempt ) {
+		if ( $route === $attempt['route'] && 'resend' === $attempt['provider'] ) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
@@ -312,14 +337,14 @@ function mlab_smtp_webhook_rematch(): int {
 	$rows  = mlab_smtp_store_run(
 		static function () {
 			global $wpdb;
-			return $wpdb->get_results( $wpdb->prepare( "SELECT id, type, detail FROM %i WHERE message_id IS NULL AND provider IN ('resend','resend-fallback') ORDER BY occurred_at ASC, id ASC LIMIT 200", mlab_smtp_table( 'events' ) ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
+			return $wpdb->get_results( $wpdb->prepare( "SELECT id, provider, type, detail FROM %i WHERE message_id IS NULL AND provider IN ('resend','resend-fallback') ORDER BY occurred_at ASC, id ASC LIMIT 200", mlab_smtp_table( 'events' ) ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed table name.
 		},
 		array()
 	);
 	$count = 0;
 	foreach ( (array) $rows as $row ) {
 		$info    = json_decode( (string) $row['detail'], true );
-		$message = is_array( $info ) ? mlab_smtp_webhook_match( (string) ( $info['email_id'] ?? '' ), (string) ( $info['mlab_id'] ?? '' ) ) : null;
+		$message = is_array( $info ) ? mlab_smtp_webhook_match( (string) ( $info['email_id'] ?? '' ), (string) ( $info['mlab_id'] ?? '' ), (string) $row['provider'] ) : null;
 		if ( $message && mlab_smtp_webhook_attach( (int) $row['id'], $message ) ) {
 			mlab_smtp_webhook_apply( (string) $row['type'], $message );
 			++$count;
