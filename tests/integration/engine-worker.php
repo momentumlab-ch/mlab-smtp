@@ -245,10 +245,10 @@ assert_same( 'accepted', mlab_smtp_store_get( $unclear )['status'], 'resend: del
 
 // 9b. Handler: Berechtigung und Nonce.
 $admins = get_users( array( 'role' => 'administrator', 'number' => 1 ) );
-$act    = static function ( string $do, int $id, ?string $nonce_action = 'mlab_smtp_message_action' ): string {
+$act    = static function ( string $do, int $id, ?string $nonce_action = 'bound' ): string {
 	$_REQUEST = array( 'do' => $do, 'id' => (string) $id );
 	if ( $nonce_action ) {
-		$_REQUEST['_wpnonce'] = wp_create_nonce( $nonce_action );
+		$_REQUEST['_wpnonce'] = wp_create_nonce( 'bound' === $nonce_action ? mlab_smtp_message_nonce_action( $id, $do ) : $nonce_action );
 	}
 	try {
 		mlab_smtp_handle_message_action();

@@ -304,21 +304,37 @@ function mlab_smtp_handle_clear_log(): void {
 }
 
 /**
+ * Name of the nonce of one manual action on one message.
+ *
+ * @param int    $id        Message id.
+ * @param string $operation retry, resend or delivered.
+ */
+function mlab_smtp_message_nonce_action( int $id, string $operation ): string {
+	return 'mlab_smtp_message_' . $operation . '_' . $id;
+}
+
+/**
  * Manual action on one message: retry (failed), resend (unclear, a duplicate is possible) or mark as delivered (unclear).
+ * The nonce is bound to the action and the message, so one captured nonce cannot be used for anything else.
+ * Requests with the field «back» (queue and log screens) return to the same page.
  */
 function mlab_smtp_handle_message_action(): void {
-	mlab_smtp_guard( 'mlab_smtp_message_action' );
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce checked in mlab_smtp_guard().
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- The nonce is checked in mlab_smtp_guard() right after the two values are read; it is bound to exactly these values.
 	$do = isset( $_REQUEST['do'] ) ? sanitize_key( wp_unslash( $_REQUEST['do'] ) ) : '';
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce checked in mlab_smtp_guard().
-	$id     = isset( $_REQUEST['id'] ) ? absint( wp_unslash( $_REQUEST['id'] ) ) : 0;
+	$id = isset( $_REQUEST['id'] ) ? absint( wp_unslash( $_REQUEST['id'] ) ) : 0;
+	$ui = isset( $_REQUEST['back'] );
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
+	if ( $id < 1 || ! in_array( $do, array( 'retry', 'resend', 'delivered' ), true ) ) {
+		wp_die( esc_html__( 'Diese Aktion ist nicht gültig.', 'mlab-smtp' ), '', array( 'response' => 400 ) );
+	}
+	mlab_smtp_guard( mlab_smtp_message_nonce_action( $id, $do ) );
 	$result = mlab_smtp_engine_run_action( $do, $id );
 	if ( is_wp_error( $result ) ) {
 		mlab_smtp_flash( 'error', $result->get_error_message() );
 	} else {
-		mlab_smtp_flash( 'success', __( 'Die Aktion wurde ausgeführt.', 'mlab-smtp' ) );
+		mlab_smtp_flash( 'success', $ui ? mlab_smtp_queue_done_text( $do ) : __( 'Die Aktion wurde ausgeführt.', 'mlab-smtp' ) );
 	}
-	mlab_smtp_back( array( 'view' => 'log' ) );
+	mlab_smtp_back( $ui ? mlab_smtp_queue_back_args() : array( 'view' => 'log' ) );
 }
 
 /**

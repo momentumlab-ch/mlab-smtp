@@ -7,7 +7,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-add_action( 'admin_post_mlab_smtp_message_action', 'mlab_smtp_queue_handle_action', 5 );
 
 /**
  * Problem with the storage of the log and queue that every list has to name: missing tables or an unfinished migration.
@@ -336,7 +335,9 @@ function mlab_smtp_render_resend( array $row, array $back ): void {
  * @param bool   $plain   True for a plain button, false for the highlighted one.
  */
 function mlab_smtp_render_action_form( int $id, string $operation, string $label, array $back, bool $plain ): void {
-	mlab_smtp_ui_form_open( 'mlab_smtp_message_action', 'mlab-inline-form' );
+	// The nonce belongs to this action on this message: a nonce for «retry» of message 5 does not work for anything else.
+	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="mlab-inline-form"><input type="hidden" name="action" value="mlab_smtp_message_action">';
+	wp_nonce_field( mlab_smtp_message_nonce_action( $id, $operation ) );
 	echo '<input type="hidden" name="do" value="' . esc_attr( $operation ) . '"><input type="hidden" name="id" value="' . esc_attr( (string) $id ) . '">';
 	foreach ( $back as $key => $value ) {
 		echo '<input type="hidden" name="back[' . esc_attr( (string) $key ) . ']" value="' . esc_attr( (string) $value ) . '">';
@@ -375,27 +376,4 @@ function mlab_smtp_queue_done_text( string $operation ): string {
 		'delivered' => __( 'Die Mail ist als zugestellt markiert. Der Anbieter hat sie nicht bestätigt, Sie haben das selbst festgehalten.', 'mlab-smtp' ),
 	);
 	return $texts[ $operation ] ?? __( 'Die Aktion wurde ausgeführt.', 'mlab-smtp' );
-}
-
-/**
- * Handles the actions of the queue and log screens and returns to the same page with a message.
- * Requests without the «back» field (old links) are left to the standard handler.
- */
-function mlab_smtp_queue_handle_action(): void {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only decides who handles the request, the nonce is checked right after.
-	if ( ! isset( $_REQUEST['back'] ) ) {
-		return;
-	}
-	mlab_smtp_guard( 'mlab_smtp_message_action' );
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce checked in mlab_smtp_guard().
-	$do = isset( $_REQUEST['do'] ) ? sanitize_key( wp_unslash( $_REQUEST['do'] ) ) : '';
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce checked in mlab_smtp_guard().
-	$id     = isset( $_REQUEST['id'] ) ? absint( wp_unslash( $_REQUEST['id'] ) ) : 0;
-	$result = mlab_smtp_engine_run_action( $do, $id );
-	if ( is_wp_error( $result ) ) {
-		mlab_smtp_flash( 'error', $result->get_error_message() );
-	} else {
-		mlab_smtp_flash( 'success', mlab_smtp_queue_done_text( $do ) );
-	}
-	mlab_smtp_back( mlab_smtp_queue_back_args() );
 }

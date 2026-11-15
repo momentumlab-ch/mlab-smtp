@@ -139,10 +139,10 @@ ui_all_ok();
 $id = mlab_t_msg( array( 'status' => 'failed', 'last_error' => 'x' ) );
 mlab_smtp_store_set_payload( $id, $payload, time() + DAY_IN_SECONDS );
 $unclear_a = mlab_t_msg( array( 'status' => 'unclear' ) );
-$_REQUEST = $_POST = array( 'do' => 'retry', 'id' => (string) $id, 'back' => array( 'view' => 'queue', 'filter' => 'failed', 'paged' => '2', 'evil' => 'x' ), '_wpnonce' => wp_create_nonce( 'mlab_smtp_message_action' ), 'action' => 'mlab_smtp_message_action' );
+$_REQUEST = $_POST = array( 'do' => 'retry', 'id' => (string) $id, 'back' => array( 'view' => 'queue', 'filter' => 'failed', 'paged' => '2', 'evil' => 'x' ), '_wpnonce' => wp_create_nonce( mlab_smtp_message_nonce_action( (int) $id, 'retry' ) ), 'action' => 'mlab_smtp_message_action' );
 $_GET = array();
 try {
-	mlab_smtp_queue_handle_action();
+	mlab_smtp_handle_message_action();
 	$location = '';
 } catch ( UQ_Redirect $e ) {
 	$location = $e->getMessage();
@@ -159,9 +159,9 @@ assert_contains( 'zum erneuten Versuch eingereiht', $shown, 'flash is shown once
 assert_contains( 'role="status"', $shown, 'flash is a live region' );
 
 // Zustandsfehler erscheint als Fehlermeldung.
-$_REQUEST = $_POST = array( 'do' => 'delivered', 'id' => (string) $id, 'back' => array( 'view' => 'log' ), '_wpnonce' => wp_create_nonce( 'mlab_smtp_message_action' ) );
+$_REQUEST = $_POST = array( 'do' => 'delivered', 'id' => (string) $id, 'back' => array( 'view' => 'log' ), '_wpnonce' => wp_create_nonce( mlab_smtp_message_nonce_action( (int) $id, 'delivered' ) ) );
 try {
-	mlab_smtp_queue_handle_action();
+	mlab_smtp_handle_message_action();
 } catch ( UQ_Redirect $e ) {
 	assert_contains( 'view=log', $e->getMessage(), 'wrong state returns to the log' );
 }
@@ -169,10 +169,10 @@ assert_contains( 'anderen Status', ui_render( 'mlab_smtp_render_flash' ), 'wrong
 
 // Ohne Nonce keine Aktion.
 $_REQUEST = $_POST = array( 'do' => 'delivered', 'id' => (string) $unclear_a, 'back' => array( 'view' => 'queue' ) );
-assert_throws( 'mlab_smtp_queue_handle_action', 'missing nonce is refused', Throwable::class );
+assert_throws( 'mlab_smtp_handle_message_action', 'missing nonce is refused', Throwable::class );
 assert_same( 'unclear', mlab_smtp_store_get( $unclear_a )['status'], 'mail untouched without nonce' );
 $_REQUEST = $_POST = array( 'do' => 'delivered', 'id' => '1' );
-mlab_smtp_queue_handle_action();
+mlab_smtp_handle_message_action();
 assert_true( true, 'requests without return field are left to the standard handler' );
 
 // Zugriff: Abonnent und anonym.
@@ -184,8 +184,8 @@ foreach ( array( $sub, 0 ) as $uid ) {
 	ob_start();
 	mlab_smtp_render_message_actions( array( 'id' => $unclear_a, 'status' => 'unclear', 'has_payload' => 1 ), array( 'view' => 'queue' ) );
 	assert_same( '', ob_get_clean(), "user $uid: no action buttons" );
-	$_REQUEST = $_POST = array( 'do' => 'delivered', 'id' => (string) $unclear_a, 'back' => array( 'view' => 'queue' ), '_wpnonce' => wp_create_nonce( 'mlab_smtp_message_action' ) );
-	assert_throws( 'mlab_smtp_queue_handle_action', "user $uid: action is refused", UQ_Die::class );
+	$_REQUEST = $_POST = array( 'do' => 'delivered', 'id' => (string) $unclear_a, 'back' => array( 'view' => 'queue' ), '_wpnonce' => wp_create_nonce( mlab_smtp_message_nonce_action( (int) $unclear_a, 'delivered' ) ) );
+	assert_throws( 'mlab_smtp_handle_message_action', "user $uid: action is refused", UQ_Die::class );
 	assert_same( 'unclear', mlab_smtp_store_get( $unclear_a )['status'], "user $uid: mail untouched" );
 }
 ui_admin();

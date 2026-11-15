@@ -469,7 +469,7 @@ function mlab_smtp_engine_action_url( int $id, string $action ): string {
 			),
 			admin_url( 'admin-post.php' )
 		),
-		'mlab_smtp_message_action'
+		mlab_smtp_message_nonce_action( $id, $action )
 	);
 }
 
