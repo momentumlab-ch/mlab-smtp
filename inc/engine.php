@@ -325,6 +325,8 @@ function mlab_smtp_engine_snapshot( $mailer ) {
 		'message_id'   => (string) $mailer->getLastMessageID(),
 		'resend'       => 0,
 		'content_type' => (string) $mailer->ContentType,
+		'origin'       => function_exists( 'mlab_smtp_staging_origin_id' ) ? mlab_smtp_staging_origin_id() : '',
+		'staging'      => function_exists( 'mlab_smtp_staging_status' ) ? mlab_smtp_staging_status()['effective'] : 'off',
 	);
 	// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 }

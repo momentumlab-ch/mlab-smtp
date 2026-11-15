@@ -60,6 +60,31 @@ function mlab_smtp_staging_fingerprint(): string {
 }
 
 /**
+ * Origin marker of a stored message: the hash of the site address that created it. A cloned database brings rows with another one.
+ */
+function mlab_smtp_staging_origin_id(): string {
+	return mlab_smtp_staging_fingerprint();
+}
+
+/**
+ * True when the worker must not send a stored message in this environment (a copy of a production database must never mail customers).
+ * Mode off sends. Block blocks everything. Redirect lets only messages through that this site created while it redirected (they are rewritten already).
+ *
+ * @param array $snapshot Snapshot with the origin marker and the staging state at enqueue time.
+ */
+function mlab_smtp_staging_blocks_stored( array $snapshot ): bool {
+	$effective = mlab_smtp_staging_status()['effective'];
+	if ( 'off' === $effective ) {
+		return false;
+	}
+	if ( 'redirect' === $effective ) {
+		$origin = (string) ( $snapshot['origin'] ?? '' );
+		return '' === $origin || ! hash_equals( mlab_smtp_staging_origin_id(), $origin ) || 'redirect' !== (string) ( $snapshot['staging'] ?? '' );
+	}
+	return true;
+}
+
+/**
  * Hash of the server environment (path, database host and name). A change is only a warning, never a block.
  */
 function mlab_smtp_staging_env_hash(): string {

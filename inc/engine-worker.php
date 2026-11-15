@@ -141,6 +141,9 @@ function mlab_smtp_engine_process( array $row ): string {
 		$text = is_wp_error( $snapshot ) ? $snapshot->get_error_message() : __( 'Die gespeicherte Nachricht ist nicht mehr vorhanden.', 'mlab-smtp' );
 		return mlab_smtp_engine_settle_final( $row, $token, 'failed', $text, 'permanent' );
 	}
+	if ( function_exists( 'mlab_smtp_staging_blocks_stored' ) && mlab_smtp_staging_blocks_stored( $snapshot ) ) {
+		return mlab_smtp_engine_settle_final( $row, $token, 'blocked', __( 'Staging-Schutz: Nachricht stammt aus einer anderen Umgebung und wurde nicht gesendet.', 'mlab-smtp' ), 'permanent' );
+	}
 	/**
 	 * Lets an extension hold a queued message back. Return false or a WP_Error to postpone it by five minutes.
 	 *
