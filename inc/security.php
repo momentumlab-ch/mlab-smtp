@@ -20,7 +20,7 @@ const MLAB_SMTP_MASK = '[maskiert]';
  */
 function mlab_smtp_known_secrets(): array {
 	static $cache = array();
-	$out = array();
+	$out          = array();
 	foreach ( mlab_smtp_secret_keys() as $key ) {
 		$value = (string) mlab_smtp_get( $key );
 		if ( strlen( $value ) >= 6 ) {
@@ -64,11 +64,11 @@ function mlab_smtp_redact( string $text, bool $mask_emails = false ): string {
 function mlab_smtp_redact_patterns(): array {
 	$mask = MLAB_SMTP_MASK;
 	return array(
-		'/\bre_[A-Za-z0-9_\-]{10,}/'                    => 're_' . $mask,
-		'/\bwhsec_[A-Za-z0-9+\/=_\-]{8,}/'              => 'whsec_' . $mask,
+		'/\bre_[A-Za-z0-9_\-]{10,}/'       => 're_' . $mask,
+		'/\bwhsec_[A-Za-z0-9+\/=_\-]{8,}/' => 'whsec_' . $mask,
 		'/\b(Bearer|Basic|Token)\s+[A-Za-z0-9._~+\/\-=]{8,}/i' => '$1 ' . $mask,
 		'/\beyJ[A-Za-z0-9_\-]{8,}\.[A-Za-z0-9_\-]{8,}\.[A-Za-z0-9_\-]{8,}/' => '[JWT ' . $mask . ']',
-		'/\b1\/\/[A-Za-z0-9_\-]{20,}/'                  => $mask,
+		'/\b1\/\/[A-Za-z0-9_\-]{20,}/'     => $mask,
 		'#(\b[a-z][a-z0-9+.\-]*://)([^/\s:@]+):([^/\s@]+)@#i' => '$1$2:' . $mask . '@',
 		'/("?(?:client_secret|refresh_token|access_token|id_token|code_verifier|api[_-]?key|authorization|passwd|password|pwd|secret|token)"?\s*[:=]\s*"?)([^\s",&;}\]]{4,})/i' => '$1' . $mask,
 		'/\b(?=[A-Za-z0-9_\-]*[A-Za-z])(?=[A-Za-z0-9_\-]*\d)[A-Za-z0-9_\-]{40,}\b/' => $mask,
@@ -175,7 +175,10 @@ function mlab_smtp_resolve_host( string $host ): array {
 		return $pre;
 	}
 	$ips = array();
-	foreach ( array( DNS_A => 'ip', DNS_AAAA => 'ipv6' ) as $type => $field ) {
+	foreach ( array(
+		DNS_A    => 'ip',
+		DNS_AAAA => 'ipv6',
+	) as $type => $field ) {
 		$records = function_exists( 'dns_get_record' ) ? @dns_get_record( $host, $type ) : false; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A failing lookup means "does not resolve".
 		foreach ( (array) $records as $record ) {
 			if ( ! empty( $record[ $field ] ) ) {

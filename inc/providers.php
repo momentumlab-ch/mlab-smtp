@@ -93,7 +93,7 @@ function mlab_smtp_provider_defs(): array {
 			'check'        => 'mlab_smtp_check_smtp_main',
 			'send'         => null,
 			'spf'          => '',
-			'health'       => array(),
+			'health'       => array( 'mlab_smtp_health_smtp_security' ),
 			'sender_block' => null,
 			'fb_required'  => array( 'fb_smtp_host' ),
 			'fb_check'     => 'mlab_smtp_check_fb_smtp',

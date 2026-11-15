@@ -44,7 +44,7 @@ function mlab_smtp_health_checks(): array {
 	if ( false !== ( $def['spf'] ?? '' ) ) {
 		$checks[] = mlab_smtp_health_spf();
 	}
-	array_push( $checks, mlab_smtp_health_dmarc(), mlab_smtp_health_notify(), mlab_smtp_health_fallback() );
+	array_push( $checks, mlab_smtp_health_dmarc(), mlab_smtp_health_notify(), mlab_smtp_health_fallback(), mlab_smtp_health_fallback_security() );
 	return array_values( array_filter( $checks ) );
 }
 
@@ -253,4 +253,35 @@ function mlab_smtp_health_fallback(): array {
 		return mlab_smtp_health_row( 'ok', $title, __( 'Fällt der Hauptweg aus, stellt der Ersatzweg die Mails zu.', 'mlab-smtp' ) );
 	}
 	return mlab_smtp_health_row( 'warn', $title, __( 'Es ist kein Ersatzweg eingerichtet. Fällt der Hauptweg aus, gehen Mails verloren. Empfohlen: ein zweiter Mailserver.', 'mlab-smtp' ), __( 'Einrichten', 'mlab-smtp' ), mlab_smtp_health_settings_url() );
+}
+
+/**
+ * Text that says why an unencrypted SMTP connection is a problem.
+ */
+function mlab_smtp_insecure_text(): string {
+	return __( 'Ohne Verschlüsselung gehen Passwort und Mailinhalt im Klartext über das Netz und können mitgelesen werden. Wählen Sie «STARTTLS» (Port 587) oder «SSL/TLS» (Port 465). Das Zertifikat des Servers wird dabei immer geprüft.', 'mlab-smtp' );
+}
+
+/**
+ * Check: the own mail server is used without encryption (registry entry «health» of the mail server).
+ *
+ * @return array|null Row, null when the connection is encrypted.
+ */
+function mlab_smtp_health_smtp_security(): ?array {
+	if ( 'none' !== (string) mlab_smtp_get( 'smtp_secure' ) ) {
+		return null;
+	}
+	return mlab_smtp_health_row( 'bad', __( 'Unverschlüsselte Verbindung', 'mlab-smtp' ), mlab_smtp_insecure_text(), __( 'Verbindung ändern', 'mlab-smtp' ), mlab_smtp_wizard_url( 2, 'smtp' ) );
+}
+
+/**
+ * Check: the fallback mail server is used without encryption.
+ *
+ * @return array|null Row, null when there is nothing to warn about.
+ */
+function mlab_smtp_health_fallback_security(): ?array {
+	if ( ! mlab_smtp_get( 'fallback_enabled' ) || 'smtp' !== (string) mlab_smtp_get( 'fb_provider' ) || 'none' !== (string) mlab_smtp_get( 'fb_smtp_secure' ) ) {
+		return null;
+	}
+	return mlab_smtp_health_row( 'bad', __( 'Ersatzweg ohne Verschlüsselung', 'mlab-smtp' ), mlab_smtp_insecure_text(), __( 'Ersatzweg ändern', 'mlab-smtp' ), mlab_smtp_health_settings_url() );
 }

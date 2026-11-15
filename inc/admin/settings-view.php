@@ -99,6 +99,7 @@ function mlab_smtp_render_fallback_smtp(): void {
 		__( 'Verschlüsselung', 'mlab-smtp' ),
 		array( 'options' => mlab_smtp_secure_options() )
 	);
+	mlab_smtp_render_insecure_note( 'fb_smtp_secure' );
 	mlab_smtp_ui_switch( 'fb_smtp_auth', __( 'Der Server verlangt Benutzername und Passwort', 'mlab-smtp' ) );
 	mlab_smtp_ui_field( 'fb_smtp_user', __( 'Benutzername', 'mlab-smtp' ) );
 	mlab_smtp_ui_field( 'fb_smtp_pass', __( 'Passwort', 'mlab-smtp' ), array( 'type' => 'password' ) );

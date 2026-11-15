@@ -477,9 +477,21 @@ function mlab_smtp_ui_row_close(): void {
  * @return array{message:string, detail:string}
  */
 function mlab_smtp_ui_error_texts( string $raw ): array {
+	$raw  = mlab_smtp_redact( $raw );
 	$hint = mlab_smtp_explain_error( $raw );
 	return array(
 		'message' => '' !== $hint ? $hint : $raw,
 		'detail'  => $raw,
 	);
+}
+
+/**
+ * Warning that appears next to the encryption choice while «none» is selected (CSS only, no script needed).
+ *
+ * @param string $field Name of the field: smtp_secure or fb_smtp_secure.
+ */
+function mlab_smtp_render_insecure_note( string $field ): void {
+	echo '<div class="mlab-insecure" data-for="' . esc_attr( $field ) . '" role="alert">';
+	mlab_smtp_ui_hint( 'bad', __( 'Nicht empfohlen: keine Verschlüsselung', 'mlab-smtp' ), mlab_smtp_insecure_text() );
+	echo '</div>';
 }

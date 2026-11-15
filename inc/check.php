@@ -145,11 +145,12 @@ function mlab_smtp_run_test( string $to ): array {
  * @return array{sent:bool, error:string, hint:string, debug:string, via:string}
  */
 function mlab_smtp_test_result( bool $sent, string $error, string $debug, string $via ): array {
+	$error = mlab_smtp_redact( $error );
 	return array(
 		'sent'  => $sent,
 		'error' => $error,
 		'hint'  => '' === $error ? '' : mlab_smtp_explain_error( $error ),
-		'debug' => $debug,
+		'debug' => mlab_smtp_redact( $debug ),
 		'via'   => $via,
 	);
 }

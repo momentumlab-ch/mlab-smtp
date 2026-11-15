@@ -172,7 +172,7 @@ function mlab_smtp_daily(): void {
 	if ( 'daily' === mlab_smtp_get( 'notify_mode' ) && $state['failing_since'] ) {
 		mlab_smtp_send_notification(
 			mlab_smtp_notify_subject( (bool) $state['last_fallback'] ),
-			mlab_smtp_notify_body( (string) $state['last_error'], (bool) $state['last_fallback'] ),
+			mlab_smtp_notify_body( mlab_smtp_redact( (string) $state['last_error'] ), (bool) $state['last_fallback'] ),
 			true
 		);
 	}

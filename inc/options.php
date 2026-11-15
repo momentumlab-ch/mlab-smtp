@@ -196,8 +196,13 @@ function mlab_smtp_secret_unreadable( string $key ): bool {
  * when a credential changed.
  *
  * @param array<string, mixed> $changes Key => new plain value.
+ * @return bool False when a secret could not be stored because the encryption is not available.
  */
-function mlab_smtp_store( array $changes ): void {
+function mlab_smtp_store( array $changes ): bool {
+	if ( ! mlab_smtp_crypto_available() && array_intersect( array_keys( $changes ), mlab_smtp_secret_keys() ) ) {
+		// Never store a secret as plain text because the encryption is missing.
+		return false;
+	}
 	$options = mlab_smtp_get_all();
 	$changed = false;
 	foreach ( $changes as $key => $value ) {
@@ -211,6 +216,7 @@ function mlab_smtp_store( array $changes ): void {
 		mlab_smtp_clear_tokens();
 	}
 	update_option( MLAB_SMTP_OPTION, $options, false );
+	return true;
 }
 
 /**
@@ -234,6 +240,9 @@ function mlab_smtp_save_fields( array $input, array $keys ): array {
 	$errors   = array();
 	$changes  = array();
 	$defaults = mlab_smtp_defaults();
+	if ( ! mlab_smtp_crypto_available() && array_intersect( $keys, mlab_smtp_secret_keys() ) ) {
+		return array( mlab_smtp_crypto_error()->get_error_message() );
+	}
 	foreach ( $keys as $key ) {
 		if ( ! array_key_exists( $key, $defaults ) || mlab_smtp_is_locked( $key ) ) {
 			continue;

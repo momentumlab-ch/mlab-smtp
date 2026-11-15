@@ -1558,3 +1558,14 @@
 .mlab-smtp .mlab-fb:has(input[name="fb_provider"][value="resend"]:checked) [data-fb="smtp"] {
 	display: none;
 }
+
+/* Warning for an unencrypted mail server: shown only while "none" is chosen. */
+.mlab-smtp .mlab-insecure {
+	display: none;
+	margin: 12px 0;
+}
+
+.mlab-smtp form:has(input[name="smtp_secure"][value="none"]:checked) .mlab-insecure[data-for="smtp_secure"],
+.mlab-smtp form:has(select[name="fb_smtp_secure"] option[value="none"]:checked) .mlab-insecure[data-for="fb_smtp_secure"] {
+	display: block;
+}

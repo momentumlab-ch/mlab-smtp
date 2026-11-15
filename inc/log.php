@@ -166,7 +166,7 @@ function mlab_smtp_log_add( array $mail_data, ?string $error ): void {
 			'ok'       => null === $error,
 			'fallback' => null === $error && $route['fallback'],
 			'via'      => $route['via'],
-			'error'    => sanitize_text_field( null === $error ? $route['primary_error'] : $error ),
+			'error'    => mlab_smtp_redact( sanitize_text_field( null === $error ? $route['primary_error'] : $error ) ),
 		)
 	);
 	update_option( MLAB_SMTP_LOG_OPTION, mlab_smtp_log_trim( $log ), false );

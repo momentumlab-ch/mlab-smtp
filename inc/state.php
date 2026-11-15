@@ -80,6 +80,7 @@ function mlab_smtp_credentials_error(): string {
  * @param bool   $fallback True when the fallback route delivered.
  */
 function mlab_smtp_record( bool $ok, string $error, bool $fallback ): void {
+	$error = mlab_smtp_redact( $error );
 	$state = mlab_smtp_state_get();
 	$now   = time();
 	if ( $ok ) {
