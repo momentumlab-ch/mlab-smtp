@@ -75,7 +75,7 @@ remove_filter( 'mlab_smtp_store_transactional', '__return_false' );
 assert_true( mlab_smtp_store_delete_result( mlab_smtp_store_ids_by_email( 'user@example.test' ) )['ok'], 'retry after restoring transaction support succeeds' );
 
 // START TRANSACTION darf auf MySQL eine fremde Transaktion nicht implizit committen.
-if ( $wpdb->use_mysqli ) {
+if ( $wpdb->use_mysqli && ! is_a( $wpdb, 'WP_SQLite_DB' ) ) {
 	mlab_t_seed_two();
 	$full = mlab_t_counts();
 	$wpdb->query( 'START TRANSACTION' );
