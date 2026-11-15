@@ -328,13 +328,12 @@ function mlab_smtp_render_fb_summary(): void {
 	if ( ! $enabled && ! $ready ) {
 		echo '<p class="mlab-muted">' . esc_html__( 'Zuerst eine Testmail über den Ersatzweg senden', 'mlab-smtp' ) . '</p>';
 	}
-	echo '<div class="mlab-foot"><a class="button button-link" href="' . esc_url( mlab_smtp_fallback_url( 6 ) ) . '">' . esc_html__( 'Zurück', 'mlab-smtp' ) . '</a>';
+	echo '<div class="mlab-foot"><a class="button button-link" href="' . esc_url( $enabled || $ready ? mlab_smtp_fallback_url( 6 ) : mlab_smtp_page_url( array( 'view' => 'settings' ) ) ) . '">' . esc_html( $enabled || $ready ? __( 'Zurück', 'mlab-smtp' ) : __( 'Zu den Einstellungen', 'mlab-smtp' ) ) . '</a>';
 	if ( $enabled ) {
 		echo '<a class="button button-primary" href="' . esc_url( mlab_smtp_page_url( array( 'view' => 'settings' ) ) ) . '">' . esc_html__( 'Fertig', 'mlab-smtp' ) . '</a>';
 	} elseif ( $ready ) {
 		echo '<button type="submit" name="do" value="activate" class="button button-primary">' . esc_html__( 'Ersatzweg aktivieren', 'mlab-smtp' ) . '</button>';
 	} else {
-		echo '<a class="button button-link" href="' . esc_url( mlab_smtp_page_url( array( 'view' => 'settings' ) ) ) . '">' . esc_html__( 'Zu den Einstellungen', 'mlab-smtp' ) . '</a>';
 		echo '<a class="button button-primary" href="' . esc_url( mlab_smtp_fallback_url( 6 ) ) . '">' . esc_html__( 'Testmail über den Ersatzweg senden', 'mlab-smtp' ) . '</a>';
 	}
 	echo '</div>';
