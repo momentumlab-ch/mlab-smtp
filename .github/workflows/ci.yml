@@ -7,6 +7,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -39,6 +40,7 @@ jobs:
 
   test-mysql:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -78,4 +80,11 @@ jobs:
         run: bash tests/env/setup.sh
 
       - name: Unit- und Integrationstests auf MySQL (inklusive mysql-claim.php)
+        timeout-minutes: 12
         run: bash bin/test.sh
+
+      - name: Diagnose bei Fehler (Prozesse, Verbindungen, Sperren)
+        if: failure()
+        run: |
+          ps -eo pid,etime,args | grep -E 'php|mysql' | grep -v grep | cut -c1-200 || true
+          mysql -h 127.0.0.1 -uroot -proot -e 'SHOW FULL PROCESSLIST; SELECT * FROM information_schema.innodb_trx\G' 2>&1 | cut -c1-300 | head -60 || true

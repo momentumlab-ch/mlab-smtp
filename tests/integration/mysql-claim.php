@@ -11,7 +11,7 @@ if ( $worker_role ) {
 	// Aufruf: worker <aufgabe> <schrankenordner> <nr> <parameter>. Meldet bereit, wartet auf "go", arbeitet, schreibt Ergebnis.
 	list( , , $task, $dir, $nr, $param ) = array_pad( $worker_role, 6, null );
 	touch( "$dir/ready-$nr" );
-	$deadline = microtime( true ) + 60;
+	$deadline = microtime( true ) + 25;
 	while ( ! is_file( "$dir/go" ) && microtime( true ) < $deadline ) {
 		usleep( 200 );
 	}
@@ -53,11 +53,18 @@ function mlab_t_run_workers( string $task, int $n, int $param ): array {
 	for ( $i = 0; $i < $n; $i++ ) {
 		$cmd = array( PHP_BINARY, '-d', 'memory_limit=512M', __FILE__, 'worker', $task, $dir, (string) $i, (string) $param );
 		$pipes = array();
-		$procs[ $i ] = proc_open( $cmd, array( 1 => array( 'pipe', 'w' ), 2 => array( 'pipe', 'w' ) ), $pipes, null, array_merge( $_ENV, array( 'MLAB_TEST_DB' => 'mysql' ) ) );
+		$procs[ $i ] = proc_open( $cmd, array( 1 => array( 'pipe', 'w' ), 2 => array( 'pipe', 'w' ) ), $pipes, null, array_merge( getenv(), array( 'MLAB_TEST_DB' => 'mysql' ) ) );
 		$procs[ $i ] = array( $procs[ $i ], $pipes );
 	}
-	$deadline = microtime( true ) + 60;
+	// Ends early when a worker has already exited without reporting ready (for example missing credentials):
+	// waiting the full time for a process that is gone would only turn an error into a long hang.
+	$deadline = microtime( true ) + 20;
 	while ( count( glob( "$dir/ready-*" ) ) < $n && microtime( true ) < $deadline ) {
+		foreach ( $procs as $i => list( $proc ) ) {
+			if ( ! proc_get_status( $proc )['running'] && ! is_file( "$dir/ready-$i" ) ) {
+				break 2;
+			}
+		}
 		usleep( 20000 );
 	}
 	touch( "$dir/go" );
